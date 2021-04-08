@@ -580,4 +580,230 @@ describe('AmfStoreService', () => {
       assert.typeOf(op.id, 'string', 'Operation has the id');
     });
   });
+
+  describe('createWebApi()', () => {
+    let store = /** @type AmfStoreService */ (null);
+
+    before(async () => {
+      store = new AmfStoreService();
+      await store.init();
+    });
+
+    after(() => {
+      store.worker.terminate();
+    });
+
+    beforeEach(async () => {
+      await store.createWebApi();
+    });
+
+    it('adds a new endpoint and returns its id', async () => {
+      const id = await store.addEndpoint({ path: '/test-1' });
+      assert.typeOf(id, 'string', 'returns the id of the created endpoint');
+      const endpoints = await store.listEndpoints();
+      assert.equal(endpoints[0].id, id, 'created an endpoint');
+    });
+
+    it('adds the name', async () => {
+      await store.addEndpoint({ path: '/test-2', name: 'test endpoint' });
+      const endpoints = await store.listEndpoints();
+      assert.equal(endpoints[0].name, 'test endpoint');
+    });
+
+    it('adds the description', async () => {
+      const id = await store.addEndpoint({ path: '/test-3', description: 'test desc', });
+      const endpoint = await store.getEndpoint(id);
+      assert.equal(endpoint.description, 'test desc');
+    });
+
+    it('adds the summary', async () => {
+      const id = await store.addEndpoint({ path: '/test-4', summary: 'test summary', });
+      const endpoint = await store.getEndpoint(id);
+      assert.equal(endpoint.summary, 'test summary');
+    });
+  });
+
+  describe('deleteEndpoint()', () => {
+    let demoStore = /** @type AmfStoreService */ (null);
+    let demoApi;
+
+    before(async () => {
+      demoApi = await AmfLoader.loadApi();
+      demoStore = new AmfStoreService();
+      await demoStore.init();
+      await demoStore.loadGraph(demoApi);
+    });
+
+    after(() => {
+      demoStore.worker.terminate();
+    });
+
+    it('removes an endpoint from the API', async () => {
+      const endpointsBefore = await demoStore.listEndpoints();
+      await demoStore.deleteEndpoint(endpointsBefore[0].id);
+      const endpointsAfter = await demoStore.listEndpoints();
+      assert.equal(endpointsAfter.length, endpointsBefore.length - 1);
+    });
+  });
+
+  describe('getEndpoint()', () => {
+    let demoStore = /** @type AmfStoreService */ (null);
+    let demoApi;
+
+    before(async () => {
+      demoApi = await AmfLoader.loadApi();
+      demoStore = new AmfStoreService();
+      await demoStore.init();
+      await demoStore.loadGraph(demoApi);
+    });
+
+    after(() => {
+      demoStore.worker.terminate();
+    });
+
+    it('reads endpoint by path', async () => {
+      const result = await demoStore.getEndpoint('/people/{personId}');
+      assert.typeOf(result, 'object');
+      assert.equal(result.path, '/people/{personId}');
+    });
+
+    it('reads endpoint by id', async () => {
+      const endpoints = await demoStore.listEndpoints();
+      const result = await demoStore.getEndpoint(endpoints[0].id);
+      assert.typeOf(result, 'object');
+      assert.equal(result.id, endpoints[0].id);
+    });
+
+    it('has endpoint properties', async () => {
+      const result = await demoStore.getEndpoint('/people/{personId}');
+      assert.typeOf(result.id, 'string', 'has the id');
+      assert.equal(result.path, '/people/{personId}', 'has the path');
+      assert.equal(result.relativePath, '/people/{personId}', 'has the relativePath');
+      assert.equal(result.description, 'The endpoint to access information about the person', 'has the description');
+      assert.equal(result.name, 'A person', 'has the name');
+      assert.lengthOf(result.parameters, 1, 'has the parameters');
+      assert.lengthOf(result.operations, 3, 'has the operations');
+    });
+  });
+
+  describe('updateEndpointProperty()', () => {
+    let store = /** @type AmfStoreService */ (null);
+    let id = /** @type string */ (null);
+
+    before(async () => {
+      store = new AmfStoreService();
+      await store.init();
+    });
+
+    after(() => {
+      store.worker.terminate();
+    });
+
+    beforeEach(async () => {
+      await store.createWebApi();
+      id = await store.addEndpoint({path: '/test'});
+    });
+
+    it('updates the name', async () => {
+      await store.updateEndpointProperty(id, 'name', 'a name');
+      const endpoint = await store.getEndpoint(id);
+      assert.equal(endpoint.name, 'a name');
+    });
+
+    it('updates the description', async () => {
+      await store.updateEndpointProperty(id, 'description', 'a description');
+      const endpoint = await store.getEndpoint(id);
+      assert.equal(endpoint.description, 'a description');
+    });
+
+    it('updates the summary', async () => {
+      await store.updateEndpointProperty(id, 'summary', 'a summary');
+      const endpoint = await store.getEndpoint(id);
+      assert.equal(endpoint.summary, 'a summary');
+    });
+
+    it('updates the path', async () => {
+      await store.updateEndpointProperty(id, 'path', '/updated-path');
+      const endpoint = await store.getEndpoint(id);
+      assert.equal(endpoint.path, '/updated-path');
+    });
+
+    it('throws for unknown properties', async () => {
+      let thrown = false;
+      try {
+        await store.updateEndpointProperty(id, 'other', 'value');
+      } catch (e) {
+        thrown = true;
+      }
+      assert.isTrue(thrown);
+    });
+  });
+
+  describe('addOperation()', () => {
+    let store = /** @type AmfStoreService */ (null);
+    let id = /** @type string */ (null);
+
+    before(async () => {
+      store = new AmfStoreService();
+      await store.init();
+    });
+
+    after(() => {
+      store.worker.terminate();
+    });
+
+    beforeEach(async () => {
+      await store.createWebApi();
+      id = await store.addEndpoint({path: '/test'});
+    });
+
+    it('adds the operation', async () => {
+      const opId = await store.addOperation(id, { method: 'get' });
+      assert.typeOf(opId, 'string');
+      const operation = await store.getOperation(opId);
+      assert.equal(operation.id, opId);
+    });
+
+    it('adds the name', async () => {
+      const opId = await store.addOperation(id, { method: 'get', name: 'test-name' });
+      const operation = await store.getOperation(opId);
+      assert.equal(operation.name, 'test-name');
+    });
+
+    it('adds the description', async () => {
+      const opId = await store.addOperation(id, { method: 'get', description: 'test-description' });
+      const operation = await store.getOperation(opId);
+      assert.equal(operation.description, 'test-description');
+    });
+
+    it('adds the summary', async () => {
+      const opId = await store.addOperation(id, { method: 'get', summary: 'test-summary' });
+      const operation = await store.getOperation(opId);
+      assert.equal(operation.summary, 'test-summary');
+    });
+
+    it('adds the deprecated', async () => {
+      const opId = await store.addOperation(id, { method: 'get', deprecated: true });
+      const operation = await store.getOperation(opId);
+      assert.isTrue(operation.deprecated);
+    });
+
+    it('adds the schemes[]', async () => {
+      const opId = await store.addOperation(id, { method: 'get', schemes: ['HTTP'] });
+      const operation = await store.getOperation(opId);
+      assert.deepEqual(operation.schemes, ['HTTP']);
+    });
+
+    it('adds the accepts[]', async () => {
+      const opId = await store.addOperation(id, { method: 'get', accepts: ['application/xml'] });
+      const operation = await store.getOperation(opId);
+      assert.deepEqual(operation.accepts, ['application/xml']);
+    });
+
+    it('adds the contentType[]', async () => {
+      const opId = await store.addOperation(id, { method: 'get', contentType: ['application/xml'] });
+      const operation = await store.getOperation(opId);
+      assert.deepEqual(operation.contentType, ['application/xml']);
+    });
+  });
 });

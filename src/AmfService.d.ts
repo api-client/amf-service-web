@@ -70,9 +70,8 @@ export declare class AmfService {
   /**
    * Removes endpoint from the API.
    * @param id The endpoint domain id.
-   * @returns The id of the removed endpoint or undefined if the endpoint is not in the graph.
    */
-  deleteEndpoint(id: string): Promise<string>;
+  deleteEndpoint(id: string): Promise<void>;
 
   /**
    * Reads the information about an endpoint and returns it.

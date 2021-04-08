@@ -164,10 +164,10 @@ export class AmfStoreProxy {
   /**
    * Removes endpoint from the API.
    * @param {string} id The endpoint domain id.
-   * @returns {Promise<string>} The id of the removed endpoint or undefined if the endpoint is not in the graph.
+   * @returns {Promise<void>}
    */
   async deleteEndpoint(id) {
-    return this[sendMessage]('deleteEndpoint', id);
+    await this[sendMessage]('deleteEndpoint', id);
   }
 
   /**
