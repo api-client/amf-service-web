@@ -163,6 +163,9 @@ export class AmfService {
     if (init.description) {
       srv.withDescription(init.description);
     }
+    if (Array.isArray(init.variables) && init.variables.length) {
+      init.variables.forEach(v => srv.withVariable(v));
+    }
     return srv.id;
   }
 

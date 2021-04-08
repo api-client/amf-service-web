@@ -67,6 +67,10 @@ export interface ApiInit {
 export interface ApiServerInit {
   url: string;
   description?: string;
+  /**
+   * The names of variables. This can only be used to create new (empty) variables.
+   */
+  variables?: string[];
 }
 
 export interface EndPointInit {

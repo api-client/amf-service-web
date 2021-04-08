@@ -3,6 +3,16 @@ title: API body demo
 version: v1
 baseUri: http://{instance}.domain.com/{version}/
 
+protocols: [HTTP, HTTPS]
+mediaType: [application/json, application/xml]
+
+description: |
+  This is a test API for testing AMF service.
+
+documentation:
+  - title: Headline
+    content: !include headline.md
+
 baseUriParameters:
   instance:
     description: |

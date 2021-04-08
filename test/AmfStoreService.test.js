@@ -4,6 +4,9 @@ import { AmfStoreService } from '../worker.index.js';
 import { workerValue, sendMessage } from '../src/AmfStoreProxy.js';
 import { optionsValue } from '../src/AmfStoreService.js';
 
+/** @typedef {import('..').ApiEndPointListItem} ApiEndPointListItem */
+/** @typedef {import('..').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
+
 describe('AmfStoreService', () => {
   describe('#worker', () => {
     let store = /** @type AmfStoreService */ (null);
@@ -240,22 +243,30 @@ describe('AmfStoreService', () => {
   });
 
   describe('getApi()', () => {
-    let store = /** @type AmfStoreService */ (null);
+    let demoStore = /** @type AmfStoreService */ (null);
+    let oasStore = /** @type AmfStoreService */ (null);
     let demoApi;
+    let oasApi;
 
     before(async () => {
-      store = new AmfStoreService();
-      await store.init();
       demoApi = await AmfLoader.loadApi();
+      demoStore = new AmfStoreService();
+      await demoStore.init();
+      await demoStore.loadGraph(demoApi);
+
+      oasApi = await AmfLoader.loadApi('oas-3-api.json');
+      oasStore = new AmfStoreService();
+      await oasStore.init();
+      await oasStore.loadGraph(oasApi);
     });
 
     after(() => {
-      store.worker.terminate();
+      demoStore.worker.terminate();
+      oasStore.worker.terminate();
     });
 
     it('has endPoints property', async () => {
-      await store.loadGraph(demoApi);
-      const api = await store.getApi();
+      const api = await demoStore.getApi();
       assert.typeOf(api.endPoints, 'array', 'has the endpoints');
       // I am lazy....
       assert.isAbove(api.endPoints.length, 5, 'has more than 5 endpoints');
@@ -263,8 +274,7 @@ describe('AmfStoreService', () => {
     });
 
     it('has servers property', async () => {
-      await store.loadGraph(demoApi);
-      const api = await store.getApi();
+      const api = await demoStore.getApi();
       assert.typeOf(api.servers, 'array', 'has the servers');
       // RAML has only one server
       assert.lengthOf(api.servers, 1, 'has the single server');
@@ -272,21 +282,302 @@ describe('AmfStoreService', () => {
     });
 
     it('has the name property', async () => {
-      await store.loadGraph(demoApi);
-      const api = await store.getApi();
+      const api = await demoStore.getApi();
       assert.equal(api.name, 'API body demo');
     });
 
     it('has the version property', async () => {
-      await store.loadGraph(demoApi);
-      const api = await store.getApi();
+      const api = await demoStore.getApi();
       assert.equal(api.version, 'v1');
     });
 
+    it('has the description property', async () => {
+      const api = await demoStore.getApi();
+      assert.typeOf(api.description, 'string');
+    });
+
     it('has the id property', async () => {
-      await store.loadGraph(demoApi);
-      const api = await store.getApi();
+      const api = await demoStore.getApi();
       assert.typeOf(api.id, 'string');
+    });
+
+    it('has the schemes property', async () => {
+      const api = await demoStore.getApi();
+      assert.deepEqual(api.schemes, ['HTTP', 'HTTPS']);
+    });
+
+    it('has the accepts property', async () => {
+      const api = await demoStore.getApi();
+      assert.deepEqual(api.accepts, ['application/json', 'application/xml']);
+    });
+
+    it('has the contentType property', async () => {
+      const api = await demoStore.getApi();
+      assert.deepEqual(api.contentType, ['application/json', 'application/xml']);
+    });
+
+    it('has the documentations property', async () => {
+      const api = await demoStore.getApi();
+      assert.typeOf(api.documentations, 'array', 'has the documentations');
+      // RAML has only one server
+      assert.lengthOf(api.documentations, 1, 'has the single documentation');
+      assert.typeOf(api.documentations[0], 'string', 'has the documentation id');
+    });
+
+    it('has multiple servers for OAS', async () => {
+      const api = await oasStore.getApi();
+      assert.typeOf(api.servers, 'array', 'has the servers');
+      assert.lengthOf(api.servers, 4, 'has all the servers');
+      assert.typeOf(api.servers[0], 'string', 'has the server id');
+    });
+
+    it('has the termsOfService property', async () => {
+      const api = await oasStore.getApi();
+      assert.equal(api.termsOfService, 'http://example.com/terms/');
+    });
+
+    it('has the provider property', async () => {
+      const api = await oasStore.getApi();
+      assert.typeOf(api.provider, 'string', 'has the property');
+      assert.include(api.provider, 'amf://id', 'has the value');
+    });
+
+    it('has the license property', async () => {
+      const api = await oasStore.getApi();
+      assert.typeOf(api.license, 'string', 'has the property');
+      assert.include(api.license, 'amf://id', 'has the value');
+    });
+  });
+
+  describe('listServers()', () => {
+    let demoStore = /** @type AmfStoreService */ (null);
+    let oasStore = /** @type AmfStoreService */ (null);
+    let demoApi;
+    let oasApi;
+
+    before(async () => {
+      demoApi = await AmfLoader.loadApi();
+      demoStore = new AmfStoreService();
+      await demoStore.init();
+      await demoStore.loadGraph(demoApi);
+
+      oasApi = await AmfLoader.loadApi('oas-3-api.json');
+      oasStore = new AmfStoreService();
+      await oasStore.init();
+      await oasStore.loadGraph(oasApi);
+    });
+
+    after(() => {
+      demoStore.worker.terminate();
+      oasStore.worker.terminate();
+    });
+
+    it('returns a single server for RAML', async () => {
+      const result = await demoStore.listServers();
+      assert.typeOf(result, 'array', 'returns an array');
+      assert.lengthOf(result, 1, 'has a single server');
+    });
+
+    it('has server properties (RAML)', async () => {
+      const result = await demoStore.listServers();
+      const [src] = result;
+      assert.typeOf(src.id, 'string', 'has the id');
+      assert.equal(src.url, 'http://{instance}.domain.com/{version}/', 'has the url');
+      assert.typeOf(src.variables, 'array', 'has the variables');
+      assert.lengthOf(src.variables, 2, 'has listed variables');
+      assert.include(src.variables[0], 'amf://', 'a variable is a link');
+    });
+
+    it('returns servers for OAS', async () => {
+      const result = await oasStore.listServers();
+      assert.typeOf(result, 'array', 'returns an array');
+      assert.lengthOf(result, 4, 'has 4 servers');
+    });
+
+    it('has server properties (OAS)', async () => {
+      const result = await oasStore.listServers();
+      const src = result[3];
+      assert.typeOf(src.id, 'string', 'has the id');
+      assert.equal(src.url, 'https://{username}.gigantic-server.com:{port}/{basePath}', 'has the url');
+      assert.typeOf(src.variables, 'array', 'has the variables');
+      assert.lengthOf(src.variables, 3, 'has listed variables');
+      assert.include(src.variables[0], 'amf://', 'a variable is a link');
+      assert.equal(src.description, 'The production API server', 'has the description');
+    });
+  });
+
+  describe('addServer()', () => {
+    let store = /** @type AmfStoreService */ (null);
+
+    before(async () => {
+      store = new AmfStoreService();
+      await store.init();
+    });
+
+    after(() => {
+      store.worker.terminate();
+    });
+
+    beforeEach(async () => {
+      await store.createWebApi();
+    });
+
+    it('adds a server to the API', async () => {
+      const id = await store.addServer({ url: 'https://test.com' });
+      assert.typeOf(id, 'string', 'returns created id');
+      const [server] = await store.listServers();
+      assert.typeOf(server, 'object', 'has the server');
+      assert.equal(server.url, 'https://test.com', 'has the passed url');
+      assert.deepEqual(server.variables, [], 'has no variables');
+    });
+
+    it('sets a description', async () => {
+      await store.addServer({ url: 'https://test.com', description: 'test-desc' });
+      const [server] = await store.listServers();
+      assert.equal(server.description, 'test-desc');
+    });
+
+    it('adds new variables to the server', async () => {
+      await store.addServer({ url: 'https://test.com/{path}/{other}', variables: ['path', 'other'] });
+      const [server] = await store.listServers();
+      assert.lengthOf(server.variables, 2, 'has created variables');
+    });
+  });
+
+  describe('getServer()', () => {
+    let oasStore = /** @type AmfStoreService */ (null);
+    let oasApi;
+    let ids = /** @type string[] */ (null);
+
+    before(async () => {
+      oasApi = await AmfLoader.loadApi('oas-3-api.json');
+      oasStore = new AmfStoreService();
+      await oasStore.init();
+      await oasStore.loadGraph(oasApi);
+      const servers = await oasStore.listServers();
+      ids = servers.map((s) => s.id);
+    });
+
+    after(() => {
+      oasStore.worker.terminate();
+    });
+
+    it('returns the server', async () => {
+      const srv = await oasStore.getServer(ids[3]);
+      assert.typeOf(srv, 'object');
+    });
+
+    it('the server has the id', async () => {
+      const srv = await oasStore.getServer(ids[3]);
+      assert.typeOf(srv.id, 'string');
+    });
+
+    it('the server has the url', async () => {
+      const srv = await oasStore.getServer(ids[3]);
+      assert.equal(srv.url, 'https://{username}.gigantic-server.com:{port}/{basePath}');
+    });
+
+    it('the server has the description', async () => {
+      const srv = await oasStore.getServer(ids[3]);
+      assert.equal(srv.description, 'The production API server');
+    });
+
+    it('the server has the variables', async () => {
+      const srv = await oasStore.getServer(ids[3]);
+      assert.typeOf(srv.variables, 'array', 'is the array');
+      assert.lengthOf(srv.variables, 3, 'has all variables');
+    });
+  });
+
+  describe('listEndpoints()', () => {
+    let demoStore = /** @type AmfStoreService */ (null);
+    let demoApi;
+    let endpoints = /** @type ApiEndPointListItem[] */ (null);
+
+    before(async () => {
+      demoApi = await AmfLoader.loadApi();
+      demoStore = new AmfStoreService();
+      await demoStore.init();
+      await demoStore.loadGraph(demoApi);
+      endpoints = await demoStore.listEndpoints();
+    });
+
+    after(() => {
+      demoStore.worker.terminate();
+    });
+
+    it('returns an array of endpoints', async () => {
+      assert.typeOf(endpoints, 'array');
+    });
+
+    it('has the id', async () => {
+      const [endpoint] = endpoints;
+      assert.typeOf(endpoint.id, 'string');
+      assert.include(endpoint.id, 'amf://');
+    });
+
+    it('has the path', async () => {
+      const [endpoint] = endpoints;
+      // whatever is first in the API spec
+      assert.equal(endpoint.path, '/test-parameters/{feature}');
+    });
+
+    it('has the name', async () => {
+      // whichever has the name
+      const endpoint = endpoints[2];
+      assert.equal(endpoint.name, 'People');
+    });
+  });
+
+  describe('listEndpointsWithOperations()', () => {
+    let demoStore = /** @type AmfStoreService */ (null);
+    let demoApi;
+    let endpoints = /** @type ApiEndPointWithOperationsListItem[] */ (null);
+
+    before(async () => {
+      demoApi = await AmfLoader.loadApi();
+      demoStore = new AmfStoreService();
+      await demoStore.init();
+      await demoStore.loadGraph(demoApi);
+      endpoints = await demoStore.listEndpointsWithOperations();
+    });
+
+    after(() => {
+      demoStore.worker.terminate();
+    });
+
+    it('returns an array of endpoints', async () => {
+      assert.typeOf(endpoints, 'array');
+    });
+
+    it('has the id', async () => {
+      const [endpoint] = endpoints;
+      assert.typeOf(endpoint.id, 'string');
+      assert.include(endpoint.id, 'amf://');
+    });
+
+    it('has the path', async () => {
+      const [endpoint] = endpoints;
+      // whatever is first in the API spec
+      assert.equal(endpoint.path, '/test-parameters/{feature}');
+    });
+
+    it('has the name', async () => {
+      // whichever has the name
+      const endpoint = endpoints[2];
+      assert.equal(endpoint.name, 'People');
+    });
+
+    it('has the operations', async () => {
+      const endpoint = endpoints[2];
+      // this endpoint has 3 operations. When the spec change update this test.
+      const { operations } = endpoint;
+      assert.typeOf(operations, 'array', 'has operations');
+      assert.lengthOf(operations, 3, 'has all operations');
+      const [op] = operations;
+      assert.equal(op.method, 'get', 'operation has method');
+      assert.equal(op.name, 'List people', 'Operation has the name');
+      assert.typeOf(op.id, 'string', 'Operation has the id');
     });
   });
 });
