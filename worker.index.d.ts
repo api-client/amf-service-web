@@ -2,3 +2,4 @@ export { AmfStoreProxy, responseHandler, processResponse, createWorker, workerVa
 export { AmfStoreService } from './src/AmfStoreService';
 export { ApiSorting } from './src/ApiSorting';
 export { EndpointsTree } from './src/EndpointsTree';
+export * from './src/types';

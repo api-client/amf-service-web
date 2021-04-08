@@ -48,7 +48,7 @@
     "lint:types": "tsc",
     "lint": "npm run lint:eslint",
     "format": "npm run format:eslint",
-    "test": "web-test-runner test/**/*.test.js --coverage --node-resolve --playwright --browsers chromium firefox webkit",
+    "test": "web-test-runner test/**/*.test.js --coverage --node-resolve --playwright --browsers chromium webkit",
     "test:watch": "web-test-runner test/**/*.test.js --node-resolve --watch --playwright --browsers chromium",
     "prepare:amf": "browserify tasks/amf-compiler.js | uglifyjs > amf-bundle.js",
     "prepare:amf-dev": "browserify tasks/amf-compiler.js -o  amf-bundle.js",

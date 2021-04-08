@@ -49,7 +49,7 @@ export declare class AmfStoreProxy {
   /**
    * Creates new Document in the graph.
    * @param init Api init options
-   * @returns The domain id of the created document
+   * @returns The domain id of the created WebAPI
    */
    createWebApi(init?: ApiInit): Promise<string>;
    

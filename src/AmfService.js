@@ -69,7 +69,7 @@ export class AmfService {
   /**
    * Creates new Document in the graph.
    * @param {ApiInit=} init Api init options
-   * @returns {Promise<string>} The domain id of the created document
+   * @returns {Promise<string>} The domain id of the created WebAPI
    */
   async createWebApi(init) {
     const opts = init || {};
@@ -100,7 +100,7 @@ export class AmfService {
     if (Array.isArray(opts.contentType) && opts.contentType.length) {
       wa.withContentType(opts.contentType);
     }
-    return this.graph.id;
+    return wa.id;
   }
 
   /**

@@ -50,7 +50,7 @@ export class AmfStoreService extends AmfStoreProxy {
     /**
      * @type {AmfWorkerStoreInit}
      */
-    this[optionsValue] = opts;
+    this[optionsValue] = Object.freeze(opts);
     /**
      * @type {Worker}
      */
@@ -63,7 +63,7 @@ export class AmfStoreService extends AmfStoreProxy {
    * @return {Promise<void>}
    */
   async init() {
-    return this[sendMessage]('init', this.options.amfLocation);
+    await this[sendMessage]('init', this.options.amfLocation);
   }
 
   /**

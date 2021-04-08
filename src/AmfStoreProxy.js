@@ -97,7 +97,7 @@ export class AmfStoreProxy {
   /**
    * Creates new Document in the graph.
    * @param {ApiInit=} init Api init options
-   * @returns {Promise<string>} The domain id of the created document
+   * @returns {Promise<string>} The domain id of the created WebAPI
    */
   async createWebApi(init) {
     return this[sendMessage]('createWebApi', init);
