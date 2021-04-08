@@ -2,9 +2,9 @@
 
 > This is a work in progress.
 
-[![Published on NPM](https://img.shields.io/npm/v/@api-client/amf-service-web.svg)](https://www.npmjs.com/package/@api-client/amf-service-web)
+[![Published on NPM](https://img.shields.io/npm/v/@api-client/amf-store.svg)](https://www.npmjs.com/package/@api-client/amf-store)
 
-[![Tests and publishing](https://github.com/api-client/amf-service-web/actions/workflows/deployment.yml/badge.svg)](https://github.com/api-client/amf-service-web/actions/workflows/deployment.yml)
+[![Tests and publishing](https://github.com/api-client/amf-store/actions/workflows/deployment.yml/badge.svg)](https://github.com/api-client/amf-store/actions/workflows/deployment.yml)
 
 The AMF service for web provides an access to the graph model generated from an API specification and parsed by the AMF parser.
 This service allows to read and manipulate API meta data. Can be used to render API documentation or to create / edit existing APIs.
@@ -29,7 +29,7 @@ Be aware: this is a work in progress. Everything at this point is a subject to c
 ### Installation
 
 ```sh
-npm install --save @api-client/amf-service-web
+npm install --save @api-client/amf-store
 ```
 
 ### Using the store in a web browser
@@ -39,10 +39,10 @@ To use the store directly in a web browser use the `AmfStoreService` class. The 
 By default the web worker location is expected to be in the `workers/AmfWorker.js` relative to the library location. You can set any the location by setting the `workerLocation` on the init object.
 
 ```javascript
-import { AmfStoreService } from '@api-client/amf-service-web';
+import { AmfStoreService } from '@api-client/amf-store';
 
 const store = new AmfStoreService(window, {
-  workerLocation: './node_modules/@api-client/amf-service-web/workers/AmfWorker.js',
+  workerLocation: './node_modules/@api-client/amf-store/workers/AmfWorker.js',
 });
 ```
 
@@ -51,11 +51,11 @@ Mind that the worker imports scripts from the main library so it also requires b
 Alternatively, you can set the `createWebWorker` property on the init object to manually create the worker instance.
 
 ```javascript
-import { AmfStoreService } from '@api-client/amf-service-web';
+import { AmfStoreService } from '@api-client/amf-store';
 
 const store = new AmfStoreService(window, {
   createWebWorker: () => {
-    return new Worker('./node_modules/@api-client/amf-service-web/workers/AmfWorker.js', {
+    return new Worker('./node_modules/@api-client/amf-store/workers/AmfWorker.js', {
       type: 'module',
     });
   },
@@ -65,7 +65,7 @@ const store = new AmfStoreService(window, {
 Finally, the worker imports the AMF bundle located in the root of this library. By default it expects the library to be located at `/amf-bundle.js`, which is the root of your web server. You can set a custom location by setting the `amfLocation` property on the init object.
 
 ```javascript
-import { AmfStoreService } from '@api-client/amf-service-web';
+import { AmfStoreService } from '@api-client/amf-store';
 
 const store = new AmfStoreService(window, {
   amfLocation: '/static/amf-bundle.js',
@@ -75,8 +75,8 @@ const store = new AmfStoreService(window, {
 ## Development
 
 ```sh
-git clone https://github.com/@api-client/amf-service-web
-cd amf-service-web
+git clone https://github.com/@api-client/amf-store
+cd amf-store
 npm install
 ```
 
