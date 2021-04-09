@@ -1,0 +1,33 @@
+{
+  "cSpell.words": [
+    "apistoreapiaddserver",
+    "apistoreapicreatewebapi",
+    "apistoreapigenerategraph",
+    "apistoreapigenerateraml",
+    "apistoreapigetapi",
+    "apistoreapigetserver",
+    "apistoreapilistservers",
+    "apistoredocslist",
+    "apistoreendpointadd",
+    "apistoreendpointdelete",
+    "apistoreendpointget",
+    "apistoreendpointlist",
+    "apistoreendpointlistwithops",
+    "apistoreendpointoperations",
+    "apistoreendpointupdate",
+    "apistoreexampleget",
+    "apistoreinit",
+    "apistoreloadgraph",
+    "apistoreopadd",
+    "apistoreopaddrequest",
+    "apistoreopaddresponse",
+    "apistoreopdelete",
+    "apistoreopget",
+    "apistoreopupdate",
+    "apistoreparamget",
+    "apistorepayloadget",
+    "apistorerequestget",
+    "apistoreresponseget",
+    "apistoresecuritylist"
+  ]
+}

@@ -67,6 +67,10 @@ export interface ApiInit {
 export interface ApiServerInit {
   url: string;
   description?: string;
+  /**
+   * The names of variables. This can only be used to create new (empty) variables.
+   */
+  variables?: string[];
 }
 
 export interface EndPointInit {
@@ -91,6 +95,20 @@ export interface OperationInit {
 export interface OperationRequestInit {
   description?: string;
   required?: boolean;
+}
+
+export interface OperationResponseInit {
+  name: string;
+  description?: string;
+  statusCode?: string;
+  /**
+   * List of header names (parameter names) to create
+   */
+  headers?: string[];
+  /**
+   * List of mediaTypes of the payloads to create.
+   */
+  payloads: string[];
 }
 
 export interface ApiEndPointListItem {

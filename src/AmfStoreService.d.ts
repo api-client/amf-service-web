@@ -48,5 +48,5 @@ export declare class AmfStoreService extends AmfStoreProxy {
    * @param type The type of the message
    * @param args A list of optional arguments.
    */
-  [sendMessage](type: string, ...args: any): Promise<unknown>;
+  [sendMessage](type: string, ...args: any): Promise<any>;
 }

@@ -1,4 +1,4 @@
-import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi } from './types';
+import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit } from './types';
 
 export declare const workerValue: unique symbol;
 export declare const nextIdValue: unique symbol;
@@ -49,7 +49,7 @@ export declare class AmfStoreProxy {
   /**
    * Creates new Document in the graph.
    * @param init Api init options
-   * @returns The domain id of the created document
+   * @returns The domain id of the created WebAPI
    */
    createWebApi(init?: ApiInit): Promise<string>;
    
@@ -95,9 +95,8 @@ export declare class AmfStoreProxy {
    /**
     * Removes endpoint from the API.
     * @param id The endpoint domain id.
-    * @returns The id of the removed endpoint or undefined if the endpoint is not in the graph.
     */
-   deleteEndpoint(id: string): Promise<string>;
+   deleteEndpoint(id: string): Promise<void>;
  
    /**
     * Reads the information about an endpoint and returns it.
@@ -155,6 +154,12 @@ export declare class AmfStoreProxy {
     * @returns The domain id of the created request
     */
    addRequest(operationId: string, init?: OperationRequestInit): Promise<string>;
+   /**
+    * @param operationId The operation domain id
+    * @param init The response init options.
+    * @returns The domain id of the created response
+    */
+   addResponse(operationId: string, init?: OperationResponseInit): Promise<string>;
  
    /**
     * Reads the info about a parameter.

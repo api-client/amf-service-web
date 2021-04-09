@@ -10,7 +10,8 @@ import {
   errorHandler,
   readWorkerUrl,
   processResponse,
-} from "./AmfStoreProxy.js";
+} from './AmfStoreProxy.js';
+import { AmfStoreDomEventsMixin } from './mixins/AmfStoreDomEventsMixin.js';
 
 /** @typedef {import('./types').WorkerMessage} WorkerMessage */
 /** @typedef {import('./types').WorkerResponse} WorkerResponse */
@@ -21,9 +22,9 @@ import {
 /** @typedef {import('amf-client-js').model.domain.EndPoint} EndPoint */
 /** @typedef {import('amf-client-js').model.domain.Operation} Operation */
 
-export const optionsValue = Symbol("options");
+export const optionsValue = Symbol('options');
 
-export class AmfStoreService extends AmfStoreProxy {
+export class AmfStoreService extends AmfStoreDomEventsMixin(AmfStoreProxy) {
   /**
    * @type {Worker}
    */
@@ -50,7 +51,7 @@ export class AmfStoreService extends AmfStoreProxy {
     /**
      * @type {AmfWorkerStoreInit}
      */
-    this[optionsValue] = opts;
+    this[optionsValue] = Object.freeze(opts);
     /**
      * @type {Worker}
      */
@@ -63,7 +64,7 @@ export class AmfStoreService extends AmfStoreProxy {
    * @return {Promise<void>}
    */
   async init() {
-    return this[sendMessage]('init', this.options.amfLocation);
+    await this[sendMessage]('init', this.options.amfLocation);
   }
 
   /**

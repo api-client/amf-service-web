@@ -7,6 +7,7 @@
 /** @typedef {import('./types').EndPointInit} EndPointInit */
 /** @typedef {import('./types').OperationInit} OperationInit */
 /** @typedef {import('./types').OperationRequestInit} OperationRequestInit */
+/** @typedef {import('./types').OperationResponseInit} OperationResponseInit */
 /** @typedef {import('./types').ApiEndPoint} ApiEndPoint */
 /** @typedef {import('./types').ApiEndPointListItem} ApiEndPointListItem */
 /** @typedef {import('./types').ApiOperation} ApiOperation */
@@ -97,7 +98,7 @@ export class AmfStoreProxy {
   /**
    * Creates new Document in the graph.
    * @param {ApiInit=} init Api init options
-   * @returns {Promise<string>} The domain id of the created document
+   * @returns {Promise<string>} The domain id of the created WebAPI
    */
   async createWebApi(init) {
     return this[sendMessage]('createWebApi', init);
@@ -164,10 +165,10 @@ export class AmfStoreProxy {
   /**
    * Removes endpoint from the API.
    * @param {string} id The endpoint domain id.
-   * @returns {Promise<string>} The id of the removed endpoint or undefined if the endpoint is not in the graph.
+   * @returns {Promise<void>}
    */
   async deleteEndpoint(id) {
-    return this[sendMessage]('deleteEndpoint', id);
+    await this[sendMessage]('deleteEndpoint', id);
   }
 
   /**
@@ -244,6 +245,15 @@ export class AmfStoreProxy {
    */
   async addRequest(operationId, init) {
     return this[sendMessage]('addRequest', operationId, init);
+  }
+
+  /**
+   * @param {string} operationId The operation domain id
+   * @param {OperationResponseInit} init The response init options.
+   * @returns {Promise<string>} The domain id of the created response
+   */
+  async addResponse(operationId, init) {
+    return this[sendMessage]('addResponse', operationId, init);
   }
 
   /**

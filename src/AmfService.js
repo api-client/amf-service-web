@@ -4,6 +4,8 @@
 
 import { ApiSerializer } from './ApiSerializer.js';
 
+// Example https://github.com/aml-org/amf-examples/blob/snapshot/src/test/java/co/acme/model/WebApiBuilder.java
+
 /** @typedef {import('amf-client-js').model.document.Document} Document */
 /** @typedef {import('amf-client-js').model.domain.WebApi} WebApi */
 /** @typedef {import('amf-client-js').model.domain.EndPoint} EndPoint */
@@ -47,6 +49,7 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('./types').ApiNodeShapeListItem} ApiNodeShapeListItem */
 /** @typedef {import('./types').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
 /** @typedef {import('./types').SerializedApi} SerializedApi */
+/** @typedef {import('./types').OperationResponseInit} OperationResponseInit */
 
 export class AmfService {
   constructor() {
@@ -69,7 +72,7 @@ export class AmfService {
   /**
    * Creates new Document in the graph.
    * @param {ApiInit=} init Api init options
-   * @returns {Promise<string>} The domain id of the created document
+   * @returns {Promise<string>} The domain id of the created WebAPI
    */
   async createWebApi(init) {
     const opts = init || {};
@@ -100,7 +103,7 @@ export class AmfService {
     if (Array.isArray(opts.contentType) && opts.contentType.length) {
       wa.withContentType(opts.contentType);
     }
-    return this.graph.id;
+    return wa.id;
   }
 
   /**
@@ -109,6 +112,32 @@ export class AmfService {
    */
   webApi() {
     return /** @type WebApi */ (this.graph.encodes);
+  }
+
+  /**
+   * Generates RAML api from the current graph.
+   * @returns {Promise<string>} RAML value for the API.
+   */
+  async generateRaml() {
+    // @ts-ignore
+    const generator = /** @type Renderer */ (amf.Core.generator('RAML 1.0', 'application/yaml'));
+    // @ts-ignore
+    const opts = amf.render.RenderOptions().withSourceMaps.withCompactUris;
+    // @ts-ignore
+    return generator.generateString(this.graph, opts);
+  }
+
+  /**
+   * Generates json+ld from the current graph.
+   * @returns {Promise<string>} JSON+ld value of the API.
+   */
+  async generateGraph() {
+    // @ts-ignore
+    const generator = /** @type Renderer */ (amf.Core.generator('AMF Graph', 'application/ld+json'));
+    // @ts-ignore
+    const opts = amf.render.RenderOptions().withSourceMaps.withCompactUris;
+    // @ts-ignore
+    return generator.generateString(this.graph, opts);
   }
   
   /**
@@ -163,6 +192,9 @@ export class AmfService {
     if (init.description) {
       srv.withDescription(init.description);
     }
+    if (Array.isArray(init.variables) && init.variables.length) {
+      init.variables.forEach(v => srv.withVariable(v));
+    }
     return srv.id;
   }
 
@@ -199,9 +231,9 @@ export class AmfService {
   }
 
   /**
-   * Adds a new endpoint to the API and returns it.
+   * Adds a new endpoint to the API and returns generated id for the endpoint.
    * @param {EndPointInit} init EndPoint init parameters
-   * @returns {Promise<string>}
+   * @returns {Promise<string>} The generated id for the endpoint.
    */
   async addEndpoint(init) {
     if (!init.path) {
@@ -219,10 +251,6 @@ export class AmfService {
       endpoint.withSummary(init.summary);
     }
     return endpoint.id;
-    // // @ts-ignore
-    // const endPoint = /** @type EndPoint */ (amf.model.domain.EndPoint());
-    // api.endPoints.push(endPoint);
-    // return endPoint;
   }
 
   /**
@@ -231,7 +259,6 @@ export class AmfService {
    * @returns {EndPoint|undefined}
    */
   findEndpoint(pathOrId) {
-    // this.graph.findById(pathOrId)
     const api = this.webApi();
     return api.endPoints.find((ep) => ep.id === pathOrId || (ep.path && ep.path.value()) === pathOrId);
   }
@@ -239,15 +266,12 @@ export class AmfService {
   /**
    * Removes endpoint from the API.
    * @param {string} id The endpoint domain id.
-   * @returns {Promise<string>} The id of the removed endpoint or undefined if the endpoint is not in the graph.
+   * @returns {Promise<void>}
    */
   async deleteEndpoint(id) {
-    const endpoint = this.findEndpoint(id);
-    if (!endpoint) {
-      return undefined;
-    }
-    endpoint.graph().remove(endpoint.id);
-    return endpoint.id;
+    const api = this.webApi();
+    const remaining = api.endPoints.filter(item => item.id !== id);
+    api.withEndPoints(remaining);
   }
 
   /**
@@ -265,7 +289,7 @@ export class AmfService {
 
   /**
    * Updates a scalar property of an endpoint.
-   * @param {string} id The domain id of the operation.
+   * @param {string} id The domain id of the endpoint.
    * @param {string} property The property name to update
    * @param {any} value The new value to set.
    */
@@ -320,10 +344,6 @@ export class AmfService {
       operation.withContentType(init.contentType);
     }
     return operation.id;
-    // // @ts-ignore
-    // const operation = /** @type Operation */ (amf.model.domain.Operation());
-    // ep.operations.push(operation);
-    // return operation;
   }
 
   /**
@@ -427,19 +447,43 @@ export class AmfService {
    */
   async addRequest(operationId, init) {
     const opts = init || {};
-    // @ts-ignore
-    const model = /** @type Request */ (amf.model.domain.Request());
+    const op = /** @type Operation */ (this.graph.findById(operationId));
+    if (!op) {
+      throw new Error(`No operation for given id ${operationId}`);
+    }
+    const model = /** @type Request */ (op.withRequest());
     if (opts.description) {
       model.withDescription(opts.description);
     }
     if (typeof opts.required === 'boolean') {
       model.withRequired(opts.required);
     }
+    return model.id;
+  }
+
+  /**
+   * @param {string} operationId The operation domain id
+   * @param {OperationResponseInit} init The response init options.
+   * @returns {Promise<string>} The domain id of the created response
+   */
+  async addResponse(operationId, init) {
     const op = /** @type Operation */ (this.graph.findById(operationId));
     if (!op) {
       throw new Error(`No operation for given id ${operationId}`);
     }
-    op.withRequest(model);
+    const model = op.withResponse(init.name);
+    if (init.statusCode) {
+      model.withStatusCode(init.statusCode);
+    }
+    if (init.description) {
+      model.withDescription(init.description);
+    }
+    if (Array.isArray(init.headers) && init.headers.length) {
+      init.headers.forEach((h) => model.withHeader(h));
+    }
+    if (Array.isArray(init.payloads) && init.payloads.length) {
+      init.payloads.forEach((p) => model.withPayload(p));
+    }
     return model.id;
   }
 
