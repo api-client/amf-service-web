@@ -1,10 +1,13 @@
 import { StoreEventDetailVoid } from './BaseEvents.js';
-import { EventTypes } from './EventTypes.js';
+
+declare interface ApiStoreLoadGraphEventDetail extends StoreEventDetailVoid {
+  model: string;
+}
 
 /**
  * Dispatched to load a graph model into the store.
  */
-export class ApiStoreLoadGraphEvent extends CustomEvent<StoreEventDetailVoid> {
+export class ApiStoreLoadGraphEvent extends CustomEvent<ApiStoreLoadGraphEventDetail> {
   /**
    * @param model The model to load.
    */

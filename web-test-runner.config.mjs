@@ -7,5 +7,5 @@ export default /** @type TestRunnerConfig */ ({
       timeout: 10000,
     },
   },
-  testsFinishTimeout: 180000,
+  testsFinishTimeout: 240000,
 })

@@ -93,5 +93,9 @@
     "*.js": [
       "eslint --fix"
     ]
+  },
+  "dependencies": {
+    "@advanced-rest-client/events-target-mixin": "^3.2.3",
+    "@open-wc/dedupe-mixin": "^1.3.0"
   }
 }
