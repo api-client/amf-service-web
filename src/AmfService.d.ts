@@ -1,5 +1,5 @@
 import { model } from 'amf-client-js';
-import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi } from './types';
+import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit } from './types';
 
 export declare class AmfService {
   graph?: model.document.Document;
@@ -135,6 +135,13 @@ export declare class AmfService {
    * @returns The domain id of the created request
    */
   addRequest(operationId: string, init?: OperationRequestInit): Promise<string>;
+
+  /**
+   * @param operationId The operation domain id
+   * @param init The response init options.
+   * @returns The domain id of the created response
+   */
+  addResponse(operationId: string, init?: OperationResponseInit): Promise<string>;
 
   /**
    * Reads the info about a parameter.

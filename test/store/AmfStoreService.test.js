@@ -1,11 +1,11 @@
 import { assert } from '@open-wc/testing';
-import { AmfLoader } from './AmfLoader.js';
-import { AmfStoreService } from '../worker.index.js';
-import { workerValue, sendMessage } from '../src/AmfStoreProxy.js';
-import { optionsValue } from '../src/AmfStoreService.js';
+import { AmfLoader } from '../helpers/AmfLoader.js';
+import { AmfStoreService } from '../../worker.index.js';
+import { workerValue, sendMessage } from '../../src/AmfStoreProxy.js';
+import { optionsValue } from '../../src/AmfStoreService.js';
 
-/** @typedef {import('..').ApiEndPointListItem} ApiEndPointListItem */
-/** @typedef {import('..').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
+/** @typedef {import('../../').ApiEndPointListItem} ApiEndPointListItem */
+/** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
 
 describe('AmfStoreService', () => {
   describe('#worker', () => {
@@ -81,7 +81,7 @@ describe('AmfStoreService', () => {
       store = new AmfStoreService(window, {
         createWebWorker: () => {
           called = true;
-          return new Worker('./test/MockWorker.js');
+          return new Worker('./test/store/MockWorker.js');
         }
       });
       await store.init();
@@ -89,7 +89,7 @@ describe('AmfStoreService', () => {
     });
 
     it('uses the #workerLocation init option', async () => {
-      store = new AmfStoreService(window, { workerLocation: './test/MockWorker.js' });
+      store = new AmfStoreService(window, { workerLocation: './test/store/MockWorker.js' });
       const result = await store[sendMessage]('test-command', 'a', 'b', 'c');
       assert.equal(result.type, 'test-command');
       assert.deepEqual(result.arguments, [ 'a', 'b', 'c' ]);
@@ -99,7 +99,7 @@ describe('AmfStoreService', () => {
       // @ts-ignore
       window.AmfService = {
         workers: {
-          workerStore: './test/MockWorker.js',
+          workerStore: './test/store/MockWorker.js',
         },
       };
       store = new AmfStoreService();

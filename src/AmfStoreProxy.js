@@ -7,6 +7,7 @@
 /** @typedef {import('./types').EndPointInit} EndPointInit */
 /** @typedef {import('./types').OperationInit} OperationInit */
 /** @typedef {import('./types').OperationRequestInit} OperationRequestInit */
+/** @typedef {import('./types').OperationResponseInit} OperationResponseInit */
 /** @typedef {import('./types').ApiEndPoint} ApiEndPoint */
 /** @typedef {import('./types').ApiEndPointListItem} ApiEndPointListItem */
 /** @typedef {import('./types').ApiOperation} ApiOperation */
@@ -244,6 +245,15 @@ export class AmfStoreProxy {
    */
   async addRequest(operationId, init) {
     return this[sendMessage]('addRequest', operationId, init);
+  }
+
+  /**
+   * @param {string} operationId The operation domain id
+   * @param {OperationResponseInit} init The response init options.
+   * @returns {Promise<string>} The domain id of the created response
+   */
+  async addResponse(operationId, init) {
+    return this[sendMessage]('addResponse', operationId, init);
   }
 
   /**

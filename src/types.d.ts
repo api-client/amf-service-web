@@ -97,6 +97,20 @@ export interface OperationRequestInit {
   required?: boolean;
 }
 
+export interface OperationResponseInit {
+  name: string;
+  description?: string;
+  statusCode?: string;
+  /**
+   * List of header names (parameter names) to create
+   */
+  headers?: string[];
+  /**
+   * List of mediaTypes of the payloads to create.
+   */
+  payloads: string[];
+}
+
 export interface ApiEndPointListItem {
   /**
    * The domain id of the endpoint.

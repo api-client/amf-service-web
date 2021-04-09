@@ -47,6 +47,7 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('./types').ApiNodeShapeListItem} ApiNodeShapeListItem */
 /** @typedef {import('./types').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
 /** @typedef {import('./types').SerializedApi} SerializedApi */
+/** @typedef {import('./types').OperationResponseInit} OperationResponseInit */
 
 export class AmfService {
   constructor() {
@@ -444,19 +445,43 @@ export class AmfService {
    */
   async addRequest(operationId, init) {
     const opts = init || {};
-    // @ts-ignore
-    const model = /** @type Request */ (amf.model.domain.Request());
+    const op = /** @type Operation */ (this.graph.findById(operationId));
+    if (!op) {
+      throw new Error(`No operation for given id ${operationId}`);
+    }
+    const model = /** @type Request */ (op.withRequest());
     if (opts.description) {
       model.withDescription(opts.description);
     }
     if (typeof opts.required === 'boolean') {
       model.withRequired(opts.required);
     }
+    return model.id;
+  }
+
+  /**
+   * @param {string} operationId The operation domain id
+   * @param {OperationResponseInit} init The response init options.
+   * @returns {Promise<string>} The domain id of the created response
+   */
+  async addResponse(operationId, init) {
     const op = /** @type Operation */ (this.graph.findById(operationId));
     if (!op) {
       throw new Error(`No operation for given id ${operationId}`);
     }
-    op.withRequest(model);
+    const model = op.withResponse(init.name);
+    if (init.statusCode) {
+      model.withStatusCode(init.statusCode);
+    }
+    if (init.description) {
+      model.withDescription(init.description);
+    }
+    if (Array.isArray(init.headers) && init.headers.length) {
+      init.headers.forEach((h) => model.withHeader(h));
+    }
+    if (Array.isArray(init.payloads) && init.payloads.length) {
+      init.payloads.forEach((p) => model.withPayload(p));
+    }
     return model.id;
   }
 
