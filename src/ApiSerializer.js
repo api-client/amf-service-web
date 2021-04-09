@@ -44,8 +44,13 @@ export class ApiSerializer {
       contentType, version, termsOfService, provider, license, documentations,
       servers, security,
     } = object;
+    const types = object.graph().types();
+    const isAsyncApi = types.includes('http://a.ml/vocabularies/apiContract#AsyncAPI');
+    const isWebApi = !isAsyncApi && types.includes('http://a.ml/vocabularies/apiContract#WebAPI');
     const result = /** @type SerializedApi */ ({
       id,
+      isAsyncApi,
+      isWebApi,
       schemes: [],
       accepts: [],
       contentType: [],

@@ -308,6 +308,8 @@ export declare interface ApiNodeShapeListItem {
 
 export interface SerializedApi {
   id: string;
+  isAsyncApi: boolean;
+  isWebApi: boolean;
   name?: string;
   description?: string;
   identifier?: string;
