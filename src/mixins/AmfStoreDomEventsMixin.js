@@ -10,6 +10,9 @@ import { EventTypes } from '../events/EventTypes.js';
 /** @typedef {import('../events/EndpointEvents').ApiStoreEndpointReadEvent} ApiStoreEndpointReadEvent */
 /** @typedef {import('../events/EndpointEvents').ApiStoreEndpointUpdateEvent} ApiStoreEndpointUpdateEvent */
 /** @typedef {import('../events/BaseEvents').ApiStoreContextEvent} ApiStoreContextEvent */
+/** @typedef {import('../events/ApiEvents').ApiCreateEvent} ApiCreateEvent */
+/** @typedef {import('../events/ServerEvents').ApiServerReadEvent} ApiServerReadEvent */
+/** @typedef {import('../events/ServerEvents').ApiServerAddEvent} ApiServerAddEvent */
 
 export const initHandler = Symbol('initHandler');
 export const loadGraphHandler = Symbol('loadGraphHandler');
@@ -20,6 +23,13 @@ export const endpointAddHandler = Symbol('endpointAddHandler');
 export const endpointDeleteHandler = Symbol('endpointDeleteHandler');
 export const endpointGetHandler = Symbol('endpointGetHandler');
 export const endpointUpdateHandler = Symbol('endpointUpdateHandler');
+export const createWebApiHandler = Symbol('createWebApiHandler');
+export const generateRamlHandler = Symbol('generateRamlHandler');
+export const generateGraphHandler = Symbol('generateGraphHandler');
+export const apiGetHandler = Symbol('apiGetHandler');
+export const serverGetHandler = Symbol('serverGetHandler');
+export const serverAddHandler = Symbol('serverAddHandler');
+export const serverListHandler = Symbol('serverListHandler');
 
 const mxFunction = base => {
   class AmfStoreDomEventsMixin extends EventsTargetMixin(base) {
@@ -37,6 +47,13 @@ const mxFunction = base => {
       this[endpointDeleteHandler] = this[endpointDeleteHandler].bind(this);
       this[endpointGetHandler] = this[endpointGetHandler].bind(this);
       this[endpointUpdateHandler] = this[endpointUpdateHandler].bind(this);
+      this[createWebApiHandler] = this[createWebApiHandler].bind(this);
+      this[generateRamlHandler] = this[generateRamlHandler].bind(this);
+      this[generateGraphHandler] = this[generateGraphHandler].bind(this);
+      this[apiGetHandler] = this[apiGetHandler].bind(this);
+      this[serverGetHandler] = this[serverGetHandler].bind(this);
+      this[serverAddHandler] = this[serverAddHandler].bind(this);
+      this[serverListHandler] = this[serverListHandler].bind(this);
     }
 
     /**
@@ -47,6 +64,15 @@ const mxFunction = base => {
       // Store related events
       node.addEventListener(EventTypes.Store.init, this[initHandler]);
       node.addEventListener(EventTypes.Store.loadGraph, this[loadGraphHandler]);
+      // API related events
+      node.addEventListener(EventTypes.Api.createWebApi, this[createWebApiHandler]);
+      node.addEventListener(EventTypes.Api.generateRaml, this[generateRamlHandler]);
+      node.addEventListener(EventTypes.Api.generateGraph, this[generateGraphHandler]);
+      node.addEventListener(EventTypes.Api.get, this[apiGetHandler]);
+      // Sever related events
+      node.addEventListener(EventTypes.Server.get, this[serverGetHandler]);
+      node.addEventListener(EventTypes.Server.add, this[serverAddHandler]);
+      node.addEventListener(EventTypes.Server.list, this[serverListHandler]);
       // Endpoint related events
       node.addEventListener(EventTypes.Endpoint.list, this[endpointListHandler]);
       node.addEventListener(EventTypes.Endpoint.listWithOperations, this[endpointListWithOperationsHandler]);
@@ -65,6 +91,15 @@ const mxFunction = base => {
       super._detachListeners(node);
       node.removeEventListener(EventTypes.Store.init, this[initHandler]);
       node.removeEventListener(EventTypes.Store.loadGraph, this[loadGraphHandler]);
+      // API related events
+      node.removeEventListener(EventTypes.Api.createWebApi, this[createWebApiHandler]);
+      node.removeEventListener(EventTypes.Api.generateRaml, this[generateRamlHandler]);
+      node.removeEventListener(EventTypes.Api.generateGraph, this[generateGraphHandler]);
+      node.removeEventListener(EventTypes.Api.get, this[apiGetHandler]);
+      // Sever related events
+      node.removeEventListener(EventTypes.Server.get, this[serverGetHandler]);
+      node.removeEventListener(EventTypes.Server.add, this[serverAddHandler]);
+      node.removeEventListener(EventTypes.Server.list, this[serverListHandler]);
       // Endpoint related events
       node.removeEventListener(EventTypes.Endpoint.list, this[endpointListHandler]);
       node.removeEventListener(EventTypes.Endpoint.listWithOperations, this[endpointListWithOperationsHandler]);
@@ -178,6 +213,86 @@ const mxFunction = base => {
       e.preventDefault();
       const { id, property, value } = e;
       e.detail.result = this.updateEndpointProperty(id, property, value);
+    }
+
+    /**
+     * @param {ApiCreateEvent} e 
+     */
+    [createWebApiHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { init } = e;
+      e.detail.result = this.createWebApi(init);
+    }
+
+    /**
+     * @param {ApiStoreContextEvent} e 
+     */
+    [generateRamlHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      e.detail.result = this.generateRaml();
+    }
+
+    /**
+     * @param {ApiStoreContextEvent} e 
+     */
+    [generateGraphHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      e.detail.result = this.generateGraph();
+    }
+
+    /**
+     * @param {ApiStoreContextEvent} e 
+     */
+    [apiGetHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      e.detail.result = this.getApi();
+    }
+
+    /**
+     * @param {ApiServerReadEvent} e 
+     */
+    [serverGetHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id } = e;
+      e.detail.result = this.getServer(id);
+    }
+
+    /**
+     * @param {ApiServerAddEvent} e 
+     */
+    [serverAddHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { init } = e;
+      e.detail.result = this.addServer(init);
+    }
+
+    /**
+     * @param {ApiStoreContextEvent} e 
+     */
+    [serverListHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      e.detail.result = this.listServers();
     }
   }
   return AmfStoreDomEventsMixin;
