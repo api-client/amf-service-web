@@ -28,6 +28,9 @@
     "apistorepayloadget",
     "apistorerequestget",
     "apistoreresponseget",
-    "apistoresecuritylist"
+    "apistoresecuritylist",
+    "apistoreserversadd",
+    "apistoreserversget",
+    "apistoreserverslist"
   ]
 }

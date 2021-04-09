@@ -13,3 +13,10 @@ export {
   ApiStoreEndpointUpdateEvent,
   EndpointEvents,
 } from './src/events/EndpointEvents.js';
+export {
+  ApiCreateEvent,
+} from './src/events/ApiEvents.js';
+export {
+  ApiServerAddEvent,
+  ApiServerReadEvent,
+} from './src/events/ServerEvents.js';

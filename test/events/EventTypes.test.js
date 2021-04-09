@@ -46,9 +46,6 @@ describe('StoreEventTypes', () => {
       ['generateRaml', 'apistoreapigenerateraml'],
       ['generateGraph', 'apistoreapigenerategraph'],
       ['get', 'apistoreapigetapi'],
-      ['listServers', 'apistoreapilistservers'],
-      ['addServer', 'apistoreapiaddserver'],
-      ['getServer', 'apistoreapigetserver'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
         assert.equal(StoreEventTypes.Api[prop], value);
@@ -293,6 +290,33 @@ describe('StoreEventTypes', () => {
 
     it('has unique events for the namespace', () => {
       ensureUnique('StoreEventTypes.Security', StoreEventTypes.Security);
+    });
+  });
+
+  describe('Server', () => {
+    it('has Server namespace', () => {
+      assert.typeOf(StoreEventTypes.Server, 'object');
+    });
+
+    it('is frozen', () => {
+      assert.throws(() => {
+        // @ts-ignore
+        StoreEventTypes.Server = { read: '' };
+      });
+    });
+
+    [
+      ['list', 'apistoreserverslist'],
+      ['add', 'apistoreserversadd'],
+      ['get', 'apistoreserversget'],
+    ].forEach(([prop, value]) => {
+      it(`has ${prop} property`, () => {
+        assert.equal(StoreEventTypes.Server[prop], value);
+      });
+    });
+
+    it('has unique events for the namespace', () => {
+      ensureUnique('StoreEventTypes.Server', StoreEventTypes.Server);
     });
   });
 });

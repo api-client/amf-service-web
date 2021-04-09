@@ -13,6 +13,7 @@ declare interface EventTypes {
   Response: Readonly<ResponseEvents>;
   Documentation: Readonly<DocumentationEvents>;
   Security: Readonly<SecurityEvents>;
+  Server: Readonly<ServerEvents>;
 }
 
 export const EventTypes: Readonly<EventTypes>;
@@ -26,9 +27,6 @@ declare interface ApiEvents {
   generateRaml: string;
   generateGraph: string;
   get: string;
-  listServers: string;
-  addServer: string;
-  getServer: string;
 }
 declare interface EndpointEvents {
   list: string;
@@ -67,4 +65,9 @@ declare interface DocumentationEvents {
 }
 declare interface SecurityEvents {
   list: string;
+}
+declare interface ServerEvents {
+  list: string;
+  add: string;
+  get: string;
 }

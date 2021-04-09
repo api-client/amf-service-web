@@ -8,9 +8,6 @@ export const EventTypes = {
     generateRaml: 'apistoreapigenerateraml',
     generateGraph: 'apistoreapigenerategraph',
     get: 'apistoreapigetapi',
-    listServers: 'apistoreapilistservers',
-    addServer: 'apistoreapiaddserver',
-    getServer: 'apistoreapigetserver',
   },
   Endpoint: {
     list: 'apistoreendpointlist',
@@ -50,6 +47,11 @@ export const EventTypes = {
   Security: {
     list: 'apistoresecuritylist',
   },
+  Server: {
+    list: 'apistoreserverslist',
+    add: 'apistoreserversadd',
+    get: 'apistoreserversget',
+  },
 };
 
 Object.freeze(EventTypes);
@@ -64,3 +66,4 @@ Object.freeze(EventTypes.Request);
 Object.freeze(EventTypes.Response);
 Object.freeze(EventTypes.Documentation);
 Object.freeze(EventTypes.Security);
+Object.freeze(EventTypes.Server);

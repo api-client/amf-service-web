@@ -1,12 +1,6 @@
 import { ApiStoreContextEvent } from './BaseEvents';
 import { ApiEndPoint, ApiEndPointListItem, ApiEndPointWithOperationsListItem, ApiOperationListItem, EndPointInit } from '../types';
 
-/** @typedef {import('../types').ApiEndPointListItem} ApiEndPointListItem */
-/** @typedef {import('../types').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
-/** @typedef {import('../types').ApiOperationListItem} ApiOperationListItem */
-/** @typedef {import('../types').ApiEndPoint} ApiEndPoint */
-/** @typedef {import('../types').EndPointInit} EndPointInit */
-
 export declare const idValue: unique symbol;
 export declare const initValue: unique symbol;
 export declare const propertyValue: unique symbol;
