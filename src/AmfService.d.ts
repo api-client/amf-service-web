@@ -81,7 +81,7 @@ export declare class AmfService {
 
   /**
    * Updates a scalar property of an endpoint.
-   * @param id The domain id of the operation.
+   * @param id The domain id of the endpoint.
    * @param property The property name to update
    * @param value The new value to set.
    */

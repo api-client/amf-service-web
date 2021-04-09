@@ -4,6 +4,8 @@
 
 import { ApiSerializer } from './ApiSerializer.js';
 
+// Example https://github.com/aml-org/amf-examples/blob/snapshot/src/test/java/co/acme/model/WebApiBuilder.java
+
 /** @typedef {import('amf-client-js').model.document.Document} Document */
 /** @typedef {import('amf-client-js').model.domain.WebApi} WebApi */
 /** @typedef {import('amf-client-js').model.domain.EndPoint} EndPoint */
@@ -229,9 +231,9 @@ export class AmfService {
   }
 
   /**
-   * Adds a new endpoint to the API and returns it.
+   * Adds a new endpoint to the API and returns generated id for the endpoint.
    * @param {EndPointInit} init EndPoint init parameters
-   * @returns {Promise<string>}
+   * @returns {Promise<string>} The generated id for the endpoint.
    */
   async addEndpoint(init) {
     if (!init.path) {
@@ -287,7 +289,7 @@ export class AmfService {
 
   /**
    * Updates a scalar property of an endpoint.
-   * @param {string} id The domain id of the operation.
+   * @param {string} id The domain id of the endpoint.
    * @param {string} property The property name to update
    * @param {any} value The new value to set.
    */

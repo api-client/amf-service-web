@@ -16,3 +16,11 @@ export declare interface StoreEventDetailWithResult<T> {
  */
 export declare interface StoreEventDetailVoid extends StoreEventDetailWithResult<void> {
 }
+
+export declare class ApiStoreContextEvent<T> extends CustomEvent<StoreEventDetailWithResult<T>> {
+  /**
+   * @param type The event type
+   * @param detail The optional detail object. It adds object's properties to the `detail` with the `result` property.
+   */
+  constructor(type: string, detail?: any);
+}
