@@ -152,7 +152,7 @@ const mxFunction = base => {
         return;
       }
       e.preventDefault();
-      e.detail.result = this.listWithOperations();
+      e.detail.result = this.listEndpointsWithOperations();
     }
 
     /**
