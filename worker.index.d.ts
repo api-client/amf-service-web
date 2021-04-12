@@ -23,3 +23,12 @@ export {
   ApiServerReadEvent,
   ServerEvents,
 } from './src/events/ServerEvents.js';
+export {
+  TypeEvents,
+} from './src/events/TypeEvents';
+export {
+  SecurityEvents,
+} from './src/events/SecurityEvents';
+export {
+  DocumentationEvents,
+} from './src/events/DocumentationEvents';

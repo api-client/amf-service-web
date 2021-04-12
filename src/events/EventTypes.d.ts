@@ -14,6 +14,7 @@ declare interface EventTypes {
   Documentation: Readonly<DocumentationEvents>;
   Security: Readonly<SecurityEvents>;
   Server: Readonly<ServerEvents>;
+  Type: Readonly<TypeEvents>;
 }
 
 export const EventTypes: Readonly<EventTypes>;
@@ -70,4 +71,7 @@ declare interface ServerEvents {
   list: string;
   add: string;
   get: string;
+}
+declare interface TypeEvents {
+  list: string;
 }

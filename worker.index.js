@@ -20,3 +20,12 @@ export {
   ApiServerAddEvent,
   ApiServerReadEvent,
 } from './src/events/ServerEvents.js';
+export {
+  TypeEvents,
+} from './src/events/TypeEvents.js';
+export {
+  SecurityEvents,
+} from './src/events/SecurityEvents.js';
+export {
+  DocumentationEvents,
+} from './src/events/DocumentationEvents.js';

@@ -1,6 +1,6 @@
 import { assert } from '@open-wc/testing';
 import { AmfLoader } from '../helpers/AmfLoader.js';
-import { AmfStoreService } from '../../worker.index.js';
+import { AmfStoreService, StoreEvents } from '../../worker.index.js';
 import { workerValue, sendMessage } from '../../src/AmfStoreProxy.js';
 import { optionsValue } from '../../src/AmfStoreService.js';
 
@@ -354,10 +354,11 @@ describe('AmfStoreService', () => {
     let oasStore = /** @type AmfStoreService */ (null);
     let demoApi;
     let oasApi;
+    const demoEt = document.createElement('span');
 
     before(async () => {
       demoApi = await AmfLoader.loadApi();
-      demoStore = new AmfStoreService();
+      demoStore = new AmfStoreService(demoEt);
       await demoStore.init();
       await demoStore.loadGraph(demoApi);
 
@@ -403,6 +404,11 @@ describe('AmfStoreService', () => {
       assert.lengthOf(src.variables, 3, 'has listed variables');
       assert.include(src.variables[0], 'amf://', 'a variable is a link');
       assert.equal(src.description, 'The production API server', 'has the description');
+    });
+
+    it('lists servers with the DOM event', async () => {
+      const result = await StoreEvents.Server.list(demoEt);
+      assert.typeOf(result, 'array')
     });
   });
 
@@ -493,10 +499,11 @@ describe('AmfStoreService', () => {
     let demoStore = /** @type AmfStoreService */ (null);
     let demoApi;
     let endpoints = /** @type ApiEndPointListItem[] */ (null);
+    const demoEt = document.createElement('span');
 
     before(async () => {
       demoApi = await AmfLoader.loadApi();
-      demoStore = new AmfStoreService();
+      demoStore = new AmfStoreService(demoEt);
       await demoStore.init();
       await demoStore.loadGraph(demoApi);
       endpoints = await demoStore.listEndpoints();
@@ -527,16 +534,22 @@ describe('AmfStoreService', () => {
       const endpoint = endpoints[2];
       assert.equal(endpoint.name, 'People');
     });
+
+    it('list endpoints with the event', async () => {
+      const result = await StoreEvents.Endpoint.list(demoEt);
+      assert.typeOf(result, 'array');
+    });
   });
 
   describe('listEndpointsWithOperations()', () => {
     let demoStore = /** @type AmfStoreService */ (null);
     let demoApi;
     let endpoints = /** @type ApiEndPointWithOperationsListItem[] */ (null);
+    const demoEt = document.createElement('span');
 
     before(async () => {
       demoApi = await AmfLoader.loadApi();
-      demoStore = new AmfStoreService();
+      demoStore = new AmfStoreService(demoEt);
       await demoStore.init();
       await demoStore.loadGraph(demoApi);
       endpoints = await demoStore.listEndpointsWithOperations();
@@ -578,6 +591,11 @@ describe('AmfStoreService', () => {
       assert.equal(op.method, 'get', 'operation has method');
       assert.equal(op.name, 'List people', 'Operation has the name');
       assert.typeOf(op.id, 'string', 'Operation has the id');
+    });
+
+    it('list endpoints and operations with the event', async () => {
+      const result = await StoreEvents.Endpoint.listWithOperations(demoEt);
+      assert.typeOf(result, 'array');
     });
   });
 

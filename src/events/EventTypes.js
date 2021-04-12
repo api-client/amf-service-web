@@ -52,6 +52,9 @@ export const EventTypes = {
     add: 'apistoreserversadd',
     get: 'apistoreserversget',
   },
+  Type: {
+    list: 'apistoretypelist',
+  },
 };
 
 Object.freeze(EventTypes);
@@ -67,3 +70,4 @@ Object.freeze(EventTypes.Response);
 Object.freeze(EventTypes.Documentation);
 Object.freeze(EventTypes.Security);
 Object.freeze(EventTypes.Server);
+Object.freeze(EventTypes.Type);

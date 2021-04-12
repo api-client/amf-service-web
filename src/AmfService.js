@@ -670,37 +670,6 @@ export class AmfService {
       const item = ApiSerializer.nodeShapeListItem(type);
       result.push(item);
     });
-    // // In the graph the same type (different ids) can occur more than once: when defined in a library and 
-    // // when associated in the API (where included). This checks whether a type was declared in an external 
-    // // library (relative to the API file) and excludes them from the result.
-    // const declaredIds = this.graph.declares.map(i => i.id);
-    // const declaredItems = /** @type NodeShape[] */ ([]);
-    // const processedNames = [];
-    // const types = /** @type NodeShape[] */ (this.graph.findByType('http://www.w3.org/ns/shacl#NodeShape'));
-    // // return types.map((type) => ApiSerializer.nodeShapeListItem(type));
-    // // const ids = [];
-    // const result = /** @type ApiNodeShapeListItem[] */ ([]);
-    // types.forEach((type) => {
-    //   // if (ids.includes(type.id)) {
-    //   //   return;
-    //   // }
-    //   if (type.isLink) {
-    //     return;
-    //   }
-    //   if (declaredIds.includes(type.id)) {
-    //     declaredItems.push(type);
-    //     return;
-    //   }
-    //   const item = ApiSerializer.nodeShapeListItem(type);
-    //   processedNames.push(item.name);
-    //   result.push(item);
-    // });
-    // declaredItems.forEach((type) => {
-    //   const item = ApiSerializer.nodeShapeListItem(type);
-    //   if (item.name && !processedNames.includes(item.name)) {
-    //     result.push(item);
-    //   }
-    // });
     return result;
   }
 

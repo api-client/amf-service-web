@@ -319,4 +319,29 @@ describe('StoreEventTypes', () => {
       ensureUnique('StoreEventTypes.Server', StoreEventTypes.Server);
     });
   });
+
+  describe('Type', () => {
+    it('has Type namespace', () => {
+      assert.typeOf(StoreEventTypes.Type, 'object');
+    });
+
+    it('is frozen', () => {
+      assert.throws(() => {
+        // @ts-ignore
+        StoreEventTypes.Type = { read: '' };
+      });
+    });
+
+    [
+      ['list', 'apistoretypelist'],
+    ].forEach(([prop, value]) => {
+      it(`has ${prop} property`, () => {
+        assert.equal(StoreEventTypes.Type[prop], value);
+      });
+    });
+
+    it('has unique events for the namespace', () => {
+      ensureUnique('StoreEventTypes.Type', StoreEventTypes.Type);
+    });
+  });
 });

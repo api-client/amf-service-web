@@ -30,6 +30,9 @@ export const apiGetHandler = Symbol('apiGetHandler');
 export const serverGetHandler = Symbol('serverGetHandler');
 export const serverAddHandler = Symbol('serverAddHandler');
 export const serverListHandler = Symbol('serverListHandler');
+export const documentationListHandler = Symbol('documentationListHandler');
+export const securityListHandler = Symbol('securityListHandler');
+export const typeListHandler = Symbol('typeListHandler');
 
 const mxFunction = base => {
   class AmfStoreDomEventsMixin extends EventsTargetMixin(base) {
@@ -54,6 +57,9 @@ const mxFunction = base => {
       this[serverGetHandler] = this[serverGetHandler].bind(this);
       this[serverAddHandler] = this[serverAddHandler].bind(this);
       this[serverListHandler] = this[serverListHandler].bind(this);
+      this[documentationListHandler] = this[documentationListHandler].bind(this);
+      this[securityListHandler] = this[securityListHandler].bind(this);
+      this[typeListHandler] = this[typeListHandler].bind(this);
     }
 
     /**
@@ -81,6 +87,12 @@ const mxFunction = base => {
       node.addEventListener(EventTypes.Endpoint.delete, this[endpointDeleteHandler]);
       node.addEventListener(EventTypes.Endpoint.get, this[endpointGetHandler]);
       node.addEventListener(EventTypes.Endpoint.update, this[endpointUpdateHandler]);
+      // API documentation related events
+      node.addEventListener(EventTypes.Documentation.list, this[documentationListHandler]);
+      // API security related events
+      node.addEventListener(EventTypes.Security.list, this[securityListHandler]);
+      // API types/schemas related events
+      node.addEventListener(EventTypes.Type.list, this[typeListHandler]);
     }
 
     /**
@@ -108,6 +120,12 @@ const mxFunction = base => {
       node.removeEventListener(EventTypes.Endpoint.delete, this[endpointDeleteHandler]);
       node.removeEventListener(EventTypes.Endpoint.get, this[endpointGetHandler]);
       node.removeEventListener(EventTypes.Endpoint.update, this[endpointUpdateHandler]);
+      // API documentation related events
+      node.removeEventListener(EventTypes.Documentation.list, this[documentationListHandler]);
+      // API security related events
+      node.removeEventListener(EventTypes.Security.list, this[securityListHandler]);
+      // API types/schemas related events
+      node.removeEventListener(EventTypes.Type.list, this[typeListHandler]);
     }
 
     /**
@@ -293,6 +311,39 @@ const mxFunction = base => {
       }
       e.preventDefault();
       e.detail.result = this.listServers();
+    }
+
+    /**
+     * @param {ApiStoreContextEvent} e 
+     */
+    [documentationListHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      e.detail.result = this.listDocumentations();
+    }
+
+    /**
+     * @param {ApiStoreContextEvent} e 
+     */
+    [securityListHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      e.detail.result = this.listSecurity();
+    }
+
+    /**
+     * @param {ApiStoreContextEvent} e 
+     */
+    [typeListHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      e.detail.result = this.listTypes();
     }
   }
   return AmfStoreDomEventsMixin;
