@@ -1,12 +1,14 @@
+/* eslint-disable no-continue */
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
 /* global amf */
-
+import { ns } from '@api-components/amf-helper-mixin/src/Namespace.js';
 import { ApiSerializer } from './ApiSerializer.js';
 
 // Example https://github.com/aml-org/amf-examples/blob/snapshot/src/test/java/co/acme/model/WebApiBuilder.java
 
 /** @typedef {import('amf-client-js').model.document.Document} Document */
+/** @typedef {import('amf-client-js').model.domain.DomainElement} DomainElement */
 /** @typedef {import('amf-client-js').model.domain.WebApi} WebApi */
 /** @typedef {import('amf-client-js').model.domain.EndPoint} EndPoint */
 /** @typedef {import('amf-client-js').model.domain.Operation} Operation */
@@ -23,6 +25,14 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('amf-client-js').model.domain.CustomDomainProperty} CustomDomainProperty */
 /** @typedef {import('amf-client-js').model.domain.NodeShape} NodeShape */
 /** @typedef {import('amf-client-js').model.domain.CreativeWork} CreativeWork */
+/** @typedef {import('amf-client-js').model.domain.ScalarShape} ScalarShape */
+/** @typedef {import('amf-client-js').model.domain.Shape} Shape */
+/** @typedef {import('amf-client-js').model.domain.AnyShape} AnyShape */
+/** @typedef {import('amf-client-js').model.domain.UnionShape} UnionShape */
+/** @typedef {import('amf-client-js').model.domain.FileShape} FileShape */
+/** @typedef {import('amf-client-js').model.domain.SchemaShape} SchemaShape */
+/** @typedef {import('amf-client-js').model.domain.TupleShape} TupleShape */
+/** @typedef {import('amf-client-js').model.document.BaseUnitWithDeclaresModel} BaseUnitWithDeclaresModel */
 /** @typedef {import('amf-client-js').render.Renderer} Renderer */
 /** @typedef {import('./types').ApiInit} ApiInit */
 /** @typedef {import('./types').EndPointInit} EndPointInit */
@@ -50,6 +60,14 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('./types').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
 /** @typedef {import('./types').SerializedApi} SerializedApi */
 /** @typedef {import('./types').OperationResponseInit} OperationResponseInit */
+/** @typedef {import('./types').DocumentationInit} DocumentationInit */
+/** @typedef {import('./types').ApiNodeShape} ApiNodeShape */
+/** @typedef {import('./types').ApiScalarShape} ApiScalarShape */
+/** @typedef {import('./types').ApiUnionShape} ApiUnionShape */
+/** @typedef {import('./types').ApiFileShape} ApiFileShape */
+/** @typedef {import('./types').ApiSchemaShape} ApiSchemaShape */
+/** @typedef {import('./types').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('./types').ShapeInit} ShapeInit */
 
 export class AmfService {
   constructor() {
@@ -233,7 +251,7 @@ export class AmfService {
   /**
    * Adds a new endpoint to the API and returns generated id for the endpoint.
    * @param {EndPointInit} init EndPoint init parameters
-   * @returns {Promise<string>} The generated id for the endpoint.
+   * @returns {Promise<ApiEndPoint>} The generated id for the endpoint.
    */
   async addEndpoint(init) {
     if (!init.path) {
@@ -250,7 +268,7 @@ export class AmfService {
     if (init.summary) {
       endpoint.withSummary(init.summary);
     }
-    return endpoint.id;
+    return ApiSerializer.endPoint(endpoint);
   }
 
   /**
@@ -292,6 +310,7 @@ export class AmfService {
    * @param {string} id The domain id of the endpoint.
    * @param {string} property The property name to update
    * @param {any} value The new value to set.
+   * @returns {Promise<ApiEndPoint>}
    */
   async updateEndpointProperty(id, property, value) {
     const ep = /** @type EndPoint */ (this.graph.findById(id));
@@ -305,13 +324,14 @@ export class AmfService {
       case 'path': ep.withPath(value); break;
       default: throw new Error(`Unsupported patch property of EndPoint: ${property}`);
     }
+    return ApiSerializer.endPoint(ep);
   }
 
   /**
    * Adds an empty operation to an endpoint.
    * @param {string} pathOrId The path or domain id of the endpoint that is the parent of the operation.
    * @param {OperationInit} init The operation initialize options
-   * @returns {Promise<string>}
+   * @returns {Promise<ApiOperation>}
    */
   async addOperation(pathOrId, init) {
     if (!init.method) {
@@ -343,7 +363,7 @@ export class AmfService {
     if (Array.isArray(init.contentType) && init.contentType.length) {
       operation.withContentType(init.contentType);
     }
-    return operation.id;
+    return ApiSerializer.operation(operation);
   }
 
   /**
@@ -405,15 +425,34 @@ export class AmfService {
   /**
    * Removes an operation from the graph.
    * @param {string} id The operation id to remove.
-   * @returns {Promise<string>} The id of the removed operation or undefined if operation is not in the graph.
+   * @returns {Promise<string|undefined>} The id of the affected endpoint. Undefined when operation or endpoint cannot be found.
    */
   async deleteOperation(id) {
-    const op = /** @type Operation */ (this.graph.findById(id));
-    if (!op) {
-      throw new Error(`No operation ${id} in the graph`);
+    const endpoint = this.findOperationParent(id);
+    if (!endpoint) {
+      return undefined;
     }
-    op.graph().remove(op.id);
-    return op.id;
+    const remaining = endpoint.operations.filter((op) => op.id !== id);
+    endpoint.withOperations(remaining);
+    return endpoint.id;
+  }
+
+  /**
+   * Finds the parent endpoint for the operation
+   * @param {string} id The id of the operation
+   * @returns {EndPoint|undefined}
+   */
+  findOperationParent(id) {
+    const api = this.webApi();
+    const { endPoints } = api;
+    for (let i = 0, len = endPoints.length; i < len; i++) {
+      const ep = endPoints[i];
+      const operation = ep.operations.find((op) => op.id === id);
+      if (operation) {
+        return ep;
+      }
+    }
+    return undefined;
   }
 
   /**
@@ -421,6 +460,7 @@ export class AmfService {
    * @param {string} id The domain id of the operation.
    * @param {string} property The property name to update
    * @param {any} value The new value to set.
+   * @returns {Promise<ApiOperation>}
    */
   async updateOperationProperty(id, property, value) {
     const op = /** @type Operation */ (this.graph.findById(id));
@@ -438,6 +478,7 @@ export class AmfService {
       case 'contentType': op.withContentType(value); break;
       default: throw new Error(`Unsupported patch property of Operation: ${property}`);
     }
+    return ApiSerializer.operation(op);
   }
 
   /**
@@ -656,6 +697,71 @@ export class AmfService {
   }
 
   /**
+   * Adds a new documentation object to the graph.
+   * @param {DocumentationInit} init The initialization properties
+   * @returns {Promise<ApiDocumentation>} The created documentation.
+   */
+  async addDocumentation(init) {
+    const { description, title='Unnamed documentation', url } = init;
+    const api = this.webApi();
+    let doc;
+    if (url) {
+      doc = api.withDocumentationUrl(url);
+      doc.withTitle(title);
+    } else {
+      doc = api.withDocumentationTitle(title);
+    }
+    if (description) {
+      doc.withDescription(description);
+    }
+    return ApiSerializer.documentation(doc);
+  }
+
+  /**
+   * Reads the documentation object from the store.
+   * @param {string} id The domain id of the documentation object
+   * @returns {Promise<ApiDocumentation|undefined>} The read documentation.
+   */
+  async getDocumentation(id) {
+    const doc = /** @type CreativeWork */ (this.graph.findById(id));
+    if (!doc) {
+      return undefined;
+    }
+    return ApiSerializer.documentation(doc);
+  }
+
+  /**
+   * Updates a scalar property of a documentation.
+   * @param {string} id The domain id of the documentation.
+   * @param {string} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiDocumentation>}
+   */
+  async updateDocumentationProperty(id, property, value) {
+    const doc = /** @type CreativeWork */ (this.graph.findById(id));
+    if (!doc) {
+      throw new Error(`No documentation for given id ${id}`);
+    }
+    switch (property) {
+      case 'description': doc.withDescription(value); break;
+      case 'title': doc.withTitle(value); break;
+      case 'url': doc.withUrl(value); break;
+      default: throw new Error(`Unsupported patch property of documentation: ${property}`);
+    }
+    return ApiSerializer.documentation(doc);
+  }
+
+  /**
+   * Removes the documentation from the graph.
+   * @param {string} id The domain id of the documentation object
+   */
+  async deleteDocumentation(id) {
+    const api = this.webApi();
+    const remaining = api.documentations.filter(item => item.id !== id);
+    api.withDocumentation(remaining);
+  }
+
+  /**
    * Lists the type (schema) definitions for the API.
    * @returns {Promise<ApiNodeShapeListItem[]>}
    */
@@ -663,14 +769,291 @@ export class AmfService {
     const result = /** @type ApiNodeShapeListItem[] */ ([]);
     this.graph.declares.forEach((obj) => {
       const types = obj.graph().types();
-      if (!types.includes('http://www.w3.org/ns/shacl#NodeShape') && !types.includes('http://a.ml/vocabularies/shapes#ScalarShape')) {
+      
+      if (!types.includes(ns.w3.shacl.NodeShape) && !types.includes(ns.aml.vocabularies.shapes.ScalarShape)) {
         return;
       }
       const type = /** @type NodeShape */ (obj);
       const item = ApiSerializer.nodeShapeListItem(type);
       result.push(item);
     });
+    const refs = /** @type BaseUnitWithDeclaresModel[] */ (this.graph.references());
+    refs.forEach((ref) => {
+      const { declares } = ref;
+      if (!declares || !declares.length) {
+        return;
+      }
+      declares.forEach((obj) => {
+        const types = obj.graph().types();
+        if (!types.includes(ns.w3.shacl.NodeShape) && !types.includes(ns.aml.vocabularies.shapes.ScalarShape)) {
+          return;
+        }
+        const type = /** @type NodeShape */ (obj);
+        const item = ApiSerializer.nodeShapeListItem(type);
+        result.push(item);
+      });
+    });
     return result;
+  }
+
+  /**
+   * @param {string} id The domain id of the API type (schema).
+   * @returns {Promise<ApiShapeUnion>}
+   */
+  async getType(id) {
+    const type = /** @type Shape */ (this.graph.findById(id));
+    if (!type) {
+      return undefined;
+    }
+    return ApiSerializer.unknownShape(type);
+  }
+
+  /**
+   * Creates a new type in the API.
+   * @param {ShapeInit=} init The Shape init options.
+   * @returns {Promise<ApiShapeUnion>}
+   */
+  async addType(init) {
+    const options = init || {};
+    const { type, description, name, displayName, readOnly, writeOnly } = options;
+    let domainElement = /** @type Shape */ (null);
+    if (type === ns.aml.vocabularies.shapes.ScalarShape) {
+      // @ts-ignore
+      domainElement = amf.model.domain.ScalarShape();
+    } else if (type === ns.w3.shacl.NodeShape) {
+      // @ts-ignore
+      domainElement = amf.model.domain.NodeShape();
+    } else if (type === ns.aml.vocabularies.shapes.UnionShape) {
+      // @ts-ignore
+      domainElement = amf.model.domain.UnionShape();
+    } else if (type === ns.aml.vocabularies.shapes.FileShape) {
+      // @ts-ignore
+      domainElement = amf.model.domain.FileShape();
+    } else if (type === ns.aml.vocabularies.shapes.SchemaShape) {
+      // @ts-ignore
+      domainElement = amf.model.domain.SchemaShape();
+    } else if (type === ns.aml.vocabularies.shapes.ArrayShape) {
+      // @ts-ignore
+      domainElement = amf.model.domain.ArrayShape();
+    } else if (type === ns.aml.vocabularies.shapes.MatrixShape) {
+      // @ts-ignore
+      domainElement = amf.model.domain.MatrixShape();
+    } else if (type === ns.aml.vocabularies.shapes.TupleShape) {
+      // @ts-ignore
+      domainElement = amf.model.domain.TupleShape();
+    } else {
+      // @ts-ignore
+      domainElement = amf.model.domain.AnyShape();
+    }
+    if (name) {
+      domainElement.withName(name);
+    }
+    if (displayName) {
+      domainElement.withDisplayName(displayName);
+    }
+    if (description) {
+      domainElement.withDescription(description);
+    }
+    if (typeof readOnly === 'boolean') {
+      domainElement.withReadOnly(readOnly);
+    }
+    if (typeof writeOnly === 'boolean') {
+      domainElement.withWriteOnly(writeOnly);
+    }
+    this.graph.withDeclaredElement(domainElement);
+    return ApiSerializer.unknownShape(domainElement);
+  }
+
+  /**
+   * Removes a type for a given domain id.
+   * @param {string} id The type domain id.
+   * @returns {Promise<boolean>} True when the type has been found and removed.
+   */
+  async deleteType(id) {
+    const dIndex = this.graph.declares.findIndex((item) => item.id === id);
+    if (dIndex !== -1) {
+      const copy = Array.from(this.graph.declares);
+      copy.splice(dIndex, 1);
+      this.graph.withDeclares(copy);
+      return true;
+    }
+    const refs = /** @type BaseUnitWithDeclaresModel[] */ (this.graph.references());
+    for (let i = 0, len = refs.length; i < len; i++) {
+      const ref = refs[i];
+      const { declares } = ref;
+      if (!declares || !declares.length) {
+        continue;
+      }
+      const index = declares.findIndex((item) => item.id === id);
+      if (index !== -1) {
+        const copy = Array.from(declares);
+        copy.splice(dIndex, 1);
+        ref.withDeclares(copy);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Updates a scalar property of a type.
+   * @param {string} id The domain id of the type.
+   * @param {string} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiShapeUnion>}
+   */
+  async updateTypeProperty(id, property, value) {
+    const object = /** @type AnyShape */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No type for ${id}`);
+    }
+    const types = object.graph().types();
+    if (types.includes(ns.aml.vocabularies.shapes.ScalarShape)) {
+      this.updateScalarShapeProperty(/** @type ScalarShape */ (object), property, value);
+    } else if (types.includes(ns.w3.shacl.NodeShape)) {
+      this.updateNodeShapeProperty(/** @type NodeShape */ (object), property, value);
+    } else if (types.includes(ns.aml.vocabularies.shapes.UnionShape)) {
+      if (!this.updateAnyShapeProperty(object, property, value)) {
+        throw new Error(`Unsupported patch property of UnionShape: ${property}`);
+      }
+    } else if (types.includes(ns.aml.vocabularies.shapes.FileShape)) {
+      this.updateFileShapeProperty(/** @type FileShape */ (object), property, value);
+    } else if (types.includes(ns.aml.vocabularies.shapes.SchemaShape)) {
+      this.updateSchemaShapeProperty(/** @type SchemaShape */ (object), property, value);
+    } else if (types.includes(ns.aml.vocabularies.shapes.TupleShape)) {
+      this.updateTupleShapeProperty(/** @type TupleShape */ (object), property, value);
+    } else if (types.includes(ns.aml.vocabularies.shapes.ArrayShape) || types.includes(ns.aml.vocabularies.shapes.MatrixShape)) {
+      if (!this.updateAnyShapeProperty(object, property, value)) {
+        throw new Error(`Unsupported patch property of ArrayShape: ${property}`);
+      }
+    } else if (!this.updateAnyShapeProperty(object, property, value)) {
+      throw new Error(`Unsupported patch property of AnyShape: ${property}`);
+    }
+    return ApiSerializer.unknownShape(object);
+  }
+
+  /**
+   * Updates a scalar property of a scalar type.
+   * @param {AnyShape} shape The domain id of the type.
+   * @param {string} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {boolean} `true` when the shape has been updated.
+   */
+  updateAnyShapeProperty(shape, property, value) {
+    switch (property) {
+      case 'name': shape.withName(value); break;
+      case 'displayName': shape.withDisplayName(value); break;
+      case 'description': shape.withDescription(value); break;
+      case 'defaultValueStr': shape.withDefaultStr(value); break;
+      case 'readOnly': shape.withReadOnly(value); break;
+      case 'writeOnly': shape.withWriteOnly(value); break;
+      case 'deprecated': shape.withDeprecated(value); break;
+      default: return false;
+    }
+    return true;
+  }
+
+  /**
+   * Updates a scalar property of a scalar type.
+   * @param {ScalarShape} scalar The shape to update
+   * @param {string} property The property name to update
+   * @param {any} value The new value to set.
+   */
+  updateScalarShapeProperty(scalar, property, value) {
+    if (this.updateAnyShapeProperty(scalar, property, value)) {
+      return;
+    }
+    switch (property) {
+      case 'dataType': scalar.withDataType(value); break;
+      case 'pattern': scalar.withPattern(value); break;
+      case 'minLength': scalar.withMinLength(value); break;
+      case 'maxLength': scalar.withMaxLength(value); break;
+      case 'minimum': scalar.withMinimum(value); break;
+      case 'maximum': scalar.withMaximum(value); break;
+      case 'exclusiveMinimum': scalar.withExclusiveMinimum(value); break;
+      case 'exclusiveMaximum': scalar.withExclusiveMaximum(value); break;
+      case 'format': scalar.withFormat(value); break;
+      case 'multipleOf': scalar.withMultipleOf(value); break;
+      default: throw new Error(`Unsupported patch property of ScalarShape: ${property}`);
+    }
+  }
+
+  /**
+   * Updates a scalar property of a Node type.
+   * @param {NodeShape} shape The shape to update
+   * @param {string} property The property name to update
+   * @param {any} value The new value to set.
+   */
+  updateNodeShapeProperty(shape, property, value) {
+    if (this.updateAnyShapeProperty(shape, property, value)) {
+      return;
+    }
+    switch (property) {
+      case 'minProperties': shape.withMinProperties(value); break;
+      case 'maxProperties': shape.withMaxProperties(value); break;
+      case 'closed': shape.withClosed(value); break;
+      case 'discriminator': shape.withDiscriminator(value); break;
+      case 'discriminatorValue': shape.withDiscriminatorValue(value); break;
+      default: throw new Error(`Unsupported patch property of NodeShape: ${property}`);
+    }
+  }
+
+  /**
+   * Updates a scalar property of a file type.
+   * @param {FileShape} shape The shape to update
+   * @param {string} property The property name to update
+   * @param {any} value The new value to set.
+   */
+  updateFileShapeProperty(shape, property, value) {
+    if (this.updateAnyShapeProperty(shape, property, value)) {
+      return;
+    }
+    switch (property) {
+      case 'fileTypes': shape.withFileTypes(value); break;
+      case 'pattern': shape.withPattern(value); break;
+      case 'minLength': shape.withMinLength(value); break;
+      case 'maxLength': shape.withMaxLength(value); break;
+      case 'minimum': shape.withMinimum(value); break;
+      case 'maximum': shape.withMaximum(value); break;
+      case 'exclusiveMinimum': shape.withExclusiveMinimum(value); break;
+      case 'exclusiveMaximum': shape.withExclusiveMaximum(value); break;
+      case 'format': shape.withFormat(value); break;
+      case 'multipleOf': shape.withMultipleOf(value); break;
+      default: throw new Error(`Unsupported patch property of FileShape: ${property}`);
+    }
+  }
+
+  /**
+   * Updates a scalar property of a schema type.
+   * @param {SchemaShape} shape The shape to update
+   * @param {string} property The property name to update
+   * @param {any} value The new value to set.
+   */
+  updateSchemaShapeProperty(shape, property, value) {
+    if (this.updateAnyShapeProperty(shape, property, value)) {
+      return;
+    }
+    switch (property) {
+      case 'mediaType': shape.withMediatype(value); break;
+      case 'raw': shape.withRaw(value); break;
+      default: throw new Error(`Unsupported patch property of SchemaShape: ${property}`);
+    }
+  }
+
+  /**
+   * Updates a scalar property of a tuple type.
+   * @param {TupleShape} shape The shape to update
+   * @param {string} property The property name to update
+   * @param {any} value The new value to set.
+   */
+  updateTupleShapeProperty(shape, property, value) {
+    if (this.updateAnyShapeProperty(shape, property, value)) {
+      return;
+    }
+    switch (property) {
+      case 'additionalItems': shape.withAdditionalItems(value); break;
+      default: throw new Error(`Unsupported patch property of TupleShape: ${property}`);
+    }
   }
 
   /**

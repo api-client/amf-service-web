@@ -599,7 +599,7 @@ describe('AmfStoreService', () => {
     });
   });
 
-  describe('createWebApi()', () => {
+  describe('addEndpoint()', () => {
     let store = /** @type AmfStoreService */ (null);
 
     before(async () => {
@@ -616,27 +616,24 @@ describe('AmfStoreService', () => {
     });
 
     it('adds a new endpoint and returns its id', async () => {
-      const id = await store.addEndpoint({ path: '/test-1' });
-      assert.typeOf(id, 'string', 'returns the id of the created endpoint');
+      const endpoint = await store.addEndpoint({ path: '/test-1' });
+      assert.typeOf(endpoint, 'object', 'returns the created endpoint');
       const endpoints = await store.listEndpoints();
-      assert.equal(endpoints[0].id, id, 'created an endpoint');
+      assert.deepEqual(endpoints[0].id, endpoint.id, 'created an endpoint');
     });
 
     it('adds the name', async () => {
-      await store.addEndpoint({ path: '/test-2', name: 'test endpoint' });
-      const endpoints = await store.listEndpoints();
-      assert.equal(endpoints[0].name, 'test endpoint');
+      const endpoint = await store.addEndpoint({ path: '/test-2', name: 'test endpoint' });
+      assert.equal(endpoint.name, 'test endpoint');
     });
 
     it('adds the description', async () => {
-      const id = await store.addEndpoint({ path: '/test-3', description: 'test desc', });
-      const endpoint = await store.getEndpoint(id);
+      const endpoint = await store.addEndpoint({ path: '/test-3', description: 'test desc', });
       assert.equal(endpoint.description, 'test desc');
     });
 
     it('adds the summary', async () => {
-      const id = await store.addEndpoint({ path: '/test-4', summary: 'test summary', });
-      const endpoint = await store.getEndpoint(id);
+      const endpoint = await store.addEndpoint({ path: '/test-4', summary: 'test summary', });
       assert.equal(endpoint.summary, 'test summary');
     });
   });
@@ -719,7 +716,8 @@ describe('AmfStoreService', () => {
 
     beforeEach(async () => {
       await store.createWebApi();
-      id = await store.addEndpoint({path: '/test'});
+      const ep = await store.addEndpoint({path: '/test'});
+      id = ep.id;
     });
 
     it('updates the name', async () => {
@@ -754,74 +752,6 @@ describe('AmfStoreService', () => {
         thrown = true;
       }
       assert.isTrue(thrown);
-    });
-  });
-
-  describe('addOperation()', () => {
-    let store = /** @type AmfStoreService */ (null);
-    let id = /** @type string */ (null);
-
-    before(async () => {
-      store = new AmfStoreService();
-      await store.init();
-    });
-
-    after(() => {
-      store.worker.terminate();
-    });
-
-    beforeEach(async () => {
-      await store.createWebApi();
-      id = await store.addEndpoint({path: '/test'});
-    });
-
-    it('adds the operation', async () => {
-      const opId = await store.addOperation(id, { method: 'get' });
-      assert.typeOf(opId, 'string');
-      const operation = await store.getOperation(opId);
-      assert.equal(operation.id, opId);
-    });
-
-    it('adds the name', async () => {
-      const opId = await store.addOperation(id, { method: 'get', name: 'test-name' });
-      const operation = await store.getOperation(opId);
-      assert.equal(operation.name, 'test-name');
-    });
-
-    it('adds the description', async () => {
-      const opId = await store.addOperation(id, { method: 'get', description: 'test-description' });
-      const operation = await store.getOperation(opId);
-      assert.equal(operation.description, 'test-description');
-    });
-
-    it('adds the summary', async () => {
-      const opId = await store.addOperation(id, { method: 'get', summary: 'test-summary' });
-      const operation = await store.getOperation(opId);
-      assert.equal(operation.summary, 'test-summary');
-    });
-
-    it('adds the deprecated', async () => {
-      const opId = await store.addOperation(id, { method: 'get', deprecated: true });
-      const operation = await store.getOperation(opId);
-      assert.isTrue(operation.deprecated);
-    });
-
-    it('adds the schemes[]', async () => {
-      const opId = await store.addOperation(id, { method: 'get', schemes: ['HTTP'] });
-      const operation = await store.getOperation(opId);
-      assert.deepEqual(operation.schemes, ['HTTP']);
-    });
-
-    it('adds the accepts[]', async () => {
-      const opId = await store.addOperation(id, { method: 'get', accepts: ['application/xml'] });
-      const operation = await store.getOperation(opId);
-      assert.deepEqual(operation.accepts, ['application/xml']);
-    });
-
-    it('adds the contentType[]', async () => {
-      const opId = await store.addOperation(id, { method: 'get', contentType: ['application/xml'] });
-      const operation = await store.getOperation(opId);
-      assert.deepEqual(operation.contentType, ['application/xml']);
     });
   });
 });

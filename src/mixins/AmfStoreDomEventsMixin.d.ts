@@ -1,8 +1,8 @@
 import { EventsTargetMixin } from  '@advanced-rest-client/events-target-mixin';
 import { ApiStoreLoadGraphEvent } from '../events/StoreEvents';
 import { ApiStoreEndpointListOperationsEvent, ApiStoreEndpointAddEvent, ApiStoreEndpointDeleteEvent, ApiStoreEndpointReadEvent, ApiStoreEndpointUpdateEvent } from '../events/EndpointEvents';
-import { ApiStoreContextEvent } from '../events/BaseEvents';
-import { ApiEndPointListItem, ApiEndPointWithOperationsListItem, ApiServer, SerializedApi } from '../types';
+import { ApiStoreContextEvent, ApiStoreCreateEvent } from '../events/BaseEvents';
+import { ApiDocumentation, ApiEndPointListItem, ApiEndPointWithOperationsListItem, ApiServer, DocumentationInit, SerializedApi } from '../types';
 import { ApiCreateEvent } from '../events/ApiEvents';
 import { ApiServerAddEvent, ApiServerReadEvent } from '../events/ServerEvents';
 
@@ -22,6 +22,8 @@ export declare const apiGetHandler: unique symbol;
 export declare const serverGetHandler: unique symbol;
 export declare const serverAddHandler: unique symbol;
 export declare const serverListHandler: unique symbol;
+export declare const documentationListHandler: unique symbol;
+export declare const addDocumentationHandler: unique symbol;
 
 export declare function AmfStoreDomEventsMixin<T extends new (...args: any[]) => {}>(base: T): T & AmfStoreDomEventsMixinConstructor;
 
@@ -55,4 +57,6 @@ export declare interface AmfStoreDomEventsMixin extends EventsTargetMixin {
   [serverGetHandler](e: ApiServerReadEvent): void;
   [serverGetHandler](e: ApiServerAddEvent): void;
   [serverListHandler](e: ApiStoreContextEvent<ApiServer[]>): void;
+  [documentationListHandler](e: ApiStoreContextEvent<ApiDocumentation[]>): void;
+  [addDocumentationHandler](e: ApiStoreCreateEvent<ApiDocumentation, DocumentationInit>): void;
 }

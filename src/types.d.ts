@@ -54,6 +54,11 @@ export interface WorkerQueueItem {
   rejecter: Function;
 }
 
+interface ApiDomainProperty {
+  id: string;
+  types: string[];
+}
+
 export interface ApiInit {
   name?: string;
   description?: string;
@@ -132,8 +137,7 @@ export interface ApiEndpointsTreeItem extends ApiEndPointWithOperationsListItem 
   hasChildren?: boolean;
 }
 
-export interface ApiEndPoint {
-  id: string;
+export interface ApiEndPoint extends ApiDomainProperty {
   description?: string;
   name?: string;
   summary?: string;
@@ -146,8 +150,7 @@ export interface ApiEndPoint {
   security: string[];
 }
 
-export interface ApiOperation {
-  id: string;
+export interface ApiOperation extends ApiDomainProperty {
   method: string;
   name?: string;
   description?: string;
@@ -172,15 +175,13 @@ export interface ApiOperationListItem {
   name?: string;
 }
 
-export interface ApiServer {
-  id: string;
+export interface ApiServer extends ApiDomainProperty {
   url: string;
   variables: string[];
   description?: string;
 }
 
-export interface ApiParameter {
-  id: string;
+export interface ApiParameter extends ApiDomainProperty {
   description?: string;
   required?: boolean;
   allowEmptyValue?: boolean;
@@ -194,8 +195,7 @@ export interface ApiParameter {
   examples?: string[];
 }
 
-export interface ApiExample {
-  id: string;
+export interface ApiExample extends ApiDomainProperty {
   name?: string;
   displayName?: string;
   description?: string;
@@ -205,8 +205,7 @@ export interface ApiExample {
   mediaType?: string;
 }
 
-export interface ApiPayload {
-  id: string;
+export interface ApiPayload extends ApiDomainProperty {
   name?: string;
   mediaType?: string;
   schema?: string;
@@ -214,8 +213,7 @@ export interface ApiPayload {
   encoding: string[];
 }
 
-export interface ApiResponse {
-  id: string;
+export interface ApiResponse extends ApiDomainProperty {
   name?: string;
   description?: string;
   statusCode?: string;
@@ -225,8 +223,7 @@ export interface ApiResponse {
   links: string[];
 }
 
-export interface ApiTemplatedLink {
-  id: string;
+export interface ApiTemplatedLink extends ApiDomainProperty {
   name?: string;
   description?: string;
   template?: string;
@@ -236,21 +233,18 @@ export interface ApiTemplatedLink {
   server?: string;
 }
 
-export interface ApiSecurityRequirement {
-  id: string;
+export interface ApiSecurityRequirement extends ApiDomainProperty {
   name?: string;
   schemes: string[];
 }
 
-export interface ApiParametrizedSecurityScheme {
-  id: string;
+export interface ApiParametrizedSecurityScheme extends ApiDomainProperty {
   name?: string;
   scheme?: string;
   settings?: string;
 }
 
-export interface ApiSecurityScheme {
-  id: string;
+export interface ApiSecurityScheme extends ApiDomainProperty {
   name?: string;
   type?: string;
   displayName?: string;
@@ -262,8 +256,7 @@ export interface ApiSecurityScheme {
   queryString?: string;
 }
 
-export interface ApiRequest {
-  id: string;
+export interface ApiRequest extends ApiDomainProperty {
   description?: string;
   required?: boolean;
   queryParameters: string[];
@@ -293,11 +286,19 @@ export interface ApiSecuritySchemeListItem {
   displayName?: string;
 }
 
-export interface ApiDocumentation {
-  id: string;
+export interface ApiDocumentation extends ApiDomainProperty {
   url?: string;
   description?: string;
   title?: string;
+}
+
+export interface DocumentationInit {
+  title: string;
+  /**
+   * The documentation content. Not used with the `url`.
+   */
+  description?: string;
+  url?: string;
 }
 
 export declare interface ApiNodeShapeListItem {
@@ -306,8 +307,7 @@ export declare interface ApiNodeShapeListItem {
   displayName?: string;
 }
 
-export interface SerializedApi {
-  id: string;
+export interface SerializedApi extends ApiDomainProperty {
   isAsyncApi: boolean;
   isWebApi: boolean;
   name?: string;
@@ -324,4 +324,142 @@ export interface SerializedApi {
   documentations: string[];
   servers: string[];
   security: string[];
+}
+
+export interface ShapeInit {
+  /**
+   * The AMF type. By default it is AnyType
+   */
+  type?: string;
+  /**
+   * The schema (type) name
+   */
+  name?: string;
+  /**
+   * The schema (type) display name
+   */
+  displayName?: string;
+  description?: string;
+  readOnly?: boolean;
+  writeOnly?: boolean;
+}
+
+export type ApiShapeUnion = ApiScalarShape|ApiNodeShape|ApiUnionShape|ApiFileShape|ApiSchemaShape|ApiAnyShape|ApiArrayShape|ApiTupleShape;
+
+export interface ApiShape extends ApiDomainProperty {
+  values: (ApiScalarNode|ApiObjectNode|ApiArrayNode)[];
+  inherits: ApiShapeUnion[];
+  or: ApiShapeUnion[];
+  and: ApiShapeUnion[];
+  xone: ApiShapeUnion[];
+  name?: string;
+  displayName?: string;
+  description?: string;
+  defaultValueStr?: string;
+  deprecated?: boolean;
+  readOnly?: boolean;
+  writeOnly?: boolean;
+  defaultValue?: string;
+  not?: ApiShapeUnion;
+}
+
+export interface ApiPropertyShape extends ApiShape {
+  path?: string;
+  range?: ApiShapeUnion;
+  minCount?: number;
+  maxCount?: number;
+  patternName?: string;
+}
+
+export interface ApiAnyShape extends ApiShape {
+  documentation?: ApiDocumentation;
+  xmlSerialization: ApiXMLSerializer;
+  examples: ApiExample[];
+}
+
+export interface ApiNodeShape extends ApiAnyShape {
+  minProperties?: number;
+  maxProperties?: number;
+  closed?: boolean;
+  customShapeProperties: string[];
+  customShapePropertyDefinitions: string[];
+  discriminator?: string;
+  discriminatorValue?: string;
+  properties: ApiPropertyShape[];
+  dependencies: string[];
+}
+
+export interface ApiXMLSerializer extends ApiDomainProperty {
+  attribute?: boolean;
+  wrapped?: boolean;
+  name?: string;
+  namespace?: string;
+  prefix?: string;
+}
+
+export interface ApiScalarShape extends ApiAnyShape {
+  dataType?: string;
+  pattern?: string;
+  minLength?: number;
+  maxLength?: number;
+  minimum?: number;
+  maximum?: number;
+  exclusiveMinimum?: boolean;
+  exclusiveMaximum?: boolean;
+  format?: string;
+  multipleOf?: number;
+}
+
+export interface ApiFileShape extends ApiAnyShape {
+  fileTypes?: string[];
+  pattern?: string;
+  minLength?: number;
+  maxLength?: number;
+  minimum?: number;
+  maximum?: number;
+  exclusiveMinimum?: boolean;
+  exclusiveMaximum?: boolean;
+  format?: string;
+  multipleOf?: number;
+}
+
+export interface ApiSchemaShape extends ApiAnyShape {
+  mediaType?: string;
+  raw?: string;
+}
+
+export interface ApiUnionShape extends ApiAnyShape {
+  anyOf: ApiShapeUnion[];
+}
+
+export interface ApiDataArrangeShape extends ApiAnyShape {
+  minItems?: number;
+  maxItems?: number;
+  uniqueItems?: boolean;
+}
+
+export interface ApiArrayShape extends ApiDataArrangeShape {
+  items?: ApiShapeUnion;
+}
+
+export interface ApiTupleShape extends ApiDataArrangeShape {
+  items: ApiShapeUnion[];
+  additionalItems?: boolean;
+}
+
+export interface ApiDataNode extends ApiDomainProperty {
+  name?: string;
+}
+
+export interface ApiObjectNode extends ApiDataNode {
+  properties: { [key: string]: ApiScalarNode|ApiObjectNode|ApiArrayNode };
+}
+
+export interface ApiScalarNode extends ApiDataNode {
+  value?: string;
+  dataType?: string;
+}
+
+export interface ApiArrayNode extends ApiDataNode {
+  members: (ApiScalarNode|ApiObjectNode|ApiArrayNode)[];
 }

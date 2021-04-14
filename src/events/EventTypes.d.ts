@@ -29,22 +29,17 @@ declare interface ApiEvents {
   generateGraph: string;
   get: string;
 }
-declare interface EndpointEvents {
+declare interface EndpointEvents extends EventsCRUD {
   list: string;
   listWithOperations: string;
   listOperations: string;
-  add: string;
-  delete: string;
-  get: string;
-  update: string;
+  State: Readonly<StateCUD>;
 }
-declare interface OperationEvents {
-  add: string;
-  get: string;
-  delete: string;
+declare interface OperationEvents extends EventsCRUD {
   updateOperationProperty: string;
   addRequest: string;
   addResponse: string;
+  State: Readonly<StateCUD>;
 }
 declare interface ParameterEvents {
   get: string;
@@ -61,8 +56,9 @@ declare interface RequestEvents {
 declare interface ResponseEvents {
   get: string;
 }
-declare interface DocumentationEvents {
+declare interface DocumentationEvents extends EventsCRUD {
   list: string;
+  State: Readonly<StateCUD>;
 }
 declare interface SecurityEvents {
   list: string;
@@ -72,6 +68,20 @@ declare interface ServerEvents {
   add: string;
   get: string;
 }
-declare interface TypeEvents {
+declare interface TypeEvents extends EventsCRUD {
   list: string;
+  State: Readonly<StateCUD>;
+}
+
+declare interface StateCUD {
+  updated: string;
+  deleted: string;
+  created: string;
+}
+
+declare interface EventsCRUD {
+  add: string;
+  get: string;
+  update: string;
+  delete: string;
 }

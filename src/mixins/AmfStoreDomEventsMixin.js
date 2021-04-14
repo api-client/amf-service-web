@@ -9,7 +9,13 @@ import { EventTypes } from '../events/EventTypes.js';
 /** @typedef {import('../events/EndpointEvents').ApiStoreEndpointDeleteEvent} ApiStoreEndpointDeleteEvent */
 /** @typedef {import('../events/EndpointEvents').ApiStoreEndpointReadEvent} ApiStoreEndpointReadEvent */
 /** @typedef {import('../events/EndpointEvents').ApiStoreEndpointUpdateEvent} ApiStoreEndpointUpdateEvent */
+/** @typedef {import('../events/OperationEvents').ApiStoreOperationCreateEvent} ApiStoreOperationCreateEvent */
+/** @typedef {import('../events/OperationEvents').ApiStoreOperationReadEvent} ApiStoreOperationReadEvent */
 /** @typedef {import('../events/BaseEvents').ApiStoreContextEvent} ApiStoreContextEvent */
+/** @typedef {import('../events/BaseEvents').ApiStoreCreateEvent} ApiStoreCreateEvent */
+/** @typedef {import('../events/BaseEvents').ApiStoreDeleteEvent} ApiStoreDeleteEvent */
+/** @typedef {import('../events/BaseEvents').ApiStoreUpdateScalarEvent} ApiStoreUpdateScalarEvent */
+/** @typedef {import('../events/BaseEvents').ApiStoreReadEvent} ApiStoreReadEvent */
 /** @typedef {import('../events/ApiEvents').ApiCreateEvent} ApiCreateEvent */
 /** @typedef {import('../events/ServerEvents').ApiServerReadEvent} ApiServerReadEvent */
 /** @typedef {import('../events/ServerEvents').ApiServerAddEvent} ApiServerAddEvent */
@@ -33,6 +39,18 @@ export const serverListHandler = Symbol('serverListHandler');
 export const documentationListHandler = Symbol('documentationListHandler');
 export const securityListHandler = Symbol('securityListHandler');
 export const typeListHandler = Symbol('typeListHandler');
+export const addTypeHandler = Symbol('addTypeHandler');
+export const readTypeHandler = Symbol('readTypeHandler');
+export const updateTypeHandler = Symbol('updateTypeHandler');
+export const deleteTypeHandler = Symbol('deleteTypeHandler');
+export const addDocumentationHandler = Symbol('addDocumentationHandler');
+export const readDocumentationHandler = Symbol('readDocumentationHandler');
+export const updateDocumentationHandler = Symbol('updateDocumentationHandler');
+export const deleteDocumentationHandler = Symbol('deleteDocumentationHandler');
+export const addOperationHandler = Symbol('addOperationHandler');
+export const readOperationHandler = Symbol('readOperationHandler');
+export const updateOperationHandler = Symbol('updateOperationHandler');
+export const deleteOperationHandler = Symbol('deleteOperationHandler');
 
 const mxFunction = base => {
   class AmfStoreDomEventsMixin extends EventsTargetMixin(base) {
@@ -60,6 +78,18 @@ const mxFunction = base => {
       this[documentationListHandler] = this[documentationListHandler].bind(this);
       this[securityListHandler] = this[securityListHandler].bind(this);
       this[typeListHandler] = this[typeListHandler].bind(this);
+      this[addDocumentationHandler] = this[addDocumentationHandler].bind(this);
+      this[readDocumentationHandler] = this[readDocumentationHandler].bind(this);
+      this[updateDocumentationHandler] = this[updateDocumentationHandler].bind(this);
+      this[deleteDocumentationHandler] = this[deleteDocumentationHandler].bind(this);
+      this[addTypeHandler] = this[addTypeHandler].bind(this);
+      this[readTypeHandler] = this[readTypeHandler].bind(this);
+      this[updateTypeHandler] = this[updateTypeHandler].bind(this);
+      this[deleteTypeHandler] = this[deleteTypeHandler].bind(this);
+      this[addOperationHandler] = this[addOperationHandler].bind(this);
+      this[readOperationHandler] = this[readOperationHandler].bind(this);
+      this[updateOperationHandler] = this[updateOperationHandler].bind(this);
+      this[deleteOperationHandler] = this[deleteOperationHandler].bind(this);
     }
 
     /**
@@ -87,12 +117,25 @@ const mxFunction = base => {
       node.addEventListener(EventTypes.Endpoint.delete, this[endpointDeleteHandler]);
       node.addEventListener(EventTypes.Endpoint.get, this[endpointGetHandler]);
       node.addEventListener(EventTypes.Endpoint.update, this[endpointUpdateHandler]);
+      // Operation related events
+      node.addEventListener(EventTypes.Operation.add, this[addOperationHandler]);
+      node.addEventListener(EventTypes.Operation.delete, this[deleteOperationHandler]);
+      node.addEventListener(EventTypes.Operation.update, this[updateOperationHandler]);
+      node.addEventListener(EventTypes.Operation.get, this[readOperationHandler]);
       // API documentation related events
       node.addEventListener(EventTypes.Documentation.list, this[documentationListHandler]);
+      node.addEventListener(EventTypes.Documentation.add, this[addDocumentationHandler]);
+      node.addEventListener(EventTypes.Documentation.get, this[readDocumentationHandler]);
+      node.addEventListener(EventTypes.Documentation.update, this[updateDocumentationHandler]);
+      node.addEventListener(EventTypes.Documentation.delete, this[deleteDocumentationHandler]);
       // API security related events
       node.addEventListener(EventTypes.Security.list, this[securityListHandler]);
       // API types/schemas related events
       node.addEventListener(EventTypes.Type.list, this[typeListHandler]);
+      node.addEventListener(EventTypes.Type.add, this[addTypeHandler]);
+      node.addEventListener(EventTypes.Type.get, this[readTypeHandler]);
+      node.addEventListener(EventTypes.Type.update, this[updateTypeHandler]);
+      node.addEventListener(EventTypes.Type.delete, this[deleteTypeHandler]);
     }
 
     /**
@@ -120,12 +163,25 @@ const mxFunction = base => {
       node.removeEventListener(EventTypes.Endpoint.delete, this[endpointDeleteHandler]);
       node.removeEventListener(EventTypes.Endpoint.get, this[endpointGetHandler]);
       node.removeEventListener(EventTypes.Endpoint.update, this[endpointUpdateHandler]);
+      // Operation related events
+      node.removeEventListener(EventTypes.Operation.add, this[addOperationHandler]);
+      node.removeEventListener(EventTypes.Operation.delete, this[deleteOperationHandler]);
+      node.removeEventListener(EventTypes.Operation.update, this[updateOperationHandler]);
+      node.removeEventListener(EventTypes.Operation.get, this[readOperationHandler]);
       // API documentation related events
       node.removeEventListener(EventTypes.Documentation.list, this[documentationListHandler]);
+      node.removeEventListener(EventTypes.Documentation.add, this[addDocumentationHandler]);
+      node.removeEventListener(EventTypes.Documentation.get, this[readDocumentationHandler]);
+      node.removeEventListener(EventTypes.Documentation.update, this[updateDocumentationHandler]);
+      node.removeEventListener(EventTypes.Documentation.delete, this[deleteDocumentationHandler]);
       // API security related events
       node.removeEventListener(EventTypes.Security.list, this[securityListHandler]);
       // API types/schemas related events
       node.removeEventListener(EventTypes.Type.list, this[typeListHandler]);
+      node.removeEventListener(EventTypes.Type.add, this[addTypeHandler]);
+      node.removeEventListener(EventTypes.Type.get, this[readTypeHandler]);
+      node.removeEventListener(EventTypes.Type.update, this[updateTypeHandler]);
+      node.removeEventListener(EventTypes.Type.delete, this[deleteTypeHandler]);
     }
 
     /**
@@ -325,6 +381,54 @@ const mxFunction = base => {
     }
 
     /**
+     * @param {ApiStoreCreateEvent} e 
+     */
+    [addDocumentationHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { init } = e.detail;
+      e.detail.result = this.addDocumentation(init);
+    }
+
+    /**
+     * @param {ApiStoreReadEvent} e 
+     */
+    [readDocumentationHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id } = e.detail;
+      e.detail.result = this.getDocumentation(id);
+    }
+
+    /**
+     * @param {ApiStoreUpdateScalarEvent} e 
+     */
+    [updateDocumentationHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id, property, value } = e.detail;
+      e.detail.result = this.updateDocumentationProperty(id, property, value);
+    }
+
+    /**
+     * @param {ApiStoreDeleteEvent} e 
+     */
+    [deleteDocumentationHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id } = e.detail;
+      e.detail.result = this.deleteDocumentation(id);
+    }
+
+    /**
      * @param {ApiStoreContextEvent} e 
      */
     [securityListHandler](e) {
@@ -344,6 +448,102 @@ const mxFunction = base => {
       }
       e.preventDefault();
       e.detail.result = this.listTypes();
+    }
+
+    /**
+     * @param {ApiStoreCreateEvent} e 
+     */
+    [addTypeHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { init } = e.detail;
+      e.detail.result = this.addType(init);
+    }
+
+    /**
+     * @param {ApiStoreReadEvent} e 
+     */
+    [readTypeHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id } = e.detail;
+      e.detail.result = this.getType(id);
+    }
+
+    /**
+     * @param {ApiStoreUpdateScalarEvent} e 
+     */
+    [updateTypeHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id, property, value } = e.detail;
+      e.detail.result = this.updateTypeProperty(id, property, value);
+    }
+
+    /**
+     * @param {ApiStoreDeleteEvent} e 
+     */
+    [deleteTypeHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id } = e.detail;
+      e.detail.result = this.deleteType(id);
+    }
+
+    /**
+     * @param {ApiStoreOperationCreateEvent} e 
+     */
+    [addOperationHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { pathOrId, init } = e.detail;
+      e.detail.result = this.addOperation(pathOrId, init);
+    }
+
+    /**
+     * @param {ApiStoreOperationReadEvent} e 
+     */
+    [readOperationHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { methodOrId, pathOrId } = e.detail;
+      e.detail.result = this.getOperation(methodOrId, pathOrId);
+    }
+
+    /**
+     * @param {ApiStoreUpdateScalarEvent} e 
+     */
+    [updateOperationHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id, property, value } = e.detail;
+      e.detail.result = this.updateOperationProperty(id, property, value);
+    }
+
+    /**
+     * @param {ApiStoreDeleteEvent} e 
+     */
+    [deleteOperationHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id } = e.detail;
+      e.detail.result = this.deleteOperation(id);
     }
   }
   return AmfStoreDomEventsMixin;

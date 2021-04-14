@@ -29,6 +29,10 @@
 /** @typedef {import('./types').ApiNodeShapeListItem} ApiNodeShapeListItem */
 /** @typedef {import('./types').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
 /** @typedef {import('./types').SerializedApi} SerializedApi */
+/** @typedef {import('./types').DocumentationInit} DocumentationInit */
+/** @typedef {import('./types').ApiNodeShape} ApiNodeShape */
+/** @typedef {import('./types').ShapeInit} ShapeInit */
+/** @typedef {import('./types').ApiShapeUnion} ApiShapeUnion */
 
 export const workerValue = Symbol("workerValue");
 export const nextIdValue = Symbol("nextIdValue");
@@ -156,7 +160,7 @@ export class AmfStoreProxy {
   /**
    * Adds a new endpoint to the API and returns it.
    * @param {EndPointInit} init EndPoint init parameters
-   * @returns {Promise<string>}
+   * @returns {Promise<ApiEndPoint>}
    */
   async addEndpoint(init) {
     return this[sendMessage]('addEndpoint', init);
@@ -185,6 +189,7 @@ export class AmfStoreProxy {
    * @param {string} id The domain id of the operation.
    * @param {string} property The property name to update
    * @param {any} value The new value to set.
+   * @returns {Promise<ApiEndPoint>}
    */
   async updateEndpointProperty(id, property, value) {
     return this[sendMessage]('updateEndpointProperty', id, property, value);
@@ -194,7 +199,7 @@ export class AmfStoreProxy {
    * Adds an empty operation to an endpoint.
    * @param {string} pathOrId The path or domain id of the endpoint that is the parent of the operation.
    * @param {OperationInit} init The operation initialize options
-   * @returns {Promise<string>}
+   * @returns {Promise<ApiOperation>}
    */
   async addOperation(pathOrId, init) {
     return this[sendMessage]('addOperation', pathOrId, init);
@@ -222,7 +227,7 @@ export class AmfStoreProxy {
   /**
    * Removes an operation from the graph.
    * @param {string} id The operation id to remove.
-   * @returns {Promise<string>} The id of the removed operation or undefined if operation is not in the graph.
+   * @returns {Promise<string|undefined>} The id of the affected endpoint. Undefined when operation or endpoint cannot be found.
    */
   async deleteOperation(id) {
     return this[sendMessage]('deleteOperation', id);
@@ -233,6 +238,7 @@ export class AmfStoreProxy {
    * @param {string} id The domain id of the operation.
    * @param {string} property The property name to update
    * @param {any} value The new value to set.
+   * @returns {Promise<ApiOperation>}
    */
   async updateOperationProperty(id, property, value) {
     return this[sendMessage]('updateOperationProperty', id, property, value);
@@ -355,11 +361,86 @@ export class AmfStoreProxy {
   }
 
   /**
+   * Adds a new documentation object to the graph.
+   * @param {DocumentationInit} init The initialization properties
+   * @returns {Promise<ApiDocumentation>} The created documentation.
+   */
+  async addDocumentation(init) {
+    return this[sendMessage]('addDocumentation', init);
+  }
+
+  /**
+   * Reads the documentation object from the store.
+   * @param {string} id The domain id of the documentation object
+   * @returns {Promise<ApiDocumentation|undefined>} The read documentation.
+   */
+  async getDocumentation(id) {
+    return this[sendMessage]('getDocumentation', id);
+  }
+
+  /**
+   * Updates a scalar property of a documentation.
+   * @param {string} id The domain id of the documentation.
+   * @param {string} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiDocumentation>}
+   */
+  async updateDocumentationProperty(id, property, value) {
+    return this[sendMessage]('updateDocumentationProperty', id, property, value);
+  }
+
+  /**
+   * Removes the documentation from the graph.
+   * @param {string} id The domain id of the documentation object
+   */
+  async deleteDocumentation(id) {
+    await this[sendMessage]('deleteDocumentation', id);
+  }
+
+  /**
    * Lists the type (schema) definitions for the API.
    * @returns {Promise<ApiNodeShapeListItem[]>}
    */
   async listTypes() {
     return this[sendMessage]('listTypes');
+  }
+
+  /**
+   * 
+   * @param {string} id The domain id of the API type (schema).
+   * @returns {Promise<ApiShapeUnion>}
+   */
+  async getType(id) {
+    return this[sendMessage]('getType', id);
+  }
+
+  /**
+   * Creates a new type in the API.
+   * @param {ShapeInit=} init The Shape init options.
+   * @returns {Promise<ApiShapeUnion>}
+   */
+   async addType(init) {
+    return this[sendMessage]('addType', init);
+  }
+
+  /**
+   * Removes a type for a given domain id.
+   * @param {string} id The type domain id.
+   * @returns {Promise<boolean>} True when the type has been found and removed.
+   */
+   async deleteType(id) {
+    return this[sendMessage]('deleteType', id);
+  }
+
+  /**
+   * Updates a scalar property of a type.
+   * @param {string} id The domain id of the type.
+   * @param {string} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiShapeUnion>}
+   */
+  async updateTypeProperty(id, property, value) {
+    return this[sendMessage]('updateTypeProperty', id, property, value);
   }
 
   /**

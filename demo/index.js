@@ -128,6 +128,17 @@ class ComponentPage extends DemoPage {
           this.log(items);
         }
         break;
+      case 'readType':
+        {
+          const input = /** @type HTMLInputElement */ (document.getElementById('typeId'));
+          const id = input.value.trim();
+          if (!id) {
+            return;
+          }
+          const result = await this.store.getType(id); 
+          this.log(result);
+        }
+        break;
       default: console.warn(`Unhandled action ${button.id}`);
     }
   }
@@ -200,6 +211,13 @@ class ComponentPage extends DemoPage {
           <button id="addOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Add operation (needs endpoint and operation)</button>
           <button id="readOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Read operation</button>
           <button id="deleteOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Delete operation</button>
+        </div>
+
+        <h4>Types</h4>
+        <div>
+          <label for="typeId">Type id</label>
+          <input type="text" id="typeId" value=""/>
+          <button id="readType" ?disabled="${!loaded}" @click="${this.actionHandler}">Read type</button>
         </div>
       </div>
 

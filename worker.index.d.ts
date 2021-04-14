@@ -5,6 +5,7 @@ export { EndpointsTree } from './src/EndpointsTree';
 export * from './src/types';
 export { Events as StoreEvents } from './src/events/Events';
 export { EventTypes as StoreEventTypes } from './src/events/EventTypes';
+export { ApiStoreContextEvent, ApiStoreCreateEvent, ApiStoreDeleteEvent, ApiStoreReadEvent, ApiStoreUpdateScalarEvent } from './src/events/BaseEvents';
 export { ApiStoreLoadGraphEvent } from './src/events/StoreEvents.js';
 export { 
   ApiStoreEndpointListOperationsEvent, 
@@ -14,6 +15,7 @@ export {
   ApiStoreEndpointUpdateEvent,
   EndpointEvents,
 } from './src/events/EndpointEvents.js';
+export { OperationEvents, ApiStoreOperationCreateEvent, ApiStoreOperationCreateEventDetail, ApiStoreOperationReadEvent, ApiStoreOperationReadEventDetail } from './src/events/OperationEvents';
 export {
   ApiCreateEvent,
   ApiEvents,

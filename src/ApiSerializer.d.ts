@@ -1,5 +1,5 @@
 import { model } from 'amf-client-js';
-import { ApiDocumentation, ApiEndPoint, ApiEndPointListItem, ApiEndPointWithOperationsListItem, ApiExample, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiTemplatedLink, SerializedApi } from "./types";
+import { ApiAnyShape, ApiArrayNode, ApiArrayShape, ApiDataArrangeShape, ApiDataNode, ApiDocumentation, ApiEndPoint, ApiEndPointListItem, ApiEndPointWithOperationsListItem, ApiExample, ApiFileShape, ApiNodeShape, ApiNodeShapeListItem, ApiObjectNode, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiPropertyShape, ApiRequest, ApiResponse, ApiScalarNode, ApiScalarShape, ApiSchemaShape, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiShape, ApiShapeUnion, ApiTemplatedLink, ApiTupleShape, ApiUnionShape, ApiXMLSerializer, SerializedApi } from "./types";
 
 export declare class ApiSerializer {
   /**
@@ -116,4 +116,25 @@ export declare class ApiSerializer {
    * @returns Serialized NodeShape
    */
   static nodeShapeListItem(object: model.domain.NodeShape): ApiNodeShapeListItem;
+  static unknownShape(object: model.domain.Shape): ApiShapeUnion;
+  /**
+   * @param object The NodeShape to serialize
+   */
+  static nodeShape(object: model.domain.NodeShape): ApiNodeShape;
+  static propertyShape(object: model.domain.PropertyShape): ApiPropertyShape;
+  static shape(object: model.domain.Shape): ApiShape;
+  static anyShape(object: model.domain.AnyShape): ApiAnyShape;
+  static xmlSerializer(object: model.domain.XMLSerializer): ApiXMLSerializer;
+  static scalarShape(object: model.domain.ScalarShape): ApiScalarShape;
+  static unionShape(object: model.domain.UnionShape): ApiUnionShape;
+  static fileShape(object: model.domain.FileShape): ApiFileShape;
+  static schemaShape(object: model.domain.SchemaShape):ApiSchemaShape;
+  static dataArrangeShape(object: model.domain.DataArrangeShape): ApiDataArrangeShape;
+  static arrayShape(object: model.domain.ArrayShape): ApiArrayShape;
+  static tupleShape(object: model.domain.TupleShape): ApiTupleShape;
+  static unknownDataNode(object: model.domain.DataNode): ApiScalarNode|ApiObjectNode|ApiArrayNode|undefined;
+  static dataNode(object: model.domain.DataNode): ApiDataNode;
+  static scalarNode(object: model.domain.ScalarNode): ApiScalarNode;
+  static objectNode(object: model.domain.ObjectNode): ApiObjectNode;
+  static arrayNode(object: model.domain.ArrayNode): ApiArrayNode;
 }
