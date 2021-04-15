@@ -4,7 +4,16 @@ export { ApiSorting } from './src/ApiSorting.js';
 export { EndpointsTree } from './src/EndpointsTree.js';
 export { Events as StoreEvents } from './src/events/Events.js';
 export { EventTypes as StoreEventTypes } from './src/events/EventTypes.js';
-export { ApiStoreContextEvent, ApiStoreCreateEvent, ApiStoreDeleteEvent, ApiStoreReadEvent, ApiStoreUpdateScalarEvent } from './src/events/BaseEvents.js';
+export { 
+  ApiStoreContextEvent, 
+  ApiStoreCreateEvent, 
+  ApiStoreDeleteEvent, 
+  ApiStoreReadEvent, 
+  ApiStoreUpdateScalarEvent, 
+  ApiStoreStateCreateEvent, 
+  ApiStoreStateDeleteEvent, 
+  ApiStoreStateUpdateEvent, 
+} from './src/events/BaseEvents.js';
 export { ApiStoreLoadGraphEvent } from './src/events/StoreEvents.js';
 export { 
   ApiStoreEndpointListOperationsEvent, 
