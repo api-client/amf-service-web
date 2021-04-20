@@ -47,9 +47,9 @@ declare interface IServerEvents {
    * Adds a server definition to the API.
    * @param target The node on which to dispatch the event
    * @param init 
-   * @returns The domain id of the created server.
+   * @returns The instance of the created server.
    */
-  add(target: EventTarget, init: ApiServerInit): Promise<string>;
+  add(target: EventTarget, init: ApiServerInit): Promise<ApiServer>;
   /**
    * Reads the Server definition from the graph.
    * @param target The node on which to dispatch the event

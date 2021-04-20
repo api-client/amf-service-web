@@ -63,7 +63,7 @@ export const ServerEvents = {
    * Adds a server definition to the API.
    * @param {EventTarget} target The node on which to dispatch the event
    * @param {ApiServerInit} init 
-   * @returns {Promise<string>} The domain id of the created server.
+   * @returns {Promise<ApiServer>} The instance of the created server
    */
   add: async (target, init) => {
     const e = new ApiServerAddEvent(init);

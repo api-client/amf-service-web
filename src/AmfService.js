@@ -198,7 +198,7 @@ export class AmfService {
   /**
    * Adds a server definition to the API.
    * @param {ApiServerInit} init 
-   * @returns {Promise<string>} The domain id of the created server.
+   * @returns {Promise<ApiServer>} The instance of the created server
    */
   async addServer(init) {
     if (!init.url) {
@@ -213,7 +213,7 @@ export class AmfService {
     if (Array.isArray(init.variables) && init.variables.length) {
       init.variables.forEach(v => srv.withVariable(v));
     }
-    return srv.id;
+    return ApiSerializer.server(srv);
   }
 
   /**

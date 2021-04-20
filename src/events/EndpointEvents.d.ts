@@ -122,7 +122,7 @@ declare interface IEndpointEvents {
    * @param endpointInit The endpoint init definition
    * @returns The generated id for the endpoint.
    */
-  add(target: EventTarget, endpointInit: EndPointInit): Promise<string>;
+  add(target: EventTarget, endpointInit: EndPointInit): Promise<ApiEndPoint>;
   /**
    * @param target The node on which to dispatch the event
    * @param endpointId The id of the endpoint to remove.

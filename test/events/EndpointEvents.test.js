@@ -164,7 +164,7 @@ describe('StoreEvents', () => {
       });
     });
 
-    describe('get()', () => {
+    describe('update()', () => {
       const id = 'amf://id';
       const prop = 'name';
       const value = 'test-value';

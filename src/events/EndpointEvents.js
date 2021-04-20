@@ -166,7 +166,7 @@ export const EndpointEvents = {
   /**
    * @param {EventTarget} target The node on which to dispatch the event
    * @param {EndPointInit} endpointInit The endpoint init definition
-   * @returns {Promise<string>} The generated id for the endpoint.
+   * @returns {Promise<ApiEndPoint>} The generated id for the endpoint.
    */
   add: async (target, endpointInit) => {
     const e = new ApiStoreEndpointAddEvent(endpointInit);

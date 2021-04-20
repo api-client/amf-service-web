@@ -66,9 +66,9 @@ export declare class AmfStoreProxy {
   /**
    * Adds a server definition to the API.
    * @param init 
-   * @returns The domain id of the created server.
+   * @returns The instance of the created server
    */
-  addServer(init: ApiServerInit): Promise<string>;
+  addServer(init: ApiServerInit): Promise<ApiServer>;
 
   /**
    * Reads the Server definition from the graph.

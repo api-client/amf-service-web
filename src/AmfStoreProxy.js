@@ -126,7 +126,7 @@ export class AmfStoreProxy {
   /**
    * Adds a server definition to the API.
    * @param {ApiServerInit} init 
-   * @returns {Promise<string>} The domain id of the created server.
+   * @returns {Promise<ApiServer>} The instance of the created server
    */
   async addServer(init) {
     return this[sendMessage]('addServer', init);

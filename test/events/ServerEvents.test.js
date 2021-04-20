@@ -51,7 +51,7 @@ describe('StoreEvents', () => {
 
       it('waits until resolved', async () => {
         const et = await etFixture();
-        const data = 'test-id';
+        const data = { id: 'test' };
         et.addEventListener(StoreEventTypes.Server.add, (e) => {
           e.detail.result = Promise.resolve(data);
         });
