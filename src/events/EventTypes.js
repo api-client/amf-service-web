@@ -30,6 +30,7 @@ export const EventTypes = {
     delete: 'apistoreopdelete',
     addRequest: 'apistoreopaddrequest',
     addResponse: 'apistoreopaddresponse',
+    getParent: 'apistoreopgetparent',
     State: {
       updated: 'apistoreopstateupdate',
       deleted: 'apistoreopstatedelete',

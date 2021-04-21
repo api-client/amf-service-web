@@ -34,6 +34,7 @@
     "apistoreopaddresponse",
     "apistoreopdelete",
     "apistoreopget",
+    "apistoreopgetparent",
     "apistoreopstatecreate",
     "apistoreopstatedelete",
     "apistoreopstateupdate",

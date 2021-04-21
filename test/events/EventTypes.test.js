@@ -134,6 +134,7 @@ describe('StoreEventTypes', () => {
       ['delete', 'apistoreopdelete'],
       ['addRequest', 'apistoreopaddrequest'],
       ['addResponse', 'apistoreopaddresponse'],
+      ['getParent', 'apistoreopgetparent'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
         assert.equal(StoreEventTypes.Operation[prop], value);

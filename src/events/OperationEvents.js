@@ -4,6 +4,7 @@ import { ApiStoreContextEvent, ApiStoreUpdateScalarEvent, ApiStoreDeleteEvent } 
 
 /** @typedef {import('../types').ApiOperation} ApiOperation */
 /** @typedef {import('../types').OperationInit} OperationInit */
+/** @typedef {import('../types').ApiEndPoint} ApiEndPoint */
 
 /**
  * An event to be used to initialize a new object in the API store.
@@ -28,6 +29,19 @@ export class ApiStoreOperationReadEvent extends ApiStoreContextEvent {
    */
   constructor(methodOrId, pathOrId) {
     super(EventTypes.Operation.get, { methodOrId, pathOrId });
+  }
+}
+
+/**
+ * An event to be used to read an operation parent from the store.
+ */
+export class ApiStoreOperationParentReadEvent extends ApiStoreContextEvent {
+  /**
+   * @param {string} methodOrId Method name or the domain id of the operation to find
+   * @param {string=} pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
+   */
+  constructor(methodOrId, pathOrId) {
+    super(EventTypes.Operation.getParent, { methodOrId, pathOrId });
   }
 }
 
@@ -79,6 +93,18 @@ export const OperationEvents = {
     const e = new ApiStoreDeleteEvent(EventTypes.Operation.delete, id);
     target.dispatchEvent(e);
     await e.detail.result;
+  },
+  /**
+   * Reads the operation parent from the store.
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string} methodOrId Method name or the domain id of the operation to find
+   * @param {string=} pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
+   * @returns {Promise<ApiEndPoint>}
+   */
+  getParent: async (target, methodOrId, pathOrId) => {
+    const e = new ApiStoreOperationParentReadEvent(methodOrId, pathOrId);
+    target.dispatchEvent(e);
+    return e.detail.result;
   },
 };
 

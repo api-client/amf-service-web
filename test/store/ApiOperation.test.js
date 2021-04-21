@@ -220,6 +220,52 @@ describe('AmfStoreService', () => {
     });
   });
 
+  describe('getOperationParent()', () => {
+    let id = /** @type string */ (null);
+    let epId = /** @type string */ (null);
+    const path = '/test';
+
+    beforeEach(async () => {
+      await store.createWebApi();
+      epId = (await store.addEndpoint({ path })).id;
+      const op = await store.addOperation(epId, { 
+        method: 'get',
+        accepts: ['application/json'],
+        contentType: ['application/xml'],
+        deprecated: true,
+        description: 'test op description',
+        name: 'test name',
+        schemes: ['HTTPS'],
+        summary: 'op summary',
+      });
+      id = op.id;
+    });
+
+    it('returns an endpoint', async () => {
+      const result = await store.getOperationParent(id);
+      assert.typeOf(result, 'object', 'is the object');
+      const [type] = result.types;
+      assert.equal(type, ns.aml.vocabularies.apiContract.EndPoint);
+    });
+
+    it('returns operation parent', async () => {
+      const result = await store.getOperationParent(id);
+      assert.equal(result.id, epId, 'has the id of the created endpoint');
+    });
+
+    it('parent has the operation as child', async () => {
+      const result = await store.getOperationParent(id);
+      assert.include(result.operations, id);
+    });
+
+    it('reads the parent via the event', async () => {
+      const result = await StoreEvents.Operation.getParent(window, id);
+      assert.typeOf(result, 'object', 'is the object');
+      const [type] = result.types;
+      assert.equal(type, ns.aml.vocabularies.apiContract.EndPoint);
+    });
+  });
+
   describe('updateOperationProperty()', () => {
     let id = /** @type string */ (null);
     const path = '/test';

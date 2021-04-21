@@ -234,6 +234,16 @@ export class AmfStoreProxy {
   }
 
   /**
+   * Finds an endpoint that has the operation.
+   * @param {string} methodOrId Method name or the domain id of the operation to find
+   * @param {string=} pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
+   * @returns {Promise<ApiEndPoint|undefined>}
+   */
+  async getOperationParent(methodOrId, pathOrId) {
+    return this[sendMessage]('getOperationParent', methodOrId, pathOrId);
+  }
+
+  /**
    * Updates a scalar property of an operation.
    * @param {string} id The domain id of the operation.
    * @param {string} property The property name to update

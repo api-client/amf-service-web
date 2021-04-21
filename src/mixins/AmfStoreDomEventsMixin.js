@@ -11,6 +11,7 @@ import { EventTypes } from '../events/EventTypes.js';
 /** @typedef {import('../events/EndpointEvents').ApiStoreEndpointUpdateEvent} ApiStoreEndpointUpdateEvent */
 /** @typedef {import('../events/OperationEvents').ApiStoreOperationCreateEvent} ApiStoreOperationCreateEvent */
 /** @typedef {import('../events/OperationEvents').ApiStoreOperationReadEvent} ApiStoreOperationReadEvent */
+/** @typedef {import('../events/OperationEvents').ApiStoreOperationParentReadEvent} ApiStoreOperationParentReadEvent */
 /** @typedef {import('../events/BaseEvents').ApiStoreContextEvent} ApiStoreContextEvent */
 /** @typedef {import('../events/BaseEvents').ApiStoreCreateEvent} ApiStoreCreateEvent */
 /** @typedef {import('../events/BaseEvents').ApiStoreDeleteEvent} ApiStoreDeleteEvent */
@@ -51,6 +52,7 @@ export const addOperationHandler = Symbol('addOperationHandler');
 export const readOperationHandler = Symbol('readOperationHandler');
 export const updateOperationHandler = Symbol('updateOperationHandler');
 export const deleteOperationHandler = Symbol('deleteOperationHandler');
+export const readOperationParentHandler = Symbol('readOperationParentHandler');
 
 const mxFunction = base => {
   class AmfStoreDomEventsMixin extends EventsTargetMixin(base) {
@@ -90,6 +92,7 @@ const mxFunction = base => {
       this[readOperationHandler] = this[readOperationHandler].bind(this);
       this[updateOperationHandler] = this[updateOperationHandler].bind(this);
       this[deleteOperationHandler] = this[deleteOperationHandler].bind(this);
+      this[readOperationParentHandler] = this[readOperationParentHandler].bind(this);
     }
 
     /**
@@ -122,6 +125,7 @@ const mxFunction = base => {
       node.addEventListener(EventTypes.Operation.delete, this[deleteOperationHandler]);
       node.addEventListener(EventTypes.Operation.update, this[updateOperationHandler]);
       node.addEventListener(EventTypes.Operation.get, this[readOperationHandler]);
+      node.addEventListener(EventTypes.Operation.getParent, this[readOperationParentHandler]);
       // API documentation related events
       node.addEventListener(EventTypes.Documentation.list, this[documentationListHandler]);
       node.addEventListener(EventTypes.Documentation.add, this[addDocumentationHandler]);
@@ -168,6 +172,7 @@ const mxFunction = base => {
       node.removeEventListener(EventTypes.Operation.delete, this[deleteOperationHandler]);
       node.removeEventListener(EventTypes.Operation.update, this[updateOperationHandler]);
       node.removeEventListener(EventTypes.Operation.get, this[readOperationHandler]);
+      node.removeEventListener(EventTypes.Operation.getParent, this[readOperationParentHandler]);
       // API documentation related events
       node.removeEventListener(EventTypes.Documentation.list, this[documentationListHandler]);
       node.removeEventListener(EventTypes.Documentation.add, this[addDocumentationHandler]);
@@ -544,6 +549,18 @@ const mxFunction = base => {
       e.preventDefault();
       const { id } = e.detail;
       e.detail.result = this.deleteOperation(id);
+    }
+
+    /**
+     * @param {ApiStoreOperationParentReadEvent} e 
+     */
+    [readOperationParentHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { methodOrId, pathOrId } = e.detail;
+      e.detail.result = this.getOperationParent(methodOrId, pathOrId);
     }
   }
   return AmfStoreDomEventsMixin;

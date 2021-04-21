@@ -39,6 +39,7 @@ declare interface OperationEvents extends EventsCRUD {
   updateOperationProperty: string;
   addRequest: string;
   addResponse: string;
+  getParent: string;
   State: Readonly<StateCUD>;
 }
 declare interface ParameterEvents {

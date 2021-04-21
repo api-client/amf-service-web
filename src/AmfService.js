@@ -438,6 +438,24 @@ export class AmfService {
   }
 
   /**
+   * Finds an endpoint that has the operation.
+   * @param {string} methodOrId Method name or the domain id of the operation to find
+   * @param {string=} pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
+   * @returns {Promise<ApiEndPoint|undefined>}
+   */
+  async getOperationParent(methodOrId, pathOrId) {
+    const operation = await this.getOperation(methodOrId, pathOrId);
+    if (!operation) {
+      return undefined;
+    }
+    const parent = this.findOperationParent(operation.id);
+    if (!parent) {
+      return undefined;
+    }
+    return ApiSerializer.endPoint(parent);
+  }
+
+  /**
    * Finds the parent endpoint for the operation
    * @param {string} id The id of the operation
    * @returns {EndPoint|undefined}

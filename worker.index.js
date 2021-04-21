@@ -23,7 +23,12 @@ export {
   ApiStoreEndpointUpdateEvent,
   EndpointEvents,
 } from './src/events/EndpointEvents.js';
-export { OperationEvents, ApiStoreOperationCreateEvent, ApiStoreOperationReadEvent } from './src/events/OperationEvents.js';
+export { 
+  OperationEvents, 
+  ApiStoreOperationCreateEvent, 
+  ApiStoreOperationReadEvent,
+  ApiStoreOperationParentReadEvent,
+} from './src/events/OperationEvents.js';
 export {
   ApiCreateEvent,
 } from './src/events/ApiEvents.js';

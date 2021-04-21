@@ -120,6 +120,12 @@ export declare class AmfService {
    * @returns The id of the affected endpoint. Undefined when operation or endpoint cannot be found.
    */
   deleteOperation(id: string): Promise<string>;
+  /**
+   * Finds an endpoint that has the operation.
+   * @param methodOrId Method name or the domain id of the operation to find
+   * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
+   */
+  getOperationParent(methodOrId: string, pathOrId?: string): Promise<ApiEndPoint|undefined>;
 
   /**
    * Finds the parent endpoint for the operation

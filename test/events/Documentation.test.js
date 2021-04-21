@@ -10,23 +10,23 @@ describe('StoreEvents', () => {
     return fixture(html`<div></div>`);
   }
 
-  describe('StoreEvents.Type', () => {
+  describe('StoreEvents.Documentation', () => {
     describe('list()', () => {
       it('dispatches the event', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(StoreEventTypes.Type.list, spy);
-        StoreEvents.Type.list(et);
+        et.addEventListener(StoreEventTypes.Documentation.list, spy);
+        StoreEvents.Documentation.list(et);
         assert.isTrue(spy.calledOnce);
       });
 
       it('waits until resolved', async () => {
         const et = await etFixture();
-        const data = [{ id: 'test type' }];
-        et.addEventListener(StoreEventTypes.Type.list, (e) => {
+        const data = [{ id: 'test documentation' }];
+        et.addEventListener(StoreEventTypes.Documentation.list, (e) => {
           e.detail.result = Promise.resolve(data);
         });
-        const result = await StoreEvents.Type.list(et);
+        const result = await StoreEvents.Documentation.list(et);
         assert.equal(result, data);
       });
     });

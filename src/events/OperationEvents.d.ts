@@ -1,4 +1,4 @@
-import { ApiOperation, OperationInit } from '../types.js';
+import { ApiEndPoint, ApiOperation, OperationInit } from '../types.js';
 import { StoreEventDetailWithResult } from './BaseEvents.js';
 
 export declare interface ApiStoreOperationCreateEventDetail extends StoreEventDetailWithResult<ApiOperation> {
@@ -23,21 +23,38 @@ export declare class ApiStoreOperationCreateEvent extends CustomEvent<ApiStoreOp
   constructor(pathOrId: string, init: OperationInit);
 }
 
-export declare interface ApiStoreOperationReadEventDetail extends StoreEventDetailWithResult<ApiOperation> {
+declare interface ApiStoreOperationFindEventDetail<T>  extends StoreEventDetailWithResult<T> {
   /**
    * Method name or the domain id of the operation to find
    */
-  methodOrId: string;
-  /**
-   * The path or domain id of the endpoint that is the parent of the operation.
-   */
-  pathOrId?: string;
+   methodOrId: string;
+   /**
+    * The path or domain id of the endpoint that is the parent of the operation.
+    */
+   pathOrId?: string;
+}
+
+export declare interface ApiStoreOperationReadEventDetail extends ApiStoreOperationFindEventDetail<ApiOperation> {
+}
+
+export declare interface ApiStoreOperationParentReadEventDetail extends ApiStoreOperationFindEventDetail<ApiEndPoint> {
 }
 
 /**
  * An event to be used to read an operation from the store.
  */
 export declare class ApiStoreOperationReadEvent extends CustomEvent<ApiStoreOperationReadEventDetail> {
+  /**
+   * @param methodOrId Method name or the domain id of the operation to find
+   * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
+   */
+  constructor(methodOrId: string, pathOrId?: string);
+}
+
+/**
+ * An event to be used to read an operation parent from the store.
+ */
+export declare class ApiStoreOperationParentReadEvent extends CustomEvent<ApiStoreOperationParentReadEventDetail> {
   /**
    * @param methodOrId Method name or the domain id of the operation to find
    * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
@@ -74,6 +91,13 @@ declare interface IOperationEvents {
    * @param id The domain id of the documentation object
    */
   delete(target: EventTarget, id: string): Promise<void>;
+  /**
+   * Reads the operation parent from the store.
+   * @param target The node on which to dispatch the event
+   * @param methodOrId Method name or the domain id of the operation to find
+   * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
+   */
+  getParent(target: EventTarget, methodOrId: string, pathOrId?: string): Promise<ApiEndPoint>;
 }
 
 export declare const OperationEvents: Readonly<IOperationEvents>;

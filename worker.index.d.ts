@@ -31,7 +31,15 @@ export {
   ApiStoreEndpointUpdateEvent,
   EndpointEvents,
 } from './src/events/EndpointEvents.js';
-export { OperationEvents, ApiStoreOperationCreateEvent, ApiStoreOperationCreateEventDetail, ApiStoreOperationReadEvent, ApiStoreOperationReadEventDetail } from './src/events/OperationEvents';
+export { 
+  OperationEvents, 
+  ApiStoreOperationCreateEvent, 
+  ApiStoreOperationCreateEventDetail, 
+  ApiStoreOperationReadEvent, 
+  ApiStoreOperationReadEventDetail,
+  ApiStoreOperationParentReadEvent,
+  ApiStoreOperationParentReadEventDetail,
+} from './src/events/OperationEvents';
 export {
   ApiCreateEvent,
   ApiEvents,
