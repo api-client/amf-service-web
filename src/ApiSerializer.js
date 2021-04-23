@@ -430,7 +430,7 @@ export class ApiSerializer {
    * @returns {ApiParameter} Serialized Parameter
    */
   static parameter(object) {
-    const { id, description, required, allowEmptyValue, deprecated, explode, allowReserved, style, binding, schema, payloads, examples } = object;
+    const { id, name, description, required, allowEmptyValue, deprecated, explode, allowReserved, style, binding, schema, payloads, examples } = object;
     const types = object.graph().types();
     const result = /** @type ApiParameter */ ({
       id,
@@ -438,6 +438,9 @@ export class ApiSerializer {
       payloads: [],
       examples: [],
     });
+    if (!name.isNullOrEmpty) {
+      result.name = name.value();
+    }
     if (!description.isNullOrEmpty) {
       result.description = description.value();
     }

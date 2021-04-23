@@ -3,6 +3,9 @@
 /** @typedef {import('./BaseEvents').ApiStoreChangeRecord} ApiStoreChangeRecord */
 /** @typedef {import('./BaseEvents').ApiStoreDeleteRecord} ApiStoreDeleteRecord */
 /** @typedef {import('./BaseEvents').ApiStoreCreateRecord} ApiStoreCreateRecord */
+/** @typedef {import('../types').ParameterInit} ParameterInit */
+/** @typedef {import('../types').PayloadInit} PayloadInit */
+/** @typedef {import('../types').ExampleInit} ExampleInit */
 
 /**
  * A base class to use with store events.
@@ -58,9 +61,10 @@ export class ApiStoreDeleteEvent extends ApiStoreContextEvent {
   /**
    * @param {string} type The type of the event
    * @param {string} id The domain id of the object to remove
+   * @param {string=} parent The domain id of the parent object, if applicable.
    */
-  constructor(type, id) {
-    super(type, { id });
+  constructor(type, id, parent) {
+    super(type, { id, parent });
   }
 }
 
@@ -126,5 +130,47 @@ export class ApiStoreStateCreateEvent extends CustomEvent {
       cancelable: true,
       detail,
     });
+  }
+}
+
+/**
+ * An event to be used to initialize a new header on another object
+ */
+ export class ApiStoreCreateHeaderEvent extends ApiStoreContextEvent {
+  /**
+   * @param {string} type The type of the event
+   * @param {string} parentId The domain id of the parent object (Request/Response)
+   * @param {ParameterInit} init The parameter initialization properties.
+   */
+  constructor(type, parentId, init) {
+    super(type, { init, parentId });
+  }
+}
+
+/**
+ * An event to be used to initialize a new payload on another object
+ */
+export class ApiStoreCreatePayloadEvent extends ApiStoreContextEvent {
+  /**
+   * @param {string} type The type of the event
+   * @param {string} parentId The domain id of the parent object (Request/Response)
+   * @param {PayloadInit} init The payload initialization properties.
+   */
+  constructor(type, parentId, init) {
+    super(type, { init, parentId });
+  }
+}
+
+/**
+ * An event to be used to initialize a new example on another object
+ */
+export class ApiStoreCreateExampleEvent extends ApiStoreContextEvent {
+  /**
+   * @param {string} type The type of the event
+   * @param {string} parentId The domain id of the parent object (Request/Response/Type/Parameter/etc)
+   * @param {ExampleInit} init The example initialization properties.
+   */
+  constructor(type, parentId, init) {
+    super(type, { init, parentId });
   }
 }

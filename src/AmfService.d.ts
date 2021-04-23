@@ -1,5 +1,5 @@
 import { model } from 'amf-client-js';
-import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ApiShapeUnion, ShapeInit } from './types';
+import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ApiShapeUnion, ShapeInit, ParameterInit, PayloadInit, ExampleInit } from './types';
 
 export declare class AmfService {
   graph?: model.document.Document;
@@ -21,7 +21,19 @@ export declare class AmfService {
    * Reads the WebApi property.
    */
   webApi(): model.domain.WebApi;
-  
+
+  /**
+   * Generates RAML api from the current graph.
+   * @returns RAML value for the API.
+   */
+  generateRaml(): Promise<string>;
+
+  /**
+   * Generates json+ld from the current graph.
+   * @returns JSON+ld value of the API.
+   */
+  generateGraph(): Promise<string>;
+
   /**
    * Reads basic info about the API.
    */
@@ -65,7 +77,7 @@ export declare class AmfService {
    * Finds an endpoint by path or domain id.
    * @param pathOrId The domain id of the endpoint or its path.
    */
-  findEndpoint(pathOrId: string): model.domain.EndPoint|undefined;
+  findEndpoint(pathOrId: string): model.domain.EndPoint | undefined;
 
   /**
    * Removes endpoint from the API.
@@ -99,7 +111,7 @@ export declare class AmfService {
    * @param methodOrId Method name or the domain id of the operation to find
    * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
    */
-  findOperation(methodOrId: string, pathOrId?: string): model.domain.Operation|undefined;
+  findOperation(methodOrId: string, pathOrId?: string): model.domain.Operation | undefined;
 
   /**
    * Reads the operation model.
@@ -117,21 +129,22 @@ export declare class AmfService {
   /**
    * Removes an operation from the graph.
    * @param id The operation id to remove.
+   * @param endpointId The domain id of the parent endpoint.
    * @returns The id of the affected endpoint. Undefined when operation or endpoint cannot be found.
    */
-  deleteOperation(id: string): Promise<string>;
+  deleteOperation(id: string, endpointId: string): Promise<string>;
   /**
    * Finds an endpoint that has the operation.
    * @param methodOrId Method name or the domain id of the operation to find
    * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
    */
-  getOperationParent(methodOrId: string, pathOrId?: string): Promise<ApiEndPoint|undefined>;
+  getOperationParent(methodOrId: string, pathOrId?: string): Promise<ApiEndPoint | undefined>;
 
   /**
    * Finds the parent endpoint for the operation
    * @param id The id of the operation
    */
-  findOperationParent(id: string): model.domain.EndPoint|undefined;
+  findOperationParent(id: string): model.domain.EndPoint | undefined;
 
   /**
    * Updates a scalar property of an operation.
@@ -143,23 +156,61 @@ export declare class AmfService {
 
   /**
    * @param operationId The operation domain id
-   * @param init The request init options. Optional.
-   * @returns The domain id of the created request
-   */
-  addRequest(operationId: string, init?: OperationRequestInit): Promise<string>;
-
-  /**
-   * @param operationId The operation domain id
    * @param init The response init options.
    * @returns The domain id of the created response
    */
-  addResponse(operationId: string, init?: OperationResponseInit): Promise<string>;
+  addResponse(operationId: string, init: OperationResponseInit): Promise<ApiResponse>;
 
   /**
-   * Reads the info about a parameter.
-   * @param id The domain id of the parameter
+   * Reads the response data from the graph.
+   * @param id The domain id of the response.
    */
-  getParameter(id: string): Promise<ApiParameter>;
+  getResponse(id: string): Promise<ApiResponse>;
+
+  /**
+   * Adds a header to the response.
+   * @param responseId The response domain id
+   * @param init The Parameter init options.
+   */
+  addResponseHeader(responseId: string, init: ParameterInit): Promise<ApiParameter>;
+
+  /**
+   * Removes a header from a response
+   * @param responseId The response id to remove the header from
+   * @param headerId The header id to remove.
+   * @returns Updated response
+   */
+  removeResponseHeader(responseId: string, headerId: string): Promise<ApiResponse>;
+
+  /**
+   * Creates a new payload in the response.
+   * @param responseId The response domain id
+   * @param init The payload init options
+   * @returns Created payload object.
+   */
+  addResponsePayload(responseId: string, init: PayloadInit): Promise<ApiPayload>;
+
+  /**
+   * Removes a payload from a response object.
+   * @param responseId The response domain id
+   * @param payloadId The payload domain id.
+   */
+  removeResponsePayload(responseId: string, payloadId: string): Promise<void>;
+
+  /**
+   * Updates a scalar property of a Response.
+   * @param id The domain id of the response.
+   * @param property The property name to update
+   * @param value The new value to set.
+   * @returns The updated response
+   */
+  updateResponseProperty(id: string, property: keyof model.domain.Response, value: any): Promise<ApiResponse>;
+
+  /**
+   * @param responseId The response id to delete
+   * @param operationId The id of the parent operation that has the response
+   */
+  deleteResponse(responseId: string, operationId: string): Promise<void>;
 
   /**
    * Reads example value from the store.
@@ -174,10 +225,27 @@ export declare class AmfService {
   getPayload(id: string): Promise<ApiPayload>;
 
   /**
-   * Reads the response data from the graph.
-   * @param id The domain id of the response.
+   * Adds an example to a Payload
+   * @param id The if of the Payload to add the example to
+   * @param init The example init options
    */
-  getResponse(id: string): Promise<ApiResponse>;
+  addPayloadExample(id: string, init: ExampleInit): Promise<ApiExample>;
+
+  /**
+   * Removes an example from the Payload.
+   * @param payloadId The domain id of the Payload
+   * @param exampleId The domain id of the Example to remove.
+   */
+  removePayloadExample(payloadId: string, exampleId: string): Promise<void>;
+
+  /**
+   * Updates a scalar property of a Payload.
+   * @param id The domain id of the payload.
+   * @param property The property name to update
+   * @param value The new value to set.
+   * @returns The updated Payload
+   */
+  updatePayloadProperty(id: string, property: keyof model.domain.Payload, value: any): Promise<ApiPayload>;
 
   /**
    * Reads the TemplatedLink object from the graph.
@@ -216,6 +284,126 @@ export declare class AmfService {
   getRequest(id: string): Promise<ApiRequest>;
 
   /**
+   * @param operationId The operation domain id
+   * @param init The request init options. Optional.
+   * @returns The domain id of the created request
+   */
+  addRequest(operationId: string, init?: OperationRequestInit): Promise<ApiRequest>;
+
+  /**
+   * Adds a header to the request.
+   * @param requestId The request domain id
+   * @param init The Parameter init options.
+   */
+  addRequestHeader(requestId: string, init: ParameterInit): Promise<ApiParameter>;
+
+  /**
+   * Removes a header from a request
+   * @param requestId The request id to remove the header from
+   * @param headerId The header id to remove.
+   * @returns Updated request
+   */
+  removeRequestHeader(requestId: string, headerId: string): Promise<ApiRequest>;
+
+  /**
+   * Adds a query parameter to the request.
+   * @param requestId The request domain id
+   * @param init The Parameter init options.
+   */
+  addRequestQueryParameter(requestId: string, init: ParameterInit): Promise<ApiParameter>;
+
+  /**
+   * Removes a query parameter from a request
+   * @param requestId The request id to remove the parameter from
+   * @param paramId The parameter id to remove.
+   * @returns Updated request
+   */
+  removeRequestQueryParameter(requestId: string, paramId: string): Promise<ApiRequest>;
+
+  /**
+   * Adds a cookie to the request.
+   * @param requestId The request domain id
+   * @param init The Parameter init options.
+   */
+  addRequestCookieParameter(requestId: string, init: ParameterInit): Promise<ApiParameter>;
+
+  /**
+   * Removes a cookie parameter from a request
+   * @param requestId The request id to remove the parameter from
+   * @param paramId The parameter id to remove.
+   * @returns Updated request
+   */
+  removeRequestCookieParameter(requestId: string, paramId: string): Promise<ApiRequest>;
+
+  /**
+   * Creates a new payload in the request.
+   * @param requestId The request domain id
+   * @param init The payload init options
+   * @returns Created payload object.
+   */
+  addRequestPayload(requestId: string, init: PayloadInit): Promise<ApiPayload>;
+
+  /**
+   * Removes a payload from a request object.
+   * @param requestId The request domain id
+   * @param payloadId The payload domain id.
+   */
+  removeRequestPayload(requestId: string, payloadId: string): Promise<void>;
+
+  /**
+   * @param requestId The request id to delete
+   * @param operationId The id of the parent operation that has the request
+   */
+  deleteRequest(requestId: string, operationId: string): Promise<void>
+
+  /**
+   * Updates a scalar property of a Request.
+   * @param id The domain id of the request.
+   * @param property The property name to update
+   * @param value The new value to set.
+   * @returns The updated request
+   */
+  updateRequestProperty(id: string, property: keyof Request, value: any): Promise<ApiRequest>;
+
+  fillParameter(param: model.domain.Parameter, init: ParameterInit): void;
+
+  /**
+   * Reads the info about a parameter.
+   * @param id The domain id of the parameter
+   */
+  getParameter(id: string): Promise<ApiParameter>;
+
+  /**
+   * Updates a scalar property of a Parameter.
+   * @param id The domain id of the parameter.
+   * @param property The property name to update
+   * @param value The new value to set.
+   * @returns The updated Parameter
+   */
+  updateParameterProperty(id: string, property: keyof model.domain.Parameter, value: any): Promise<ApiParameter>;
+
+  /**
+   * Adds an example to a Parameter
+   * @param id The if of the Parameter to add the example to
+   * @param init The example init options
+   */
+  addParameterExample(id: string, init: ExampleInit): Promise<ApiExample>;
+
+  /**
+   * Removes an example from the parameter.
+   * @param paramId The domain id of the Parameter
+   * @param exampleId The domain id of the Example to remove.
+   */
+  removeParameterExample(paramId: string, exampleId: string): Promise<void>;
+
+  /**
+   * Fills example properties from the init object
+   * @param  The example to add properties to
+   * @param init The example init options
+   */
+  fillExample(example: model.domain.Example, init: ExampleInit): void;
+
+  /**
    * Lists the documentation definitions for the API.
    */
   listDocumentations(): Promise<ApiDocumentation[]>;
@@ -232,7 +420,7 @@ export declare class AmfService {
    * @param id The domain id of the documentation object
    * @returns The read documentation.
    */
-  getDocumentation(id: string): Promise<ApiDocumentation|undefined>;
+  getDocumentation(id: string): Promise<ApiDocumentation | undefined>;
 
   /**
    * Updates a scalar property of a documentation.
@@ -240,7 +428,7 @@ export declare class AmfService {
    * @param property The property name to update
    * @param value The new value to set.
    */
-  updateDocumentationProperty(id: string, property: string, value: any): Promise<ApiDocumentation>;
+  updateDocumentationProperty(id: string, property: keyof model.domain.CreativeWork, value: any): Promise<ApiDocumentation>;
 
   /**
    * Removes the documentation from the graph.

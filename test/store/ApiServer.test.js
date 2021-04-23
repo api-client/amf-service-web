@@ -1,6 +1,7 @@
-import { assert } from '@open-wc/testing';
+import { assert, oneEvent } from '@open-wc/testing';
+import { ns } from '@api-components/amf-helper-mixin/src/Namespace.js';
 import { AmfLoader } from '../helpers/AmfLoader.js';
-import { AmfStoreService, StoreEvents } from '../../worker.index.js';
+import { AmfStoreService, StoreEvents, StoreEventTypes } from '../../worker.index.js';
 
 /** @typedef {import('../../').ApiEndPointListItem} ApiEndPointListItem */
 /** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
@@ -13,7 +14,7 @@ describe('AmfStoreService', () => {
   before(async () => {
     demoStore = new AmfStoreService(demoEt);
     await demoStore.init();
-    oasStore = new AmfStoreService();
+    oasStore = new AmfStoreService(demoEt);
     await oasStore.init();
   });
 
@@ -94,6 +95,22 @@ describe('AmfStoreService', () => {
       await demoStore.addServer({ url: 'https://test.com/{path}/{other}', variables: ['path', 'other'] });
       const [server] = await demoStore.listServers();
       assert.lengthOf(server.variables, 2, 'has created variables');
+    });
+
+    it('adds the server via the event', async () => {
+      await StoreEvents.Server.add(demoEt, { url: 'https://test.com' });
+      const [server] = await demoStore.listServers();
+      assert.equal(server.url, 'https://test.com', 'has the passed url');
+    });
+
+    it('dispatches the created event', async () => {
+      demoStore.addServer({ url: 'https://test.com' });
+      const e = await oneEvent(demoEt, StoreEventTypes.Server.State.created);
+      const record = e.detail;
+      assert.typeOf(record.graphId, 'string', 'has the created id');
+      assert.equal(record.domainType, ns.aml.vocabularies.apiContract.Server, 'has the domainType');
+      assert.isUndefined(record.domainParent, 'domainParent is undefined');
+      assert.typeOf(record.item, 'object', 'has the created item');
     });
   });
 

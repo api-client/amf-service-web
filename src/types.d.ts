@@ -100,6 +100,26 @@ export interface OperationInit {
 export interface OperationRequestInit {
   description?: string;
   required?: boolean;
+  /**
+   * List of header names (parameter names) to create
+   */
+  headers?: string[];
+  /**
+   * List of mediaTypes of the payloads to create.
+   */
+  payloads?: string[];
+  /**
+   * List of query parameter names to be set as query parameters.
+   */
+  queryParameters?: string[];
+  /**
+   * List of URI parameter names to be set as URI parameters.
+   */
+  uriParameters?: string[];
+  /**
+   * List of cookie names to be set as Cookie parameters.
+   */
+  cookieParameters?: string[];
 }
 
 export interface OperationResponseInit {
@@ -113,7 +133,52 @@ export interface OperationResponseInit {
   /**
    * List of mediaTypes of the payloads to create.
    */
-  payloads: string[];
+  payloads?: string[];
+}
+
+export type ScalarDataTypes = 'string' | 'base64Binary' | 'boolean' | 'date' | 'dateTime' | 'double' | 'float' | 'integer' | 'long' | 'number' | 'time';
+
+export interface ParameterInit {
+  /**
+   * The parameter name
+   */
+  name: string;
+  description?: string;
+  required?: boolean;
+  deprecated?: boolean;
+  allowEmptyValue?: boolean;
+  style?: string;
+  explode?: boolean;
+  allowReserved?: boolean;
+  binding?: string;
+  /**
+   * When set it adds a scalar schema definition to the parameter 
+   * with the same name as the parameter.
+   */
+  dataType?: ScalarDataTypes;
+}
+
+export interface PayloadInit {
+  /**
+   * The payload media type
+   */
+  mediaType: string;
+  /**
+   * The payload name
+   */
+  name?: string;
+}
+
+export interface ExampleInit {
+  /**
+   * The name name of the example
+   */
+  name: string;
+  displayName?: string;
+  description?: string;
+  value?: string;
+  strict?: boolean;
+  mediaType?: string;
 }
 
 export interface ApiEndPointListItem {
@@ -182,13 +247,14 @@ export interface ApiServer extends ApiDomainProperty {
 }
 
 export interface ApiParameter extends ApiDomainProperty {
+  name: string;
   description?: string;
   required?: boolean;
-  allowEmptyValue?: boolean;
   deprecated?: boolean;
+  allowEmptyValue?: boolean;
+  style?: string;
   explode?: boolean;
   allowReserved?: boolean;
-  style?: string;
   binding?: string;
   schema?: string;
   payloads?: string[];
@@ -344,10 +410,10 @@ export interface ShapeInit {
   writeOnly?: boolean;
 }
 
-export type ApiShapeUnion = ApiScalarShape|ApiNodeShape|ApiUnionShape|ApiFileShape|ApiSchemaShape|ApiAnyShape|ApiArrayShape|ApiTupleShape;
+export type ApiShapeUnion = ApiScalarShape | ApiNodeShape | ApiUnionShape | ApiFileShape | ApiSchemaShape | ApiAnyShape | ApiArrayShape | ApiTupleShape;
 
 export interface ApiShape extends ApiDomainProperty {
-  values: (ApiScalarNode|ApiObjectNode|ApiArrayNode)[];
+  values: (ApiScalarNode | ApiObjectNode | ApiArrayNode)[];
   inherits: ApiShapeUnion[];
   or: ApiShapeUnion[];
   and: ApiShapeUnion[];
@@ -452,7 +518,7 @@ export interface ApiDataNode extends ApiDomainProperty {
 }
 
 export interface ApiObjectNode extends ApiDataNode {
-  properties: { [key: string]: ApiScalarNode|ApiObjectNode|ApiArrayNode };
+  properties: { [key: string]: ApiScalarNode | ApiObjectNode | ApiArrayNode };
 }
 
 export interface ApiScalarNode extends ApiDataNode {
@@ -461,5 +527,5 @@ export interface ApiScalarNode extends ApiDataNode {
 }
 
 export interface ApiArrayNode extends ApiDataNode {
-  members: (ApiScalarNode|ApiObjectNode|ApiArrayNode)[];
+  members: (ApiScalarNode | ApiObjectNode | ApiArrayNode)[];
 }

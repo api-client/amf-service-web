@@ -17,6 +17,8 @@ export const EventTypes = {
     list: 'apistoreendpointlist',
     listWithOperations: 'apistoreendpointlistwithops',
     listOperations: 'apistoreendpointoperations',
+    addOperation: 'apistoreendpointaddoperation',
+    removeOperation: 'apistoreendpointremoveoperation',
     State: {
       updated: 'apistoreendpointstateupdate',
       deleted: 'apistoreendpointstatedelete',
@@ -24,12 +26,12 @@ export const EventTypes = {
     },
   },
   Operation: {
-    add: 'apistoreopadd',
     get: 'apistoreopget',
     update: 'apistoreopupdate',
-    delete: 'apistoreopdelete',
     addRequest: 'apistoreopaddrequest',
+    removeRequest: 'apistoreopremoverequest',
     addResponse: 'apistoreopaddresponse',
+    removeResponse: 'apistoreopremoveresponse',
     getParent: 'apistoreopgetparent',
     State: {
       updated: 'apistoreopstateupdate',
@@ -39,18 +41,63 @@ export const EventTypes = {
   },
   Parameter: {
     get: 'apistoreparamget',
+    update: 'apistoreparamupdate',
+    addExample: 'apistoreparamupdateaddexample',
+    removeExample: 'apistoreparamupdateremoveexample',
+    State: {
+      updated: 'apistoreparamstateupdate',
+      deleted: 'apistoreparamstatedelete',
+      created: 'apistoreparamstatecreate',
+    },
   },
   Example: {
     get: 'apistoreexampleget',
+    State: {
+      updated: 'apistoreexamplestateupdate',
+      deleted: 'apistoreexamplestatedelete',
+      created: 'apistoreexamplestatecreate',
+    },
   },
   Payload: {
     get: 'apistorepayloadget',
+    update: 'apistorepayloadupdate',
+    addExample: 'apistorepayloadaddexample',
+    removeExample: 'apistorepayloadremoveexample',
+    State: {
+      updated: 'apistorepayloadstateupdate',
+      deleted: 'apistorepayloadstatedelete',
+      created: 'apistorepayloadstatecreate',
+    },
   },
   Request: {
     get: 'apistorerequestget',
+    update: 'apistorerequestupdate',
+    addPayload: 'apistorerequestaddpayload',
+    removePayload: 'apistorerequestremovepayload',
+    addHeader: 'apistorerequestaddheader',
+    removeHeader: 'apistorerequestremoveheader',
+    addQueryParameter: 'apistorerequestaddqueryparameter',
+    removeQueryParameter: 'apistorerequestremovequeryparameter',
+    addCookieParameter: 'apistorerequestaddcookieparameter',
+    removeCookieParameter: 'apistorerequestremovecookieparameter',
+    State: {
+      updated: 'apistorerequeststateupdate',
+      deleted: 'apistorerequeststatedelete',
+      created: 'apistorerequeststatecreate',
+    },
   },
   Response: {
     get: 'apistoreresponseget',
+    update: 'apistoreresponseupdate',
+    addHeader: 'apistoreresponseaddheader',
+    removeHeader: 'apistoreresponseremoveheader',
+    addPayload: 'apistoreresponseaddpayload',
+    removePayload: 'apistoreresponseremovepayload',
+    State: {
+      updated: 'apistoreresponsestateupdate',
+      deleted: 'apistoreresponsestatedelete',
+      created: 'apistoreresponsestatecreate',
+    },
   },
   Documentation: {
     add: 'apistoredocsadd',
@@ -71,6 +118,11 @@ export const EventTypes = {
     list: 'apistoreserverslist',
     add: 'apistoreserversadd',
     get: 'apistoreserversget',
+    State: {
+      updated: 'apistoreserversstateupdate',
+      deleted: 'apistoreserversstatedelete',
+      created: 'apistoreserversstatecreate',
+    },
   },
   Type: {
     add: 'apistoretypeadd',

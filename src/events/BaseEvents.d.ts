@@ -1,3 +1,5 @@
+import { ApiExample, ApiParameter, ApiPayload, ExampleInit, ParameterInit, PayloadInit } from "../types";
+
 export declare class ApiStoreContextEvent<T> extends CustomEvent<StoreEventDetailWithResult<T>> {
   /**
    * @param type The event type
@@ -35,8 +37,9 @@ export class ApiStoreDeleteEvent extends CustomEvent<ApiStoreDeleteEventDetail> 
   /**
    * @param type The type of the event
    * @param id The domain id of the object to remove
+   * @param parent The domain id of the parent object, if applicable.
    */
-  constructor(type: string, id: string);
+  constructor(type: string, id: string, parent?: string);
 }
 
 /**
@@ -80,6 +83,43 @@ export class ApiStoreStateCreateEvent<T> extends CustomEvent<ApiStoreCreateRecor
    */
   constructor(type: string, detail: ApiStoreCreateRecord<T>);
 }
+
+/**
+ * An event to be used to initialize a new header on another object
+ */
+export declare class ApiStoreCreateHeaderEvent extends CustomEvent<ApiStoreCreateHeaderEventDetail> {
+  /**
+   * @param type The type of the event
+   * @param parentId The domain id of the parent object (Request/Response)
+   * @param init The parameter initialization properties.
+   */
+  constructor(type: string, parentId: string, init: ParameterInit);
+}
+
+/**
+ * An event to be used to initialize a new payload on another object
+ */
+export declare class ApiStoreCreatePayloadEvent extends CustomEvent<ApiStoreCreatePayloadEventDetail> {
+  /**
+   * @param type The type of the event
+   * @param parentId The domain id of the parent object (Request/Response)
+   * @param init The payload initialization properties.
+   */
+  constructor(type: string, parentId: string, init: PayloadInit);
+}
+
+/**
+ * An event to be used to initialize a new example on another object
+ */
+export class ApiStoreCreateExampleEvent extends CustomEvent<ApiStoreCreateExampleEventDetail> {
+  /**
+   * @param type The type of the event
+   * @param parentId The domain id of the parent object (Request/Response/Type/Parameter/etc)
+   * @param init The example initialization properties.
+   */
+  constructor(type: string, parentId: string, init: ExampleInit);
+}
+
 
 /**
  * Base event detail definition for the events that returns a `result`
@@ -143,6 +183,27 @@ export declare interface ApiStoreCreateEventDetail<T, I> extends StoreEventDetai
   init: I;
 }
 
+export declare interface ApiStoreCreateHeaderEventDetail extends ApiStoreCreateEventDetail<ApiParameter, ParameterInit> {
+  /**
+   * The domain id of the parent object (Request/Response)
+   */
+  parentId: string;
+}
+
+export declare interface ApiStoreCreatePayloadEventDetail extends ApiStoreCreateEventDetail<ApiPayload, PayloadInit> {
+  /**
+   * The domain id of the parent object (Request/Response)
+   */
+  parentId: string;
+}
+
+export declare interface ApiStoreCreateExampleEventDetail extends ApiStoreCreateEventDetail<ApiExample, ExampleInit> {
+  /**
+   * The domain id of the parent object (Request/Response/Type/Parameter/etc)
+   */
+  parentId: string;
+}
+
 export declare interface ApiStoreReadEventDetail<T> extends StoreEventDetailWithResult<T> {
   /**
    * The domain id of the domain object to read.
@@ -155,6 +216,10 @@ export declare interface ApiStoreDeleteEventDetail extends StoreEventDetailWithR
    * The domain id of the domain object to remove.
    */
   id: string;
+  /**
+   * The domain id of the parent object, if applicable.
+   */
+  parent?: string;
 }
 
 export declare interface ApiStoreUpdateScalarEventDetail extends StoreEventDetailWithResult<void> {

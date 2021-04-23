@@ -30,5 +30,139 @@ describe('StoreEvents', () => {
         assert.equal(result, data);
       });
     });
+
+    describe('add()', () => {
+      const init = { type: 'string' };
+
+      it('dispatches the event', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Type.add, spy);
+        StoreEvents.Type.add(et, init);
+        assert.isTrue(spy.calledOnce);
+      });
+
+      it('the event has the "init" property', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Type.add, spy);
+        StoreEvents.Type.add(et, init);
+        assert.deepEqual(spy.args[0][0].detail.init, init);
+      });
+
+      it('waits until resolved', async () => {
+        const et = await etFixture();
+        const data = /** @type any */ ('amf://created-id');
+        et.addEventListener(StoreEventTypes.Type.add, (e) => {
+          e.detail.result = Promise.resolve(data);
+        });
+        const result = await StoreEvents.Type.add(et, init);
+        assert.equal(result, data);
+      });
+    });
+
+    describe('get()', () => {
+      const id = 'amf://id';
+
+      it('dispatches the event', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Type.get, spy);
+        StoreEvents.Type.get(et, id);
+        assert.isTrue(spy.calledOnce);
+      });
+
+      it('the event has the "id" property', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Type.get, spy);
+        StoreEvents.Type.get(et, id);
+        assert.deepEqual(spy.args[0][0].detail.id, id);
+      });
+
+      it('waits until resolved', async () => {
+        const et = await etFixture();
+        const data = /** @type any */ ({ test: true });
+        et.addEventListener(StoreEventTypes.Type.get, (e) => {
+          e.detail.result = Promise.resolve(data);
+        });
+        const result = await StoreEvents.Type.get(et, id);
+        assert.equal(result, data);
+      });
+    });
+
+    describe('update()', () => {
+      const id = 'amf://id';
+      const prop = 'name';
+      const value = 'test-value';
+
+      it('dispatches the event', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Type.update, spy);
+        StoreEvents.Type.update(et, id, prop, value);
+        assert.isTrue(spy.calledOnce);
+      });
+
+      it('the event has the "id" property', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Type.update, spy);
+        StoreEvents.Type.update(et, id, prop, value);
+        assert.deepEqual(spy.args[0][0].detail.id, id);
+      });
+
+      it('the event has the "property" property', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Type.update, spy);
+        StoreEvents.Type.update(et, id, prop, value);
+        assert.deepEqual(spy.args[0][0].detail.property, prop);
+      });
+
+      it('the event has the "value" property', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Type.update, spy);
+        StoreEvents.Type.update(et, id, prop, value);
+        assert.deepEqual(spy.args[0][0].detail.value, value);
+      });
+
+      it('waits until resolved', async () => {
+        const et = await etFixture();
+        et.addEventListener(StoreEventTypes.Type.update, (e) => {
+          e.detail.result = Promise.resolve();
+        });
+        await StoreEvents.Type.update(et, id, prop, value);
+      });
+    });
+
+    describe('delete()', () => {
+      const id = 'amf://id';
+
+      it('dispatches the event', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Type.delete, spy);
+        StoreEvents.Type.delete(et, id);
+        assert.isTrue(spy.calledOnce);
+      });
+
+      it('the event has the "id" property', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Type.delete, spy);
+        StoreEvents.Type.delete(et, id);
+        assert.deepEqual(spy.args[0][0].detail.id, id);
+      });
+
+      it('waits until resolved', async () => {
+        const et = await etFixture();
+        et.addEventListener(StoreEventTypes.Type.delete, (e) => {
+          e.detail.result = Promise.resolve();
+        });
+        await StoreEvents.Type.delete(et, id);
+      });
+    });
   });
 });

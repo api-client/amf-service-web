@@ -1,5 +1,5 @@
-import { ApiStoreContextEvent } from './BaseEvents';
-import { ApiEndPoint, ApiEndPointListItem, ApiEndPointWithOperationsListItem, ApiOperationListItem, EndPointInit } from '../types';
+import { ApiStoreContextEvent, StoreEventDetailWithResult } from './BaseEvents';
+import { ApiEndPoint, ApiEndPointListItem, ApiEndPointWithOperationsListItem, ApiOperation, ApiOperationListItem, EndPointInit, OperationInit } from '../types';
 
 export declare const idValue: unique symbol;
 export declare const initValue: unique symbol;
@@ -100,7 +100,53 @@ export class ApiStoreEndpointUpdateEvent extends ApiStoreContextEvent<void> {
   constructor(endpointId: string, property: string, value: any);
 }
 
+export declare interface ApiStoreOperationCreateEventDetail extends StoreEventDetailWithResult<ApiOperation> {
+  /**
+   * The initialization properties for the domain object
+   */
+  init: OperationInit;
+  /**
+   * The path or domain id of the endpoint that is the parent of the operation.
+   */
+  pathOrId: string;
+}
+
+/**
+ * An event to be used to initialize a new object in the API store.
+ */
+export declare class ApiStoreOperationCreateEvent extends CustomEvent<ApiStoreOperationCreateEventDetail> {
+  /**
+   * @param pathOrId The path or domain id of the endpoint that is the parent of the operation.
+   * @param init The object initialization properties.
+   */
+  constructor(pathOrId: string, init: OperationInit);
+}
+
 declare interface IEndpointEvents {
+  /**
+   * @param target The node on which to dispatch the event
+   * @param endpointInit The endpoint init definition
+   * @returns The generated id for the endpoint.
+   */
+  add(target: EventTarget, endpointInit: EndPointInit): Promise<ApiEndPoint>;
+  /**
+   * Reads the endpoint model from the store.
+   * @param target The node on which to dispatch the event
+   * @param pathOrId The domain id of the endpoint or its path.
+   */
+  get(target: EventTarget, pathOrId: string): Promise<ApiEndPoint>;
+  /**
+   * @param target The node on which to dispatch the event
+   * @param endpointId The domain id of the operation.
+   * @param property The property name to update
+   * @param {any} value The new value to set.
+   */
+  update(target: EventTarget, endpointId: string, property: string, value: any): Promise<void>;
+  /**
+   * @param target The node on which to dispatch the event
+   * @param endpointId The id of the endpoint to remove.
+   */
+  delete(target: EventTarget, endpointId: string): Promise<void>;
   /**
    * List all endpoints in the API.
    * @param target The node on which to dispatch the event
@@ -118,29 +164,19 @@ declare interface IEndpointEvents {
    */
   listOperations(target: EventTarget, pathOrId: string): Promise<ApiOperationListItem[]>;
   /**
+   * Adds a new operation object to the endpoint.
    * @param target The node on which to dispatch the event
-   * @param endpointInit The endpoint init definition
-   * @returns The generated id for the endpoint.
+   * @param pathOrId The path or domain id of the endpoint that is the parent of the operation.
+   * @param init The initialization properties
    */
-  add(target: EventTarget, endpointInit: EndPointInit): Promise<ApiEndPoint>;
+  addOperation(target: EventTarget, pathOrId: string, init: OperationInit): Promise<ApiOperation>;
   /**
+   * Removes the operation from the endpoint.
    * @param target The node on which to dispatch the event
-   * @param endpointId The id of the endpoint to remove.
+   * @param id The domain id of the documentation object
+   * @param endpointId The domain id of the parent endpoint
    */
-  delete(target: EventTarget, endpointId: string): Promise<void>;
-  /**
-   * Reads the endpoint model from the store.
-   * @param target The node on which to dispatch the event
-   * @param pathOrId The domain id of the endpoint or its path.
-   */
-  get(target: EventTarget, pathOrId: string): Promise<ApiEndPoint>;
-  /**
-   * @param target The node on which to dispatch the event
-   * @param endpointId The domain id of the operation.
-   * @param property The property name to update
-   * @param {any} value The new value to set.
-   */
-  update(target: EventTarget, endpointId: string, property: string, value: any): Promise<void>;
+  removeOperation(target: EventTarget, id: string, endpointId: string): Promise<void>;
 }
 
 export declare const EndpointEvents: Readonly<IEndpointEvents>;

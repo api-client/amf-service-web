@@ -12,7 +12,10 @@ export {
   ApiStoreUpdateScalarEvent, 
   ApiStoreStateCreateEvent, 
   ApiStoreStateDeleteEvent, 
-  ApiStoreStateUpdateEvent, 
+  ApiStoreStateUpdateEvent,
+  ApiStoreCreateHeaderEvent,
+  ApiStoreCreatePayloadEvent,
+  ApiStoreCreateExampleEvent,
 } from './src/events/BaseEvents.js';
 export { ApiStoreLoadGraphEvent } from './src/events/StoreEvents.js';
 export { 
@@ -21,13 +24,15 @@ export {
   ApiStoreEndpointDeleteEvent,
   ApiStoreEndpointReadEvent,
   ApiStoreEndpointUpdateEvent,
+  ApiStoreOperationCreateEvent,
   EndpointEvents,
 } from './src/events/EndpointEvents.js';
 export { 
-  OperationEvents, 
-  ApiStoreOperationCreateEvent, 
+  OperationEvents,
   ApiStoreOperationReadEvent,
   ApiStoreOperationParentReadEvent,
+  ApiStoreCreateRequestEvent,
+  ApiStoreCreateResponseEvent,
 } from './src/events/OperationEvents.js';
 export {
   ApiCreateEvent,
@@ -45,3 +50,6 @@ export {
 export {
   DocumentationEvents,
 } from './src/events/DocumentationEvents.js';
+export { ResponseEvents } from './src/events/ResponseEvents.js';
+export { RequestEvents } from './src/events/RequestEvents.js';
+export { PayloadEvents } from './src/events/PayloadEvents.js';

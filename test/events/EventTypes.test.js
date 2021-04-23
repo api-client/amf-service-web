@@ -77,6 +77,8 @@ describe('StoreEventTypes', () => {
       ['list', 'apistoreendpointlist'],
       ['listWithOperations', 'apistoreendpointlistwithops'],
       ['listOperations', 'apistoreendpointoperations'],
+      ['addOperation', 'apistoreendpointaddoperation'],
+      ['removeOperation', 'apistoreendpointremoveoperation'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
         assert.equal(StoreEventTypes.Endpoint[prop], value);
@@ -128,12 +130,12 @@ describe('StoreEventTypes', () => {
     });
 
     [
-      ['add', 'apistoreopadd'],
       ['get', 'apistoreopget'],
       ['update', 'apistoreopupdate'],
-      ['delete', 'apistoreopdelete'],
       ['addRequest', 'apistoreopaddrequest'],
+      ['removeRequest', 'apistoreopremoverequest'],
       ['addResponse', 'apistoreopaddresponse'],
+      ['removeResponse', 'apistoreopremoveresponse'],
       ['getParent', 'apistoreopgetparent'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
@@ -187,6 +189,9 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistoreparamget'],
+      ['update', 'apistoreparamupdate'],
+      ['addExample', 'apistoreparamupdateaddexample'],
+      ['removeExample', 'apistoreparamupdateremoveexample'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
         assert.equal(StoreEventTypes.Parameter[prop], value);
@@ -195,6 +200,33 @@ describe('StoreEventTypes', () => {
 
     it('has unique events for the namespace', () => {
       ensureUnique('StoreEventTypes.Parameter', StoreEventTypes.Parameter);
+    });
+  });
+
+  describe('Parameter.State', () => {
+    it('has Parameter.State namespace', () => {
+      assert.typeOf(StoreEventTypes.Parameter.State, 'object');
+    });
+
+    it('is frozen', () => {
+      assert.throws(() => {
+        // @ts-ignore
+        StoreEventTypes.Parameter.State = { read: '' };
+      });
+    });
+
+    [
+      ['updated', 'apistoreparamstateupdate'],
+      ['deleted', 'apistoreparamstatedelete'],
+      ['created', 'apistoreparamstatecreate'],
+    ].forEach(([prop, value]) => {
+      it(`has ${prop} property`, () => {
+        assert.equal(StoreEventTypes.Parameter.State[prop], value);
+      });
+    });
+
+    it('has unique events for the namespace', () => {
+      ensureUnique('StoreEventTypes.Parameter.State', StoreEventTypes.Parameter.State);
     });
   });
 
@@ -223,6 +255,33 @@ describe('StoreEventTypes', () => {
     });
   });
 
+  describe('Example.State', () => {
+    it('has Example.State namespace', () => {
+      assert.typeOf(StoreEventTypes.Example.State, 'object');
+    });
+
+    it('is frozen', () => {
+      assert.throws(() => {
+        // @ts-ignore
+        StoreEventTypes.Example.State = { read: '' };
+      });
+    });
+
+    [
+      ['updated', 'apistoreexamplestateupdate'],
+      ['deleted', 'apistoreexamplestatedelete'],
+      ['created', 'apistoreexamplestatecreate'],
+    ].forEach(([prop, value]) => {
+      it(`has ${prop} property`, () => {
+        assert.equal(StoreEventTypes.Example.State[prop], value);
+      });
+    });
+
+    it('has unique events for the namespace', () => {
+      ensureUnique('StoreEventTypes.Example.State', StoreEventTypes.Example.State);
+    });
+  });
+
   describe('Payload', () => {
     it('has Payload namespace', () => {
       assert.typeOf(StoreEventTypes.Payload, 'object');
@@ -237,6 +296,9 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistorepayloadget'],
+      ['update', 'apistorepayloadupdate'],
+      ['addExample', 'apistorepayloadaddexample'],
+      ['removeExample', 'apistorepayloadremoveexample'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
         assert.equal(StoreEventTypes.Payload[prop], value);
@@ -245,6 +307,33 @@ describe('StoreEventTypes', () => {
 
     it('has unique events for the namespace', () => {
       ensureUnique('StoreEventTypes.Payload', StoreEventTypes.Payload);
+    });
+  });
+
+  describe('Payload.State', () => {
+    it('has Payload.State namespace', () => {
+      assert.typeOf(StoreEventTypes.Payload.State, 'object');
+    });
+
+    it('is frozen', () => {
+      assert.throws(() => {
+        // @ts-ignore
+        StoreEventTypes.Payload.State = { read: '' };
+      });
+    });
+
+    [
+      ['updated', 'apistorepayloadstateupdate'],
+      ['deleted', 'apistorepayloadstatedelete'],
+      ['created', 'apistorepayloadstatecreate'],
+    ].forEach(([prop, value]) => {
+      it(`has ${prop} property`, () => {
+        assert.equal(StoreEventTypes.Payload.State[prop], value);
+      });
+    });
+
+    it('has unique events for the namespace', () => {
+      ensureUnique('StoreEventTypes.Payload.State', StoreEventTypes.Payload.State);
     });
   });
 
@@ -262,6 +351,15 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistorerequestget'],
+      ['update', 'apistorerequestupdate'],
+      ['addPayload', 'apistorerequestaddpayload'],
+      ['removePayload', 'apistorerequestremovepayload'],
+      ['addHeader', 'apistorerequestaddheader'],
+      ['removeHeader', 'apistorerequestremoveheader'],
+      ['addQueryParameter', 'apistorerequestaddqueryparameter'],
+      ['removeQueryParameter', 'apistorerequestremovequeryparameter'],
+      ['addCookieParameter', 'apistorerequestaddcookieparameter'],
+      ['removeCookieParameter', 'apistorerequestremovecookieparameter'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
         assert.equal(StoreEventTypes.Request[prop], value);
@@ -270,6 +368,33 @@ describe('StoreEventTypes', () => {
 
     it('has unique events for the namespace', () => {
       ensureUnique('StoreEventTypes.Request', StoreEventTypes.Request);
+    });
+  });
+
+  describe('Request.State', () => {
+    it('has Request.State namespace', () => {
+      assert.typeOf(StoreEventTypes.Request.State, 'object');
+    });
+
+    it('is frozen', () => {
+      assert.throws(() => {
+        // @ts-ignore
+        StoreEventTypes.Request.State = { read: '' };
+      });
+    });
+
+    [
+      ['updated', 'apistorerequeststateupdate'],
+      ['deleted', 'apistorerequeststatedelete'],
+      ['created', 'apistorerequeststatecreate'],
+    ].forEach(([prop, value]) => {
+      it(`has ${prop} property`, () => {
+        assert.equal(StoreEventTypes.Request.State[prop], value);
+      });
+    });
+
+    it('has unique events for the namespace', () => {
+      ensureUnique('StoreEventTypes.Request.State', StoreEventTypes.Request.State);
     });
   });
 
@@ -287,6 +412,11 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistoreresponseget'],
+      ['update', 'apistoreresponseupdate'],
+      ['addHeader', 'apistoreresponseaddheader'],
+      ['removeHeader', 'apistoreresponseremoveheader'],
+      ['addPayload', 'apistoreresponseaddpayload'],
+      ['removePayload', 'apistoreresponseremovepayload'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
         assert.equal(StoreEventTypes.Response[prop], value);
@@ -295,6 +425,33 @@ describe('StoreEventTypes', () => {
 
     it('has unique events for the namespace', () => {
       ensureUnique('StoreEventTypes.Response', StoreEventTypes.Response);
+    });
+  });
+
+  describe('Response.State', () => {
+    it('has Response.State namespace', () => {
+      assert.typeOf(StoreEventTypes.Response.State, 'object');
+    });
+
+    it('is frozen', () => {
+      assert.throws(() => {
+        // @ts-ignore
+        StoreEventTypes.Response.State = { read: '' };
+      });
+    });
+
+    [
+      ['updated', 'apistoreresponsestateupdate'],
+      ['deleted', 'apistoreresponsestatedelete'],
+      ['created', 'apistoreresponsestatecreate'],
+    ].forEach(([prop, value]) => {
+      it(`has ${prop} property`, () => {
+        assert.equal(StoreEventTypes.Response.State[prop], value);
+      });
+    });
+
+    it('has unique events for the namespace', () => {
+      ensureUnique('StoreEventTypes.Response.State', StoreEventTypes.Response.State);
     });
   });
 
@@ -403,6 +560,33 @@ describe('StoreEventTypes', () => {
 
     it('has unique events for the namespace', () => {
       ensureUnique('StoreEventTypes.Server', StoreEventTypes.Server);
+    });
+  });
+
+  describe('Server.State', () => {
+    it('has Server.State namespace', () => {
+      assert.typeOf(StoreEventTypes.Server.State, 'object');
+    });
+
+    it('is frozen', () => {
+      assert.throws(() => {
+        // @ts-ignore
+        StoreEventTypes.Server.State = { read: '' };
+      });
+    });
+
+    [
+      ['updated', 'apistoreserversstateupdate'],
+      ['deleted', 'apistoreserversstatedelete'],
+      ['created', 'apistoreserversstatecreate'],
+    ].forEach(([prop, value]) => {
+      it(`has ${prop} property`, () => {
+        assert.equal(StoreEventTypes.Server.State[prop], value);
+      });
+    });
+
+    it('has unique events for the namespace', () => {
+      ensureUnique('StoreEventTypes.Server.State', StoreEventTypes.Server.State);
     });
   });
 

@@ -1,12 +1,14 @@
 /* eslint-disable max-classes-per-file */
 import { EventTypes } from './EventTypes.js';
-import { ApiStoreContextEvent } from './BaseEvents.js';
+import { ApiStoreContextEvent, ApiStoreDeleteEvent } from './BaseEvents.js';
 
 /** @typedef {import('../types').ApiEndPointListItem} ApiEndPointListItem */
 /** @typedef {import('../types').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
 /** @typedef {import('../types').ApiOperationListItem} ApiOperationListItem */
 /** @typedef {import('../types').ApiEndPoint} ApiEndPoint */
 /** @typedef {import('../types').EndPointInit} EndPointInit */
+/** @typedef {import('../types').OperationInit} OperationInit */
+/** @typedef {import('../types').ApiOperation} ApiOperation */
 
 export const idValue = Symbol('idValue');
 export const initValue = Symbol('initValue');
@@ -131,7 +133,63 @@ export class ApiStoreEndpointUpdateEvent extends ApiStoreContextEvent {
   }
 }
 
+/**
+ * An event to be used to initialize a new object in the API store.
+ */
+export class ApiStoreOperationCreateEvent extends ApiStoreContextEvent {
+  /**
+   * @param {string} pathOrId The path or domain id of the endpoint that is the parent of the operation.
+   * @param {OperationInit} init The object initialization properties.
+   */
+  constructor(pathOrId, init) {
+    super(EventTypes.Endpoint.addOperation, { pathOrId, init });
+  }
+}
+
 export const EndpointEvents = {
+  /**
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {EndPointInit} endpointInit The endpoint init definition
+   * @returns {Promise<ApiEndPoint>} The generated id for the endpoint.
+   */
+  add: async (target, endpointInit) => {
+    const e = new ApiStoreEndpointAddEvent(endpointInit);
+    target.dispatchEvent(e);
+    return e.detail.result;
+  },
+  /**
+   * Reads the endpoint model from the store.
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string} pathOrId The domain id of the endpoint or its path.
+   * @returns {Promise<ApiEndPoint>}
+   */
+  get: async (target, pathOrId) => {
+    const e = new ApiStoreEndpointReadEvent(pathOrId);
+    target.dispatchEvent(e);
+    return e.detail.result;
+  },
+  /**
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string} endpointId The domain id of the operation.
+   * @param {string} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<void>}
+   */
+  update: async (target, endpointId, property, value) => {
+    const e = new ApiStoreEndpointUpdateEvent(endpointId, property, value);
+    target.dispatchEvent(e);
+    await e.detail.result;
+  },
+  /**
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string} endpointId The id of the endpoint to remove.
+   * @returns {Promise<void>}
+   */
+  delete: async (target, endpointId) => {
+    const e = new ApiStoreEndpointDeleteEvent(endpointId);
+    target.dispatchEvent(e);
+    await e.detail.result;
+  },
   /**
    * List all endpoints in the API.
    * @param {EventTarget} target The node on which to dispatch the event
@@ -164,45 +222,26 @@ export const EndpointEvents = {
     return e.detail.result;
   },
   /**
+   * Adds a new operation object to the endpoint.
    * @param {EventTarget} target The node on which to dispatch the event
-   * @param {EndPointInit} endpointInit The endpoint init definition
-   * @returns {Promise<ApiEndPoint>} The generated id for the endpoint.
+   * @param {string} pathOrId The path or domain id of the endpoint that is the parent of the operation.
+   * @param {OperationInit} init The initialization properties
+   * @returns {Promise<ApiOperation>}
    */
-  add: async (target, endpointInit) => {
-    const e = new ApiStoreEndpointAddEvent(endpointInit);
+  addOperation: async (target, pathOrId, init) => {
+    const e = new ApiStoreOperationCreateEvent(pathOrId, init);
     target.dispatchEvent(e);
     return e.detail.result;
   },
   /**
+   * Removes the operation from the endpoint.
    * @param {EventTarget} target The node on which to dispatch the event
-   * @param {string} endpointId The id of the endpoint to remove.
+   * @param {string} operationId The domain id of the documentation object
+   * @param {string} endpointId The domain id of the parent endpoint
    * @returns {Promise<void>}
    */
-  delete: async (target, endpointId) => {
-    const e = new ApiStoreEndpointDeleteEvent(endpointId);
-    target.dispatchEvent(e);
-    await e.detail.result;
-  },
-  /**
-   * Reads the endpoint model from the store.
-   * @param {EventTarget} target The node on which to dispatch the event
-   * @param {string} pathOrId The domain id of the endpoint or its path.
-   * @returns {Promise<ApiEndPoint>}
-   */
-  get: async (target, pathOrId) => {
-    const e = new ApiStoreEndpointReadEvent(pathOrId);
-    target.dispatchEvent(e);
-    return e.detail.result;
-  },
-  /**
-   * @param {EventTarget} target The node on which to dispatch the event
-   * @param {string} endpointId The domain id of the operation.
-   * @param {string} property The property name to update
-   * @param {any} value The new value to set.
-   * @returns {Promise<void>}
-   */
-  update: async (target, endpointId, property, value) => {
-    const e = new ApiStoreEndpointUpdateEvent(endpointId, property, value);
+  removeOperation: async (target, operationId, endpointId) => {
+    const e = new ApiStoreDeleteEvent(EventTypes.Endpoint.removeOperation, operationId, endpointId);
     target.dispatchEvent(e);
     await e.detail.result;
   },

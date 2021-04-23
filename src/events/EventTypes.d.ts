@@ -29,35 +29,73 @@ declare interface ApiEvents {
   generateGraph: string;
   get: string;
 }
-declare interface EndpointEvents extends EventsCRUD {
+declare interface EndpointEvents {
+  add: string;
+  get: string;
+  update: string;
+  delete: string;
   list: string;
   listWithOperations: string;
   listOperations: string;
+  addOperation: string;
+  removeOperation: string;
   State: Readonly<StateCUD>;
 }
-declare interface OperationEvents extends EventsCRUD {
-  updateOperationProperty: string;
+declare interface OperationEvents {
+  get: string;
+  update: string;
   addRequest: string;
+  removeRequest: string;
   addResponse: string;
+  removeResponse: string;
   getParent: string;
   State: Readonly<StateCUD>;
 }
 declare interface ParameterEvents {
   get: string;
+  update: string;
+  addExample: string;
+  removeExample: string;
+  State: Readonly<StateCUD>;
 }
 declare interface ExampleEvents {
   get: string;
+  State: Readonly<StateCUD>;
 }
 declare interface PayloadEvents {
   get: string;
+  update: string;
+  addExample: string;
+  removeExample: string;
+  State: Readonly<StateCUD>;
 }
 declare interface RequestEvents {
   get: string;
+  update: string;
+  addPayload: string;
+  removePayload: string;
+  addHeader: string;
+  removeHeader: string;
+  addQueryParameter: string;
+  removeQueryParameter: string;
+  addCookieParameter: string;
+  removeCookieParameter: string;
+  State: Readonly<StateCUD>;
 }
 declare interface ResponseEvents {
   get: string;
+  update: string;
+  addHeader: string;
+  removeHeader: string;
+  addPayload: string;
+  removePayload: string;
+  State: Readonly<StateCUD>;
 }
-declare interface DocumentationEvents extends EventsCRUD {
+declare interface DocumentationEvents {
+  add: string;
+  get: string;
+  update: string;
+  delete: string;
   list: string;
   State: Readonly<StateCUD>;
 }
@@ -68,8 +106,13 @@ declare interface ServerEvents {
   list: string;
   add: string;
   get: string;
+  State: Readonly<StateCUD>;
 }
-declare interface TypeEvents extends EventsCRUD {
+declare interface TypeEvents {
+  add: string;
+  get: string;
+  update: string;
+  delete: string;
   list: string;
   State: Readonly<StateCUD>;
 }
@@ -78,11 +121,4 @@ declare interface StateCUD {
   updated: string;
   deleted: string;
   created: string;
-}
-
-declare interface EventsCRUD {
-  add: string;
-  get: string;
-  update: string;
-  delete: string;
 }

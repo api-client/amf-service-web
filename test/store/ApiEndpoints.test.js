@@ -1,6 +1,7 @@
-import { assert } from '@open-wc/testing';
+import { assert, oneEvent } from '@open-wc/testing';
+import { ns } from '@api-components/amf-helper-mixin/src/Namespace.js';
 import { AmfLoader } from '../helpers/AmfLoader.js';
-import { AmfStoreService, StoreEvents } from '../../worker.index.js';
+import { AmfStoreService, StoreEvents, StoreEventTypes } from '../../worker.index.js';
 
 /** @typedef {import('../../').ApiEndPointListItem} ApiEndPointListItem */
 /** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
@@ -18,89 +19,92 @@ describe('AmfStoreService', () => {
     store.worker.terminate();
   });
 
-  describe('listEndpoints()', () => {
-    let endpoints = /** @type ApiEndPointListItem[] */ (null);
-
+  describe('Listing', () => {
     before(async () => {
       const demoApi = await AmfLoader.loadApi();
       await store.loadGraph(demoApi);
-      endpoints = await store.listEndpoints();
     });
 
-    it('returns an array of endpoints', async () => {
-      assert.typeOf(endpoints, 'array');
+    describe('listEndpoints()', () => {
+      let endpoints = /** @type ApiEndPointListItem[] */ (null);
+  
+      before(async () => {
+        endpoints = await store.listEndpoints();
+      });
+  
+      it('returns an array of endpoints', async () => {
+        assert.typeOf(endpoints, 'array');
+      });
+  
+      it('has the id', async () => {
+        const [endpoint] = endpoints;
+        assert.typeOf(endpoint.id, 'string');
+        assert.include(endpoint.id, 'amf://');
+      });
+  
+      it('has the path', async () => {
+        const [endpoint] = endpoints;
+        // whatever is first in the API spec
+        assert.equal(endpoint.path, '/test-parameters/{feature}');
+      });
+  
+      it('has the name', async () => {
+        // whichever has the name
+        const endpoint = endpoints[2];
+        assert.equal(endpoint.name, 'People');
+      });
+  
+      it('list endpoints with the event', async () => {
+        const result = await StoreEvents.Endpoint.list(demoEt);
+        assert.typeOf(result, 'array');
+      });
     });
-
-    it('has the id', async () => {
-      const [endpoint] = endpoints;
-      assert.typeOf(endpoint.id, 'string');
-      assert.include(endpoint.id, 'amf://');
-    });
-
-    it('has the path', async () => {
-      const [endpoint] = endpoints;
-      // whatever is first in the API spec
-      assert.equal(endpoint.path, '/test-parameters/{feature}');
-    });
-
-    it('has the name', async () => {
-      // whichever has the name
-      const endpoint = endpoints[2];
-      assert.equal(endpoint.name, 'People');
-    });
-
-    it('list endpoints with the event', async () => {
-      const result = await StoreEvents.Endpoint.list(demoEt);
-      assert.typeOf(result, 'array');
-    });
-  });
-
-  describe('listEndpointsWithOperations()', () => {
-    let endpoints = /** @type ApiEndPointWithOperationsListItem[] */ (null);
-    
-    before(async () => {
-      const demoApi = await AmfLoader.loadApi();
-      await store.loadGraph(demoApi);
-      endpoints = await store.listEndpointsWithOperations();
-    });
-
-    it('returns an array of endpoints', async () => {
-      assert.typeOf(endpoints, 'array');
-    });
-
-    it('has the id', async () => {
-      const [endpoint] = endpoints;
-      assert.typeOf(endpoint.id, 'string');
-      assert.include(endpoint.id, 'amf://');
-    });
-
-    it('has the path', async () => {
-      const [endpoint] = endpoints;
-      // whatever is first in the API spec
-      assert.equal(endpoint.path, '/test-parameters/{feature}');
-    });
-
-    it('has the name', async () => {
-      // whichever has the name
-      const endpoint = endpoints[2];
-      assert.equal(endpoint.name, 'People');
-    });
-
-    it('has the operations', async () => {
-      const endpoint = endpoints[2];
-      // this endpoint has 3 operations. When the spec change update this test.
-      const { operations } = endpoint;
-      assert.typeOf(operations, 'array', 'has operations');
-      assert.lengthOf(operations, 3, 'has all operations');
-      const [op] = operations;
-      assert.equal(op.method, 'get', 'operation has method');
-      assert.equal(op.name, 'List people', 'Operation has the name');
-      assert.typeOf(op.id, 'string', 'Operation has the id');
-    });
-
-    it('list endpoints and operations with the event', async () => {
-      const result = await StoreEvents.Endpoint.listWithOperations(demoEt);
-      assert.typeOf(result, 'array');
+  
+    describe('listEndpointsWithOperations()', () => {
+      let endpoints = /** @type ApiEndPointWithOperationsListItem[] */ (null);
+      
+      before(async () => {
+        endpoints = await store.listEndpointsWithOperations();
+      });
+  
+      it('returns an array of endpoints', async () => {
+        assert.typeOf(endpoints, 'array');
+      });
+  
+      it('has the id', async () => {
+        const [endpoint] = endpoints;
+        assert.typeOf(endpoint.id, 'string');
+        assert.include(endpoint.id, 'amf://');
+      });
+  
+      it('has the path', async () => {
+        const [endpoint] = endpoints;
+        // whatever is first in the API spec
+        assert.equal(endpoint.path, '/test-parameters/{feature}');
+      });
+  
+      it('has the name', async () => {
+        // whichever has the name
+        const endpoint = endpoints[2];
+        assert.equal(endpoint.name, 'People');
+      });
+  
+      it('has the operations', async () => {
+        const endpoint = endpoints[2];
+        // this endpoint has 3 operations. When the spec change update this test.
+        const { operations } = endpoint;
+        assert.typeOf(operations, 'array', 'has operations');
+        assert.lengthOf(operations, 3, 'has all operations');
+        const [op] = operations;
+        assert.equal(op.method, 'get', 'operation has method');
+        assert.equal(op.name, 'List people', 'Operation has the name');
+        assert.typeOf(op.id, 'string', 'Operation has the id');
+      });
+  
+      it('list endpoints and operations with the event', async () => {
+        const result = await StoreEvents.Endpoint.listWithOperations(demoEt);
+        assert.typeOf(result, 'array');
+      });
     });
   });
 
@@ -130,19 +134,49 @@ describe('AmfStoreService', () => {
       const endpoint = await store.addEndpoint({ path: '/test-4', summary: 'test summary', });
       assert.equal(endpoint.summary, 'test summary');
     });
+
+    it('dispatches the create event', async () => {
+      store.addEndpoint({ path: '/test-5', summary: 'test summary', });
+      const e = await oneEvent(demoEt, StoreEventTypes.Endpoint.State.created);
+      const { detail } = e;
+      assert.typeOf(detail.graphId, 'string', 'has the graphId');
+      assert.equal(detail.domainType, ns.aml.vocabularies.apiContract.EndPoint, 'has the domainType');
+      assert.typeOf(detail.item, 'object', 'has the item');
+    });
+
+    it('creates an endpoint from the event', async () => {
+      const result = await StoreEvents.Endpoint.add(demoEt, { path: '/test-6' });
+      const stored = await store.getEndpoint(result.id);
+      assert.deepEqual(stored, result);
+    });
   });
 
   describe('deleteEndpoint()', () => {
-    before(async () => {
-      const demoApi = await AmfLoader.loadApi();
-      await store.loadGraph(demoApi);
+    let id = /** @type string */ (null);
+
+    beforeEach(async () => {
+      await store.createWebApi();
+      id = (await store.addEndpoint({ path: '/test' })).id;
     });
 
-    it('removes an endpoint from the API', async () => {
-      const endpointsBefore = await store.listEndpoints();
-      await store.deleteEndpoint(endpointsBefore[0].id);
+    it('removes the endpoint from the API', async () => {
+      await store.deleteEndpoint(id);
       const endpointsAfter = await store.listEndpoints();
-      assert.equal(endpointsAfter.length, endpointsBefore.length - 1);
+      assert.lengthOf(endpointsAfter, 0);
+    });
+
+    it('removes the endpoint from the store with the event', async () => {
+      await StoreEvents.Endpoint.delete(demoEt, id);
+      const endpointsAfter = await store.listEndpoints();
+      assert.lengthOf(endpointsAfter, 0);
+    });
+
+    it('dispatches the delete event', async () => {
+      StoreEvents.Endpoint.delete(demoEt, id);
+      const e = await oneEvent(demoEt, StoreEventTypes.Endpoint.State.deleted);
+      const { detail } = e;
+      assert.equal(detail.graphId, id, 'has the graphId');
+      assert.equal(detail.domainType, ns.aml.vocabularies.apiContract.EndPoint, 'has the graphType');
     });
   });
 
@@ -218,6 +252,119 @@ describe('AmfStoreService', () => {
         thrown = true;
       }
       assert.isTrue(thrown);
+    });
+  });
+
+  describe('addOperation()', () => {
+    let id = /** @type string */ (null);
+    const path = '/test';
+
+    beforeEach(async () => {
+      await store.createWebApi();
+      const ep = await store.addEndpoint({ path });
+      id = ep.id;
+    });
+
+    it('adds the operation', async () => {
+      const created = await store.addOperation(id, { method: 'get' });
+      assert.typeOf(created, 'object', 'returns created operation');
+      const operation = await store.getOperation(created.id);
+      assert.deepEqual(operation, created, 'has the operation in the graph');
+    });
+
+    it('adds the name', async () => {
+      const operation = await store.addOperation(id, { method: 'get', name: 'test-name' });
+      assert.equal(operation.name, 'test-name');
+    });
+
+    it('adds the description', async () => {
+      const operation = await store.addOperation(id, { method: 'get', description: 'test-description' });
+      assert.equal(operation.description, 'test-description');
+    });
+
+    it('adds the summary', async () => {
+      const operation = await store.addOperation(id, { method: 'get', summary: 'test-summary' });
+      assert.equal(operation.summary, 'test-summary');
+    });
+
+    it('adds the deprecated', async () => {
+      const operation = await store.addOperation(id, { method: 'get', deprecated: true });
+      assert.isTrue(operation.deprecated);
+    });
+
+    it('adds the schemes[]', async () => {
+      const operation = await store.addOperation(id, { method: 'get', schemes: ['HTTP'] });
+      assert.deepEqual(operation.schemes, ['HTTP']);
+    });
+
+    it('adds the accepts[]', async () => {
+      const operation = await store.addOperation(id, { method: 'get', accepts: ['application/xml'] });
+      assert.deepEqual(operation.accepts, ['application/xml']);
+    });
+
+    it('adds the contentType[]', async () => {
+      const operation = await store.addOperation(id, { method: 'get', contentType: ['application/xml'] });
+      assert.deepEqual(operation.contentType, ['application/xml']);
+    });
+
+    it('dispatches the create event', async () => {
+      store.addOperation(id, { method: 'get' });
+      const e = await oneEvent(demoEt, StoreEventTypes.Operation.State.created);
+      const { detail } = e;
+      assert.typeOf(detail.graphId, 'string', 'has the graphId');
+      assert.equal(detail.domainType, ns.aml.vocabularies.apiContract.Operation, 'has the domainType');
+      assert.typeOf(detail.item, 'object', 'has the item');
+    });
+
+    it('creates an operation from the event', async () => {
+      const result = await StoreEvents.Endpoint.addOperation(demoEt, id, { method: 'get' });
+      const stored = await store.getOperation(result.id);
+      assert.deepEqual(stored, result);
+    });
+  });
+
+  describe('deleteOperation()', () => {
+    let id = /** @type string */ (null);
+    let epId = /** @type string */ (null);
+    const path = '/test';
+
+    beforeEach(async () => {
+      await store.createWebApi();
+      epId = (await store.addEndpoint({ path })).id;
+      const op = await store.addOperation(epId, { 
+        method: 'get',
+      });
+      id = op.id;
+    });
+
+    it('removes the object from the store', async () => {
+      await store.deleteOperation(id, epId);
+      let thrown = false;
+      try {
+        await store.getOperation(id);
+      } catch (e) {
+        thrown = true;
+      }
+      assert.isTrue(thrown);
+    });
+
+    it('removes the object from the store with the event', async () => {
+      await StoreEvents.Endpoint.removeOperation(demoEt, id, epId);
+      let thrown = false;
+      try {
+        await store.getOperation(id);
+      } catch (e) {
+        thrown = true;
+      }
+      assert.isTrue(thrown);
+    });
+
+    it('dispatches the delete event', async () => {
+      store.deleteOperation(id, epId);
+      const e = await oneEvent(demoEt, StoreEventTypes.Operation.State.deleted);
+      const { detail } = e;
+      assert.equal(detail.graphId, id, 'has the graphId');
+      assert.equal(detail.domainType, ns.aml.vocabularies.apiContract.Operation, 'has the graphType');
     });
   });
 });

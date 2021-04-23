@@ -1,6 +1,13 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 
+/** @typedef {import('amf-client-js').model.domain.EndPoint} EndPoint */
+/** @typedef {import('amf-client-js').model.domain.Operation} Operation */
+/** @typedef {import('amf-client-js').model.domain.Parameter} Parameter */
+/** @typedef {import('amf-client-js').model.domain.Request} Request */
+/** @typedef {import('amf-client-js').model.domain.Response} Response */
+/** @typedef {import('amf-client-js').model.domain.CreativeWork} CreativeWork */
+/** @typedef {import('amf-client-js').model.domain.Payload} Payload */
 /** @typedef {import('./types').WorkerResponse} WorkerResponse */
 /** @typedef {import('./types').WorkerQueueItem} WorkerQueueItem */
 /** @typedef {import('./types').ApiInit} ApiInit */
@@ -33,6 +40,9 @@
 /** @typedef {import('./types').ApiNodeShape} ApiNodeShape */
 /** @typedef {import('./types').ShapeInit} ShapeInit */
 /** @typedef {import('./types').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('./types').ParameterInit} ParameterInit */
+/** @typedef {import('./types').PayloadInit} PayloadInit */
+/** @typedef {import('./types').ExampleInit} ExampleInit */
 
 export const workerValue = Symbol("workerValue");
 export const nextIdValue = Symbol("nextIdValue");
@@ -106,6 +116,22 @@ export class AmfStoreProxy {
    */
   async createWebApi(init) {
     return this[sendMessage]('createWebApi', init);
+  }
+
+  /**
+   * Generates RAML api from the current graph.
+   * @returns {Promise<string>} RAML value for the API.
+   */
+  async generateRaml() {
+    return this[sendMessage]('generateRaml');
+  }
+
+  /**
+   * Generates json+ld from the current graph.
+   * @returns {Promise<string>} JSON+ld value of the API.
+   */
+  async generateGraph() {
+    return this[sendMessage]('generateGraph');
   }
 
   /**
@@ -187,7 +213,7 @@ export class AmfStoreProxy {
   /**
    * Updates a scalar property of an endpoint.
    * @param {string} id The domain id of the operation.
-   * @param {string} property The property name to update
+   * @param {keyof EndPoint} property The property name to update
    * @param {any} value The new value to set.
    * @returns {Promise<ApiEndPoint>}
    */
@@ -227,10 +253,11 @@ export class AmfStoreProxy {
   /**
    * Removes an operation from the graph.
    * @param {string} id The operation id to remove.
+   * @param {string} endpointId The domain id of the parent endpoint.
    * @returns {Promise<string|undefined>} The id of the affected endpoint. Undefined when operation or endpoint cannot be found.
    */
-  async deleteOperation(id) {
-    return this[sendMessage]('deleteOperation', id);
+  async deleteOperation(id, endpointId) {
+    return this[sendMessage]('deleteOperation', id, endpointId);
   }
 
   /**
@@ -246,7 +273,7 @@ export class AmfStoreProxy {
   /**
    * Updates a scalar property of an operation.
    * @param {string} id The domain id of the operation.
-   * @param {string} property The property name to update
+   * @param {keyof Operation} property The property name to update
    * @param {any} value The new value to set.
    * @returns {Promise<ApiOperation>}
    */
@@ -256,29 +283,80 @@ export class AmfStoreProxy {
 
   /**
    * @param {string} operationId The operation domain id
-   * @param {OperationRequestInit=} init The request init options. Optional.
-   * @returns {Promise<string>} The domain id of the created request
-   */
-  async addRequest(operationId, init) {
-    return this[sendMessage]('addRequest', operationId, init);
-  }
-
-  /**
-   * @param {string} operationId The operation domain id
    * @param {OperationResponseInit} init The response init options.
-   * @returns {Promise<string>} The domain id of the created response
+   * @returns {Promise<ApiResponse>} The domain id of the created response
    */
   async addResponse(operationId, init) {
     return this[sendMessage]('addResponse', operationId, init);
   }
 
   /**
-   * Reads the info about a parameter.
-   * @param {string} id The domain id of the parameter
+   * Reads the response data from the graph.
+   * @param {string} id The domain id of the response.
+   * @returns {Promise<ApiResponse>}
+   */
+  async getResponse(id) {
+    return this[sendMessage]('getResponse', id);
+  }
+
+  /**
+   * Adds a header to the response.
+   * @param {string} responseId The response domain id
+   * @param {ParameterInit} init The Parameter init options.
    * @returns {Promise<ApiParameter>}
    */
-  async getParameter(id) {
-    return this[sendMessage]('getParameter', id);
+  async addResponseHeader(responseId, init) {
+    return this[sendMessage]('addResponseHeader', responseId, init);
+  }
+
+  /**
+   * Removes a header from a response
+   * @param {string} responseId The response id to remove the header from
+   * @param {string} headerId The header id to remove.
+   * @returns {Promise<ApiResponse>} Updated response
+   */
+  async removeResponseHeader(responseId, headerId) {
+    return this[sendMessage]('removeResponseHeader', responseId, headerId);
+  }
+
+  /**
+   * Creates a new payload in the response.
+   * @param {string} responseId The response domain id
+   * @param {PayloadInit} init The payload init options
+   * @returns {Promise<ApiPayload>} Created payload object.
+   */
+  async addResponsePayload(responseId, init) {
+    return this[sendMessage]('addResponsePayload', responseId, init);
+  }
+
+  /**
+   * Removes a payload from a response object.
+   * @param {string} responseId The response domain id
+   * @param {string} payloadId The payload domain id.
+   * @returns {Promise<void>}
+   */
+  async removeResponsePayload(responseId, payloadId) {
+    return this[sendMessage]('removeResponsePayload', responseId, payloadId);
+  }
+
+  /**
+   * Updates a scalar property of a Response.
+   * @param {string} id The domain id of the response.
+   * @param {keyof Response} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiResponse>} The updated response
+   */
+  async updateResponseProperty(id, property, value) {
+    return this[sendMessage]('updateResponseProperty', id, property, value);
+  }
+
+  /**
+   * @param {string} responseId The response id to delete
+   * @param {string} operationId The id of the parent operation that has the response
+   * @returns {Promise<void>}
+   */
+  async deleteResponse(responseId, operationId) {
+    return this[sendMessage]('deleteResponse', responseId, operationId);
   }
 
   /**
@@ -300,12 +378,33 @@ export class AmfStoreProxy {
   }
 
   /**
-   * Reads the response data from the graph.
-   * @param {string} id The domain id of the response.
-   * @returns {Promise<ApiResponse>}
+   * Adds an example to a Payload
+   * @param {string} id The if of the Payload to add the example to
+   * @param {ExampleInit} init The example init options
+   * @returns {Promise<ApiExample>}
    */
-  async getResponse(id) {
-    return this[sendMessage]('getResponse', id);
+  async addPayloadExample(id, init) {
+    return this[sendMessage]('addPayloadExample', id, init);
+  }
+
+  /**
+   * Removes an example from the Payload.
+   * @param {string} payloadId The domain id of the Payload
+   * @param {string} exampleId The domain id of the Example to remove.
+   */
+  async removePayloadExample(payloadId, exampleId) {
+    return this[sendMessage]('removePayloadExample', payloadId, exampleId);
+  }
+
+  /**
+   * Updates a scalar property of a Payload.
+   * @param {string} id The domain id of the payload.
+   * @param {keyof Payload} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiPayload>} The updated Payload
+   */
+  async updatePayloadProperty(id, property, value) {
+    return this[sendMessage]('updatePayloadProperty', id, property, value);
   }
 
   /**
@@ -363,6 +462,154 @@ export class AmfStoreProxy {
   }
 
   /**
+   * @param {string} operationId The operation domain id
+   * @param {OperationRequestInit=} init The request init options. Optional.
+   * @returns {Promise<ApiRequest>} The domain id of the created request
+   */
+  async addRequest(operationId, init) {
+    return this[sendMessage]('addRequest', operationId, init);
+  }
+
+  /**
+   * Adds a header to the request.
+   * @param {string} requestId The request domain id
+   * @param {ParameterInit} init The Parameter init options.
+   * @returns {Promise<ApiParameter>}
+   */
+  async addRequestHeader(requestId, init) {
+    return this[sendMessage]('addRequestHeader', requestId, init);
+  }
+
+  /**
+   * Removes a header from a request
+   * @param {string} requestId The request id to remove the header from
+   * @param {string} headerId The header id to remove.
+   * @returns {Promise<ApiRequest>} Updated request
+   */
+  async removeRequestHeader(requestId, headerId) {
+    return this[sendMessage]('removeRequestHeader', requestId, headerId);
+  }
+
+  /**
+   * Adds a query parameter to the request.
+   * @param {string} requestId The request domain id
+   * @param {ParameterInit} init The Parameter init options.
+   * @returns {Promise<ApiParameter>}
+   */
+  async addRequestQueryParameter(requestId, init) {
+    return this[sendMessage]('addRequestQueryParameter', requestId, init);
+  }
+
+  /**
+   * Removes a query parameter from a request
+   * @param {string} requestId The request id to remove the parameter from
+   * @param {string} paramId The parameter id to remove.
+   * @returns {Promise<ApiRequest>} Updated request
+   */
+  async removeRequestQueryParameter(requestId, paramId) {
+    return this[sendMessage]('removeRequestQueryParameter', requestId, paramId);
+  }
+
+  /**
+   * Adds a cookie to the request.
+   * @param {string} requestId The request domain id
+   * @param {ParameterInit} init The Parameter init options.
+   * @returns {Promise<ApiParameter>}
+   */
+  async addRequestCookieParameter(requestId, init) {
+    return this[sendMessage]('addRequestCookieParameter', requestId, init);
+  }
+
+  /**
+   * Removes a cookie parameter from a request
+   * @param {string} requestId The request id to remove the parameter from
+   * @param {string} paramId The parameter id to remove.
+   * @returns {Promise<ApiRequest>} Updated request
+   */
+  async removeRequestCookieParameter(requestId, paramId) {
+    return this[sendMessage]('removeRequestCookieParameter', requestId, paramId);
+  }
+
+  /**
+   * Creates a new payload in the request.
+   * @param {string} requestId The request domain id
+   * @param {PayloadInit} init The payload init options
+   * @returns {Promise<ApiPayload>} Created payload object.
+   */
+  async addRequestPayload(requestId, init) {
+    return this[sendMessage]('addRequestPayload', requestId, init);
+  }
+
+  /**
+   * Removes a payload from a request object.
+   * @param {string} requestId The request domain id
+   * @param {string} payloadId The payload domain id.
+   * @returns {Promise<void>}
+   */
+  async removeRequestPayload(requestId, payloadId) {
+    return this[sendMessage]('removeRequestPayload', requestId, payloadId);
+  }
+
+  /**
+   * @param {string} requestId The request id to delete
+   * @param {string} operationId The id of the parent operation that has the request
+   * @returns {Promise<void>}
+   */
+  async deleteRequest(requestId, operationId) {
+    return this[sendMessage]('deleteRequest', requestId, operationId);
+  }
+
+  /**
+   * Updates a scalar property of a Request.
+   * @param {string} id The domain id of the request.
+   * @param {keyof Request} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiRequest>} The updated request
+   */
+  async updateRequestProperty(id, property, value) {
+    return this[sendMessage]('updateRequestProperty', id, property, value);
+  }
+
+  /**
+   * Reads the info about a parameter.
+   * @param {string} id The domain id of the parameter
+   * @returns {Promise<ApiParameter>}
+   */
+  async getParameter(id) {
+    return this[sendMessage]('getParameter', id);
+  }
+
+  /**
+   * Updates a scalar property of a Parameter.
+   * @param {string} id The domain id of the parameter.
+   * @param {keyof Parameter} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiParameter>} The updated Parameter
+   */
+  async updateParameterProperty(id, property, value) {
+    return this[sendMessage]('updateParameterProperty', id, property, value);
+  }
+
+  /**
+   * Adds an example to a Parameter
+   * @param {string} id The if of the Parameter to add the example to
+   * @param {ExampleInit} init The example init options
+   * @returns {Promise<ApiExample>}
+   */
+  async addParameterExample(id, init) {
+    return this[sendMessage]('addParameterExample', id, init);
+  }
+
+  /**
+   * Removes an example from the parameter.
+   * @param {string} paramId The domain id of the Parameter
+   * @param {string} exampleId The domain id of the Example to remove.
+   */
+  async removeParameterExample(paramId, exampleId) {
+    return this[sendMessage]('removeParameterExample', paramId, exampleId);
+  }
+
+  /**
    * Lists the documentation definitions for the API.
    * @returns {Promise<ApiDocumentation[]>}
    */
@@ -391,7 +638,7 @@ export class AmfStoreProxy {
   /**
    * Updates a scalar property of a documentation.
    * @param {string} id The domain id of the documentation.
-   * @param {string} property The property name to update
+   * @param {keyof CreativeWork} property The property name to update
    * @param {any} value The new value to set.
    * @returns {Promise<ApiDocumentation>}
    */
@@ -429,7 +676,7 @@ export class AmfStoreProxy {
    * @param {ShapeInit=} init The Shape init options.
    * @returns {Promise<ApiShapeUnion>}
    */
-   async addType(init) {
+  async addType(init) {
     return this[sendMessage]('addType', init);
   }
 
@@ -438,7 +685,7 @@ export class AmfStoreProxy {
    * @param {string} id The type domain id.
    * @returns {Promise<boolean>} True when the type has been found and removed.
    */
-   async deleteType(id) {
+  async deleteType(id) {
     return this[sendMessage]('deleteType', id);
   }
 
