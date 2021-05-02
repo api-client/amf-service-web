@@ -10,6 +10,7 @@ import { IResponseEvents } from './ResponseEvents';
 import { IRequestEvents } from './RequestEvents';
 import { IPayloadEvents } from './PayloadEvents';
 import { IParameterEvents } from './ParameterEvents';
+import { IExampleEvents } from './ExampleEvents';
 
 declare interface IEvents {
   Store: IStoreEvents;
@@ -24,6 +25,7 @@ declare interface IEvents {
   Request: IRequestEvents;
   Payload: IPayloadEvents;
   Parameter: IParameterEvents;
+  Example: IExampleEvents;
 }
 
 export const Events: Readonly<IEvents>;

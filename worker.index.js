@@ -53,3 +53,4 @@ export {
 export { ResponseEvents } from './src/events/ResponseEvents.js';
 export { RequestEvents } from './src/events/RequestEvents.js';
 export { PayloadEvents } from './src/events/PayloadEvents.js';
+export { ExampleEvents } from './src/events/ExampleEvents.js';

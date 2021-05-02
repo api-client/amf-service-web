@@ -89,6 +89,8 @@ export const addResponseHeaderHandler = Symbol('addResponseHeaderHandler');
 export const removeResponseHeaderHandler = Symbol('removeResponseHeaderHandler');
 export const addResponsePayloadHandler = Symbol('addResponsePayloadHandler');
 export const removeResponsePayloadHandler = Symbol('removeResponsePayloadHandler');
+export const readExampleHandler = Symbol('readExampleHandler');
+export const updateExampleHandler = Symbol('updateExampleHandler');
 
 /**
  * @param {AmfStoreProxy} base
@@ -160,6 +162,8 @@ const mxFunction = base => {
       this[removeResponseHeaderHandler] = this[removeResponseHeaderHandler].bind(this);
       this[addResponsePayloadHandler] = this[addResponsePayloadHandler].bind(this);
       this[removeResponsePayloadHandler] = this[removeResponsePayloadHandler].bind(this);
+      this[readExampleHandler] = this[readExampleHandler].bind(this);
+      this[updateExampleHandler] = this[updateExampleHandler].bind(this);
     }
 
     /**
@@ -239,6 +243,9 @@ const mxFunction = base => {
       node.addEventListener(EventTypes.Response.removeHeader, this[removeResponseHeaderHandler]);
       node.addEventListener(EventTypes.Response.addPayload, this[addResponsePayloadHandler]);
       node.addEventListener(EventTypes.Response.removePayload, this[removeResponsePayloadHandler]);
+      // Example related events
+      node.addEventListener(EventTypes.Example.get, this[readExampleHandler]);
+      node.addEventListener(EventTypes.Example.update, this[updateExampleHandler]);
     }
 
     /**
@@ -318,6 +325,9 @@ const mxFunction = base => {
       node.removeEventListener(EventTypes.Response.removeHeader, this[removeResponseHeaderHandler]);
       node.removeEventListener(EventTypes.Response.addPayload, this[addResponsePayloadHandler]);
       node.removeEventListener(EventTypes.Response.removePayload, this[removeResponsePayloadHandler]);
+      // Example related events
+      node.removeEventListener(EventTypes.Example.get, this[readExampleHandler]);
+      node.removeEventListener(EventTypes.Example.update, this[updateExampleHandler]);
     }
 
     /**
@@ -1028,6 +1038,30 @@ const mxFunction = base => {
       e.preventDefault();
       const { id, parent } = e.detail;
       e.detail.result = this.removeResponsePayload(parent, id);
+    }
+
+    /**
+     * @param {ApiStoreReadEvent} e 
+     */
+    [readExampleHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id } = e.detail;
+      e.detail.result = this.getExample(id);
+    }
+
+    /**
+     * @param {ApiStoreUpdateScalarEvent} e 
+     */
+    [updateExampleHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id, property, value } = e.detail;
+      e.detail.result = this.updateExampleProperty(id, property, value);
     }
   }
   return AmfStoreDomEventsMixin;

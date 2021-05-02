@@ -653,6 +653,30 @@ export class AmfService {
   }
 
   /**
+   * Updates a scalar property of an Example.
+   * @param {string} id The domain id of the response.
+   * @param {keyof Example} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiExample>} The updated example
+   */
+  async updateExampleProperty(id, property, value) {
+    const example = /** @type Example */ (this.graph.findById(id));
+    if (!example) {
+      throw new Error(`No response for given id ${id}`);
+    }
+    switch (property) {
+      case 'name': example.withName(value); break;
+      case 'displayName': example.withDisplayName(value); break;
+      case 'description': example.withDescription(value); break;
+      case 'value': example.withValue(value); break;
+      case 'mediaType': example.withMediaType(value); break;
+      case 'strict': example.withStrict(value); break;
+      default: throw new Error(`Unsupported patch property of Example: ${property}`);
+    }
+    return ApiSerializer.example(example);
+  }
+
+  /**
    * Reads Payload data from the graph
    * @param {string} id The domain id of the payload
    * @returns {Promise<ApiPayload>}

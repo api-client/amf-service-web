@@ -10,6 +10,7 @@ import { ResponseEvents } from './ResponseEvents.js';
 import { RequestEvents } from './RequestEvents.js';
 import { PayloadEvents } from './PayloadEvents.js';
 import { ParameterEvents } from './ParameterEvents.js';
+import { ExampleEvents } from './ExampleEvents.js';
 
 export const Events = {
   Store: StoreEvents,
@@ -24,6 +25,7 @@ export const Events = {
   Request: RequestEvents,
   Payload: PayloadEvents,
   Parameter: ParameterEvents,
+  Example: ExampleEvents,
 };
 
 Object.freeze(Events);

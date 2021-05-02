@@ -52,6 +52,7 @@ export const EventTypes = {
   },
   Example: {
     get: 'apistoreexampleget',
+    update: 'apistoreexampleupdate',
     State: {
       updated: 'apistoreexamplestateupdate',
       deleted: 'apistoreexamplestatedelete',

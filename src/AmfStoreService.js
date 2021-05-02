@@ -53,6 +53,7 @@ import { EventTypes } from './events/EventTypes.js';
 /** @typedef {import('amf-client-js').model.domain.Response} Response */
 /** @typedef {import('amf-client-js').model.domain.Request} Request */
 /** @typedef {import('amf-client-js').model.domain.Payload} Payload */
+/** @typedef {import('amf-client-js').model.domain.Example} Example */
 
 export const optionsValue = Symbol('options');
 
@@ -351,6 +352,26 @@ export class AmfStoreService extends AmfStoreDomEventsMixin(StorePersistenceMixi
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Response.State.deleted, record));
     this.persist();
+  }
+
+  /**
+   * Updates a scalar property of an Example.
+   * @param {string} id The domain id of the response.
+   * @param {keyof Example} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiExample>} The updated example
+   */
+  async updateExampleProperty(id, property, value) {
+    const updated = await super.updateExampleProperty(id, property, value);
+    const record = /** @type ApiStoreChangeRecord */ ({
+      graphId: id,
+      domainType: ns.aml.vocabularies.apiContract.Example,
+      item: updated,
+      property,
+    });
+    this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Example.State.updated, record));
+    this.persist();
+    return updated;
   }
 
   /**

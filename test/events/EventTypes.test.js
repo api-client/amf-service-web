@@ -244,6 +244,7 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistoreexampleget'],
+      ['update', 'apistoreexampleupdate'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
         assert.equal(StoreEventTypes.Example[prop], value);

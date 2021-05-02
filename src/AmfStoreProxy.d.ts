@@ -232,6 +232,15 @@ export declare class AmfStoreProxy {
   getExample(id: string): Promise<ApiExample>;
 
   /**
+   * Updates a scalar property of an Example.
+   * @param id The domain id of the response.
+   * @param property The property name to update
+   * @param value The new value to set.
+   * @returns The updated example
+   */
+  updateExampleProperty(id: string, property: keyof model.domain.Example, value: any): Promise<ApiExample>;
+
+  /**
    * Reads Payload data from the graph
    * @param id The domain id of the payload
    */

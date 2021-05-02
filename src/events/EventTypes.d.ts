@@ -60,6 +60,7 @@ declare interface ParameterEvents {
 }
 declare interface ExampleEvents {
   get: string;
+  update: string;
   State: Readonly<StateCUD>;
 }
 declare interface PayloadEvents {

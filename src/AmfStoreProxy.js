@@ -8,6 +8,7 @@
 /** @typedef {import('amf-client-js').model.domain.Response} Response */
 /** @typedef {import('amf-client-js').model.domain.CreativeWork} CreativeWork */
 /** @typedef {import('amf-client-js').model.domain.Payload} Payload */
+/** @typedef {import('amf-client-js').model.domain.Example} Example */
 /** @typedef {import('./types').WorkerResponse} WorkerResponse */
 /** @typedef {import('./types').WorkerQueueItem} WorkerQueueItem */
 /** @typedef {import('./types').ApiInit} ApiInit */
@@ -366,6 +367,17 @@ export class AmfStoreProxy {
    */
   async getExample(id) {
     return this[sendMessage]('getExample', id);
+  }
+
+  /**
+   * Updates a scalar property of an Example.
+   * @param {string} id The domain id of the response.
+   * @param {keyof Example} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiExample>} The updated example
+   */
+  async updateExampleProperty(id, property, value) {
+    return this[sendMessage]('updateExampleProperty', id, property, value);
   }
 
   /**
