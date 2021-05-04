@@ -266,7 +266,7 @@ export interface ApiExample extends ApiDomainProperty {
   displayName?: string;
   description?: string;
   value?: string;
-  structuredValue?: any;
+  structuredValue?: ApiScalarNode | ApiObjectNode | ApiArrayNode;
   strict: boolean;
   mediaType?: string;
 }

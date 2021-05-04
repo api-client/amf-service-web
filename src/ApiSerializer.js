@@ -400,7 +400,7 @@ export class ApiSerializer {
    * @returns {ApiExample} Serialized Example
    */
   static example(object) {
-    const { id, strict, name, displayName, description, value, mediaType } = object;
+    const { id, strict, name, displayName, description, value, mediaType, structuredValue } = object;
     const types = object.graph().types();
     const result = /** @type ApiExample */ ({
       id,
@@ -421,6 +421,9 @@ export class ApiSerializer {
     }
     if (!mediaType.isNullOrEmpty) {
       result.mediaType = mediaType.value();
+    }
+    if (structuredValue && structuredValue.id) {
+      result.structuredValue = ApiSerializer.unknownDataNode(structuredValue);
     }
     return result;
   }
