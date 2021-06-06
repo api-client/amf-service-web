@@ -46,6 +46,8 @@ export const serverGetHandler = Symbol('serverGetHandler');
 export const serverAddHandler = Symbol('serverAddHandler');
 export const serverListHandler = Symbol('serverListHandler');
 export const documentationListHandler = Symbol('documentationListHandler');
+export const readSecurityHandler = Symbol('readSecurityHandler');
+export const readSecurityRequirementHandler = Symbol('readSecurityRequirementHandler');
 export const securityListHandler = Symbol('securityListHandler');
 export const typeListHandler = Symbol('typeListHandler');
 export const addTypeHandler = Symbol('addTypeHandler');
@@ -119,6 +121,8 @@ const mxFunction = base => {
       this[serverAddHandler] = this[serverAddHandler].bind(this);
       this[serverListHandler] = this[serverListHandler].bind(this);
       this[documentationListHandler] = this[documentationListHandler].bind(this);
+      this[readSecurityHandler] = this[readSecurityHandler].bind(this);
+      this[readSecurityRequirementHandler] = this[readSecurityRequirementHandler].bind(this);
       this[securityListHandler] = this[securityListHandler].bind(this);
       this[typeListHandler] = this[typeListHandler].bind(this);
       this[addDocumentationHandler] = this[addDocumentationHandler].bind(this);
@@ -208,6 +212,8 @@ const mxFunction = base => {
       node.addEventListener(EventTypes.Documentation.update, this[updateDocumentationHandler]);
       node.addEventListener(EventTypes.Documentation.delete, this[deleteDocumentationHandler]);
       // API security related events
+      node.addEventListener(EventTypes.Security.get, this[readSecurityHandler]);
+      node.addEventListener(EventTypes.Security.getRequirement, this[readSecurityRequirementHandler]);
       node.addEventListener(EventTypes.Security.list, this[securityListHandler]);
       // API types/schemas related events
       node.addEventListener(EventTypes.Type.list, this[typeListHandler]);
@@ -290,6 +296,8 @@ const mxFunction = base => {
       node.removeEventListener(EventTypes.Documentation.update, this[updateDocumentationHandler]);
       node.removeEventListener(EventTypes.Documentation.delete, this[deleteDocumentationHandler]);
       // API security related events
+      node.removeEventListener(EventTypes.Security.get, this[readSecurityHandler]);
+      node.removeEventListener(EventTypes.Security.getRequirement, this[readSecurityRequirementHandler]);
       node.removeEventListener(EventTypes.Security.list, this[securityListHandler]);
       // API types/schemas related events
       node.removeEventListener(EventTypes.Type.list, this[typeListHandler]);
@@ -572,6 +580,30 @@ const mxFunction = base => {
       e.preventDefault();
       const { id } = e.detail;
       e.detail.result = this.deleteDocumentation(id);
+    }
+
+    /**
+     * @param {ApiStoreReadEvent} e 
+     */
+    [readSecurityHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id } = e.detail;
+      e.detail.result = this.getSecurityScheme(id);
+    }
+
+    /**
+     * @param {ApiStoreReadEvent} e 
+     */
+    [readSecurityRequirementHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id } = e.detail;
+      e.detail.result = this.getSecurityRequirement(id);
     }
 
     /**

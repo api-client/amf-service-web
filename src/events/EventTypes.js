@@ -113,6 +113,8 @@ export const EventTypes = {
     },
   },
   Security: {
+    get: 'apistoresecurityget',
+    getRequirement: 'apistoresecuritygetrequirement',
     list: 'apistoresecuritylist',
   },
   Server: {

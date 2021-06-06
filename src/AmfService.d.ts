@@ -1,9 +1,14 @@
-import { model } from 'amf-client-js';
-import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ApiShapeUnion, ShapeInit, ParameterInit, PayloadInit, ExampleInit } from './types';
+import AMF from 'amf-client-js';
+import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ApiShapeUnion, ShapeInit, ParameterInit, PayloadInit, ExampleInit, ApiSecurityScope, ApiSecurityOAuth2Flow } from './types';
+
 
 export declare class AmfService {
-  graph?: model.document.Document;
-  constructor();
+  graph?: AMF.model.document.Document;
+  amf: unknown;
+  /**
+   * @param amf The reference to the AMF library.
+   */
+  constructor(amf: unknown);
 
   /**
    * Loads existing API model into to graph as Document.
@@ -20,7 +25,7 @@ export declare class AmfService {
   /**
    * Reads the WebApi property.
    */
-  webApi(): model.domain.WebApi;
+  webApi(): AMF.model.domain.WebApi;
 
   /**
    * Generates RAML api from the current graph.
@@ -77,7 +82,7 @@ export declare class AmfService {
    * Finds an endpoint by path or domain id.
    * @param pathOrId The domain id of the endpoint or its path.
    */
-  findEndpoint(pathOrId: string): model.domain.EndPoint | undefined;
+  findEndpoint(pathOrId: string): AMF.model.domain.EndPoint | undefined;
 
   /**
    * Removes endpoint from the API.
@@ -111,7 +116,7 @@ export declare class AmfService {
    * @param methodOrId Method name or the domain id of the operation to find
    * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
    */
-  findOperation(methodOrId: string, pathOrId?: string): model.domain.Operation | undefined;
+  findOperation(methodOrId: string, pathOrId?: string): AMF.model.domain.Operation | undefined;
 
   /**
    * Reads the operation model.
@@ -144,7 +149,7 @@ export declare class AmfService {
    * Finds the parent endpoint for the operation
    * @param id The id of the operation
    */
-  findOperationParent(id: string): model.domain.EndPoint | undefined;
+  findOperationParent(id: string): AMF.model.domain.EndPoint | undefined;
 
   /**
    * Updates a scalar property of an operation.
@@ -204,7 +209,7 @@ export declare class AmfService {
    * @param value The new value to set.
    * @returns The updated response
    */
-  updateResponseProperty(id: string, property: keyof model.domain.Response, value: any): Promise<ApiResponse>;
+  updateResponseProperty(id: string, property: keyof AMF.model.domain.Response, value: any): Promise<ApiResponse>;
 
   /**
    * @param responseId The response id to delete
@@ -225,7 +230,7 @@ export declare class AmfService {
    * @param value The new value to set.
    * @returns The updated example
    */
-  updateExampleProperty(id: string, property: keyof model.domain.Example, value: any): Promise<ApiExample>;
+  updateExampleProperty(id: string, property: keyof AMF.model.domain.Example, value: any): Promise<ApiExample>;
 
   /**
    * Reads Payload data from the graph
@@ -254,31 +259,13 @@ export declare class AmfService {
    * @param value The new value to set.
    * @returns The updated Payload
    */
-  updatePayloadProperty(id: string, property: keyof model.domain.Payload, value: any): Promise<ApiPayload>;
+  updatePayloadProperty(id: string, property: keyof AMF.model.domain.Payload, value: any): Promise<ApiPayload>;
 
   /**
    * Reads the TemplatedLink object from the graph.
    * @param id The domain id of the TemplatedLink
    */
   getTemplatedLink(id: string): Promise<ApiTemplatedLink>;
-
-  /**
-   * Reads the SecurityRequirement object from the graph.
-   * @param id The domain id of the SecurityRequirement
-   */
-  getSecurityRequirement(id: string): Promise<ApiSecurityRequirement>;
-
-  /**
-   * Reads the ParametrizedSecurityScheme object from the graph.
-   * @param id The domain id of the ParametrizedSecurityScheme
-   */
-  getParametrizedSecurityScheme(id: string): Promise<ApiParametrizedSecurityScheme>;
-
-  /**
-   * Reads the SecurityScheme object from the graph.
-   * @param id The domain id of the SecurityScheme
-   */
-  getSecurityScheme(id: string): Promise<ApiSecurityScheme>;
 
   /**
    * Reads the CustomDomainProperty object from the graph.
@@ -374,7 +361,7 @@ export declare class AmfService {
    */
   updateRequestProperty(id: string, property: keyof Request, value: any): Promise<ApiRequest>;
 
-  fillParameter(param: model.domain.Parameter, init: ParameterInit): void;
+  fillParameter(param: AMF.model.domain.Parameter, init: ParameterInit): void;
 
   /**
    * Reads the info about a parameter.
@@ -389,7 +376,7 @@ export declare class AmfService {
    * @param value The new value to set.
    * @returns The updated Parameter
    */
-  updateParameterProperty(id: string, property: keyof model.domain.Parameter, value: any): Promise<ApiParameter>;
+  updateParameterProperty(id: string, property: keyof AMF.model.domain.Parameter, value: any): Promise<ApiParameter>;
 
   /**
    * Adds an example to a Parameter
@@ -410,7 +397,7 @@ export declare class AmfService {
    * @param  The example to add properties to
    * @param init The example init options
    */
-  fillExample(example: model.domain.Example, init: ExampleInit): void;
+  fillExample(example: AMF.model.domain.Example, init: ExampleInit): void;
 
   /**
    * Lists the documentation definitions for the API.
@@ -437,7 +424,7 @@ export declare class AmfService {
    * @param property The property name to update
    * @param value The new value to set.
    */
-  updateDocumentationProperty(id: string, property: keyof model.domain.CreativeWork, value: any): Promise<ApiDocumentation>;
+  updateDocumentationProperty(id: string, property: keyof AMF.model.domain.CreativeWork, value: any): Promise<ApiDocumentation>;
 
   /**
    * Removes the documentation from the graph.
@@ -483,7 +470,7 @@ export declare class AmfService {
    * @param  value The new value to set.
    * @returns `true` when the shape has been updated.
    */
-  updateAnyShapeProperty(shape: model.domain.AnyShape, property: string, value: any): boolean;
+  updateAnyShapeProperty(shape: AMF.model.domain.AnyShape, property: string, value: any): boolean;
 
   /**
    * Updates a scalar property of a scalar type.
@@ -491,7 +478,7 @@ export declare class AmfService {
    * @param property The property name to update
    * @param value The new value to set.
    */
-  updateScalarShapeProperty(scalar: model.domain.ScalarShape, property: string, value: any): void;
+  updateScalarShapeProperty(scalar: AMF.model.domain.ScalarShape, property: string, value: any): void;
 
   /**
    * Updates a scalar property of a Node type.
@@ -499,7 +486,7 @@ export declare class AmfService {
    * @param property The property name to update
    * @param value The new value to set.
    */
-  updateNodeShapeProperty(shape: model.domain.NodeShape, property: string, value: any): void;
+  updateNodeShapeProperty(shape: AMF.model.domain.NodeShape, property: string, value: any): void;
 
   /**
    * Updates a scalar property of a file type.
@@ -507,7 +494,7 @@ export declare class AmfService {
    * @param property The property name to update
    * @param value The new value to set.
    */
-  updateFileShapeProperty(shape: model.domain.FileShape, property: string, value: any): void;
+  updateFileShapeProperty(shape: AMF.model.domain.FileShape, property: string, value: any): void;
 
   /**
    * Updates a scalar property of a schema type.
@@ -515,7 +502,7 @@ export declare class AmfService {
    * @param property The property name to update
    * @param value The new value to set.
    */
-  updateSchemaShapeProperty(shape: model.domain.SchemaShape, property: string, value: any): void;
+  updateSchemaShapeProperty(shape: AMF.model.domain.SchemaShape, property: string, value: any): void;
 
   /**
    * Updates a scalar property of a tuple type.
@@ -523,10 +510,40 @@ export declare class AmfService {
    * @param property The property name to update
    * @param value The new value to set.
    */
-  updateTupleShapeProperty(shape: model.domain.TupleShape, property: string, value: any): void;
+  updateTupleShapeProperty(shape: AMF.model.domain.TupleShape, property: string, value: any): void;
 
   /**
    * Lists the security definitions for the API.
    */
   listSecurity(): Promise<ApiSecuritySchemeListItem[]>;
+
+  /**
+   * Reads the SecurityRequirement object from the graph.
+   * @param id The domain id of the SecurityRequirement
+   */
+  getSecurityRequirement(id: string): Promise<ApiSecurityRequirement>;
+
+  /**
+   * Reads the ParametrizedSecurityScheme object from the graph.
+   * @param id The domain id of the ParametrizedSecurityScheme
+   */
+  getParametrizedSecurityScheme(id: string): Promise<ApiParametrizedSecurityScheme>;
+
+  /**
+   * Reads the SecurityScheme object from the graph.
+   * @param id The domain id of the SecurityScheme
+   */
+  getSecurityScheme(id: string): Promise<ApiSecurityScheme>;
+
+  /**
+   * Reads the OAuth2Flow object from the graph.
+   * @param id The domain id of the flow to read.
+   */
+  getOAuthFlow(id: string): Promise<ApiSecurityOAuth2Flow>;
+
+  /**
+   * Reads the OAuth2Flow object from the graph.
+   * @param id The domain id of the flow to read.
+   */
+  getOAuthScope(id: string): Promise<ApiSecurityScope>;
 }

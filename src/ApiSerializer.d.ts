@@ -1,5 +1,5 @@
 import { model } from 'amf-client-js';
-import { ApiAnyShape, ApiArrayNode, ApiArrayShape, ApiDataArrangeShape, ApiDataNode, ApiDocumentation, ApiEndPoint, ApiEndPointListItem, ApiEndPointWithOperationsListItem, ApiExample, ApiFileShape, ApiNodeShape, ApiNodeShapeListItem, ApiObjectNode, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiPropertyShape, ApiRequest, ApiResponse, ApiScalarNode, ApiScalarShape, ApiSchemaShape, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiShape, ApiShapeUnion, ApiTemplatedLink, ApiTupleShape, ApiUnionShape, ApiXMLSerializer, SerializedApi } from "./types";
+import { ApiAnyShape, ApiArrayNode, ApiArrayShape, ApiDataArrangeShape, ApiDataNode, ApiDocumentation, ApiEndPoint, ApiEndPointListItem, ApiEndPointWithOperationsListItem, ApiExample, ApiFileShape, ApiNodeShape, ApiNodeShapeListItem, ApiObjectNode, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiPropertyShape, ApiRequest, ApiResponse, ApiScalarNode, ApiScalarShape, ApiSchemaShape, ApiSecurityApiKeySettings, ApiSecurityHttpSettings, ApiSecurityOAuth1Settings, ApiSecurityOAuth2Flow, ApiSecurityOAuth2Settings, ApiSecurityOpenIdConnectSettings, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiSecurityScope, ApiSecuritySettings, ApiSecuritySettingsUnion, ApiServer, ApiShape, ApiShapeUnion, ApiTemplatedLink, ApiTupleShape, ApiUnionShape, ApiXMLSerializer, SerializedApi } from "./types";
 
 export declare class ApiSerializer {
   /**
@@ -31,7 +31,24 @@ export declare class ApiSerializer {
    * @returns Serialized SecurityScheme
    */
   static securitySchemeListItem(object: model.domain.SecurityScheme): ApiSecuritySchemeListItem;
+  
+  static securitySettings(object: model.domain.Settings): ApiSecuritySettingsUnion;
 
+  static settings(object: model.domain.Settings): ApiSecuritySettings;
+
+  static oAuth1Settings(object: model.domain.OAuth1Settings): ApiSecurityOAuth1Settings;
+
+  static oAuth2Settings(object: model.domain.OAuth2Settings): ApiSecurityOAuth2Settings;
+
+  static oAuth2Flow(object: model.domain.OAuth2Flow): ApiSecurityOAuth2Flow;
+
+  static scope(object: model.domain.Scope): ApiSecurityScope;
+
+  static apiKeySettings(object: model.domain.ApiKeySettings): ApiSecurityApiKeySettings;
+
+  static httpSettings(object: model.domain.HttpSettings): ApiSecurityHttpSettings;
+
+  static openIdConnectSettings(object: model.domain.OpenIdConnectSettings): ApiSecurityOpenIdConnectSettings;
 
   /**
    * @param object The ParametrizedSecurityScheme to serialize.

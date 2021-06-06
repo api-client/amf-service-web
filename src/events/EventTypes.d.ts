@@ -101,6 +101,8 @@ declare interface DocumentationEvents {
   State: Readonly<StateCUD>;
 }
 declare interface SecurityEvents {
+  get: string;
+  getRequirement: string;
   list: string;
 }
 declare interface ServerEvents {

@@ -1,12 +1,13 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
-/* global amf */
+
 import { ns } from '@api-components/amf-helper-mixin/src/Namespace.js';
 import { ApiSerializer } from './ApiSerializer.js';
 
 // Example https://github.com/aml-org/amf-examples/blob/snapshot/src/test/java/co/acme/model/WebApiBuilder.java
 
+/** @typedef {import('amf-client-js')} AMF */
 /** @typedef {import('amf-client-js').model.document.Document} Document */
 /** @typedef {import('amf-client-js').model.domain.DomainElement} DomainElement */
 /** @typedef {import('amf-client-js').model.domain.WebApi} WebApi */
@@ -32,6 +33,8 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('amf-client-js').model.domain.FileShape} FileShape */
 /** @typedef {import('amf-client-js').model.domain.SchemaShape} SchemaShape */
 /** @typedef {import('amf-client-js').model.domain.TupleShape} TupleShape */
+/** @typedef {import('amf-client-js').model.domain.OAuth2Flow} OAuth2Flow */
+/** @typedef {import('amf-client-js').model.domain.Scope} Scope */
 /** @typedef {import('amf-client-js').model.document.BaseUnitWithDeclaresModel} BaseUnitWithDeclaresModel */
 /** @typedef {import('amf-client-js').render.Renderer} Renderer */
 /** @typedef {import('./types').ApiInit} ApiInit */
@@ -71,13 +74,22 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('./types').ParameterInit} ParameterInit */
 /** @typedef {import('./types').PayloadInit} PayloadInit */
 /** @typedef {import('./types').ExampleInit} ExampleInit */
+/** @typedef {import('./types').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
+/** @typedef {import('./types').ApiSecurityScope} ApiSecurityScope */
 
 export class AmfService {
-  constructor() {
+  /**
+   * @param {AMF} amf
+   */
+  constructor(amf) {
     /**
      * @type Document
      */
     this.graph = undefined;
+    /**
+     * @type {AMF}
+     */
+    this.amf = amf;
   }
 
   /**
@@ -85,9 +97,8 @@ export class AmfService {
    * @param {string} model
    */
   async loadGraph(model) {
-    // @ts-ignore
-    const parser = amf.Core.parser('AMF Graph', 'application/ld+json');
-    this.graph = await parser.parseStringAsync(model);
+    const parser = this.amf.Core.parser('AMF Graph', 'application/ld+json');
+    this.graph = /** @type Document */ (await parser.parseStringAsync(model));
   }
 
   /**
@@ -97,11 +108,9 @@ export class AmfService {
    */
   async createWebApi(init) {
     const opts = init || {};
-    // @ts-ignore
-    const g = /** @type Document */ (amf.model.document.Document());
+    const g = new this.amf.model.document.Document();
     this.graph = g;
-    // @ts-ignore
-    const wa = /** @type WebApi */ (amf.model.domain.WebApi());
+    const wa = new this.amf.model.domain.WebApi();
     g.withEncodes(wa);
     if (opts.name) {
       wa.withName(opts.name);
@@ -140,10 +149,9 @@ export class AmfService {
    * @returns {Promise<string>} RAML value for the API.
    */
   async generateRaml() {
+    const generator = /** @type Renderer */ (this.amf.Core.generator('RAML 1.0', 'application/yaml'));
     // @ts-ignore
-    const generator = /** @type Renderer */ (amf.Core.generator('RAML 1.0', 'application/yaml'));
-    // @ts-ignore
-    const opts = amf.render.RenderOptions().withSourceMaps.withCompactUris;
+    const opts = this.amf.render.RenderOptions().withSourceMaps.withCompactUris;
     // @ts-ignore
     return generator.generateString(this.graph, opts);
   }
@@ -153,10 +161,9 @@ export class AmfService {
    * @returns {Promise<string>} JSON+ld value of the API.
    */
   async generateGraph() {
+    const generator = /** @type Renderer */ (this.amf.Core.generator('AMF Graph', 'application/ld+json'));
     // @ts-ignore
-    const generator = /** @type Renderer */ (amf.Core.generator('AMF Graph', 'application/ld+json'));
-    // @ts-ignore
-    const opts = amf.render.RenderOptions().withSourceMaps.withCompactUris;
+    const opts = this.amf.render.RenderOptions().withSourceMaps.withCompactUris;
     // @ts-ignore
     return generator.generateString(this.graph, opts);
   }
@@ -208,7 +215,6 @@ export class AmfService {
       throw new Error(`The server URL is not defined.`);
     }
     const api = this.webApi();
-    // @ts-ignore
     const srv = /** @type Server */ (api.withServer(init.url));
     if (init.description) {
       srv.withDescription(init.description);
@@ -753,46 +759,6 @@ export class AmfService {
   }
 
   /**
-   * Reads the SecurityRequirement object from the graph.
-   * @param {string} id The domain id of the SecurityRequirement
-   * @returns {Promise<ApiSecurityRequirement>}
-   */
-  async getSecurityRequirement(id) {
-    const object = /** @type SecurityRequirement */ (this.graph.findById(id));
-    if (!object) {
-      throw new Error(`No SecurityRequirement for ${id}`);
-    }
-    return ApiSerializer.securityRequirement(object);
-  }
-
-  /**
-   * Reads the ParametrizedSecurityScheme object from the graph.
-   * @param {string} id The domain id of the ParametrizedSecurityScheme
-   * @returns {Promise<ApiParametrizedSecurityScheme>}
-   */
-  async getParametrizedSecurityScheme(id) {
-    const object = /** @type ParametrizedSecurityScheme */ (this.graph.findById(id));
-    if (!object) {
-      throw new Error(`No ParametrizedSecurityScheme for ${id}`);
-    }
-    const result = ApiSerializer.parametrizedSecurityScheme(object);
-    return result;
-  }
-
-  /**
-   * Reads the SecurityScheme object from the graph.
-   * @param {string} id The domain id of the SecurityScheme
-   * @returns {Promise<ApiSecurityScheme>}
-   */
-  async getSecurityScheme(id) {
-    const object = /** @type SecurityScheme */ (this.graph.findById(id));
-    if (!object) {
-      throw new Error(`No SecurityScheme for ${id}`);
-    }
-    return ApiSerializer.securityScheme(object);
-  }
-
-  /**
    * Reads the CustomDomainProperty object from the graph.
    * @param {string} id The domain id of the CustomDomainProperty
    * @returns {Promise<ApiCustomDomainProperty>}
@@ -1309,32 +1275,23 @@ export class AmfService {
     const { type, description, name, displayName, readOnly, writeOnly } = options;
     let domainElement = /** @type Shape */ (null);
     if (type === ns.aml.vocabularies.shapes.ScalarShape) {
-      // @ts-ignore
-      domainElement = amf.model.domain.ScalarShape();
+      domainElement = new this.amf.model.domain.ScalarShape();
     } else if (type === ns.w3.shacl.NodeShape) {
-      // @ts-ignore
-      domainElement = amf.model.domain.NodeShape();
+      domainElement = new this.amf.model.domain.NodeShape();
     } else if (type === ns.aml.vocabularies.shapes.UnionShape) {
-      // @ts-ignore
-      domainElement = amf.model.domain.UnionShape();
+      domainElement = new this.amf.model.domain.UnionShape();
     } else if (type === ns.aml.vocabularies.shapes.FileShape) {
-      // @ts-ignore
-      domainElement = amf.model.domain.FileShape();
+      domainElement = new this.amf.model.domain.FileShape();
     } else if (type === ns.aml.vocabularies.shapes.SchemaShape) {
-      // @ts-ignore
-      domainElement = amf.model.domain.SchemaShape();
+      domainElement = new this.amf.model.domain.SchemaShape();
     } else if (type === ns.aml.vocabularies.shapes.ArrayShape) {
-      // @ts-ignore
-      domainElement = amf.model.domain.ArrayShape();
+      domainElement = new this.amf.model.domain.ArrayShape();
     } else if (type === ns.aml.vocabularies.shapes.MatrixShape) {
-      // @ts-ignore
-      domainElement = amf.model.domain.MatrixShape();
+      domainElement = new this.amf.model.domain.MatrixShape();
     } else if (type === ns.aml.vocabularies.shapes.TupleShape) {
-      // @ts-ignore
-      domainElement = amf.model.domain.TupleShape();
+      domainElement = new this.amf.model.domain.TupleShape();
     } else {
-      // @ts-ignore
-      domainElement = amf.model.domain.AnyShape();
+      domainElement = new this.amf.model.domain.AnyShape();
     }
     if (name) {
       domainElement.withName(name);
@@ -1563,5 +1520,71 @@ export class AmfService {
       result.push(item);
     });
     return result;
+  }
+
+  /**
+   * Reads the SecurityRequirement object from the graph.
+   * @param {string} id The domain id of the SecurityRequirement
+   * @returns {Promise<ApiSecurityRequirement>}
+   */
+  async getSecurityRequirement(id) {
+    const object = /** @type SecurityRequirement */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No SecurityRequirement for ${id}`);
+    }
+    return ApiSerializer.securityRequirement(object);
+  }
+
+  /**
+   * Reads the ParametrizedSecurityScheme object from the graph.
+   * @param {string} id The domain id of the ParametrizedSecurityScheme
+   * @returns {Promise<ApiParametrizedSecurityScheme>}
+   */
+  async getParametrizedSecurityScheme(id) {
+    const object = /** @type ParametrizedSecurityScheme */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No ParametrizedSecurityScheme for ${id}`);
+    }
+    const result = ApiSerializer.parametrizedSecurityScheme(object);
+    return result;
+  }
+
+  /**
+   * Reads the SecurityScheme object from the graph.
+   * @param {string} id The domain id of the SecurityScheme
+   * @returns {Promise<ApiSecurityScheme>}
+   */
+  async getSecurityScheme(id) {
+    const object = /** @type SecurityScheme */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No SecurityScheme for ${id}`);
+    }
+    return ApiSerializer.securityScheme(object);
+  }
+
+  /**
+   * Reads the OAuth2Flow object from the graph.
+   * @param {string} id The domain id of the flow to read.
+   * @returns {Promise<ApiSecurityOAuth2Flow>}
+   */
+  async getOAuthFlow(id) {
+    const object = /** @type OAuth2Flow */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No OAuth2Flow for ${id}`);
+    }
+    return ApiSerializer.oAuth2Flow(object);
+  }
+
+  /**
+   * Reads the OAuth2Flow object from the graph.
+   * @param {string} id The domain id of the flow to read.
+   * @returns {Promise<ApiSecurityScope>}
+   */
+  async getOAuthScope(id) {
+    const object = /** @type Scope */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No OAuth2Flow for ${id}`);
+    }
+    return ApiSerializer.scope(object);
   }
 }

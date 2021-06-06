@@ -15,6 +15,44 @@ class ComponentPage extends DemoPage {
     this.store = new AmfStoreService();
     this.componentName = 'AmfStoreProxy';
     this.actionHandler = this.actionHandler.bind(this);
+
+    this.init();
+  }
+
+  async init() {
+    await this.store.init();
+    this.log('void');
+    this.initialized = true;
+  }
+
+  async readSecurity() {
+    const input = /** @type HTMLInputElement */ (document.getElementById('securityId'));
+    const id = input.value.trim();
+    if (!id) {
+      return;
+    }
+    const result = await this.store.getSecurityScheme(id);
+    this.log(result);
+  }
+
+  async readSecuritySettings() {
+    const input = /** @type HTMLInputElement */ (document.getElementById('securitySettingsId'));
+    const id = input.value.trim();
+    if (!id) {
+      return;
+    }
+    const result = await this.store.getParametrizedSecurityScheme(id);
+    this.log(result);
+  }
+
+  async readSecurityRequirement() {
+    const input = /** @type HTMLInputElement */ (document.getElementById('securityRequirementId'));
+    const id = input.value.trim();
+    if (!id) {
+      return;
+    }
+    const result = await this.store.getSecurityRequirement(id);
+    this.log(result);
   }
 
   /**
@@ -22,12 +60,11 @@ class ComponentPage extends DemoPage {
    */
   async actionHandler(e) {
     const button = /** @type HTMLButtonElement */ (e.target);
+    if (typeof this[button.id] === 'function') {
+      this[button.id]();
+      return;
+    }
     switch (button.id) {
-      case 'init': 
-        await this.store.init();
-        this.log('void');
-        this.initialized = true;
-        break;
       case 'loadApiGraph': this.loadDemoApi(button.dataset.src); break;
       case 'loadEmptyApi': 
         this.latestOutput = await this.store.createWebApi();
@@ -67,18 +104,19 @@ class ComponentPage extends DemoPage {
           this.log('void');
         }
         break;
-      case 'addOperation':
+      case 'deleteOperation':
         {
           const input = /** @type HTMLInputElement */ (document.getElementById('operationId'));
           const id = input.value.trim();
           if (!id) {
             return;
           }
-          const result = await this.store.deleteOperation(id); 
+          const endpoint = await this.store.getOperationParent(id);
+          const result = await this.store.deleteOperation(id, endpoint.id); 
           this.log(result);
         }
         break;
-      case 'deleteOperation':
+      case 'addOperation':
         {
           const input = /** @type HTMLInputElement */ (document.getElementById('operationId'));
           const eInput = /** @type HTMLInputElement */ (document.getElementById('operationEndpointIdOrPath'));
@@ -219,6 +257,26 @@ class ComponentPage extends DemoPage {
           <input type="text" id="typeId" value=""/>
           <button id="readType" ?disabled="${!loaded}" @click="${this.actionHandler}">Read type</button>
         </div>
+
+        <details open>
+          <summary>Security</summary>
+          
+          <div class="form-field">
+            <label for="securityId">Security id</label>
+            <input type="text" id="securityId" value="amf://id#363"/>
+            <button id="readSecurity" ?disabled="${!loaded}" @click="${this.actionHandler}">Read security</button>
+          </div>
+          <div class="form-field">
+            <label for="securitySettingsId">Security settings id</label>
+            <input type="text" id="securitySettingsId" value="amf://id#205"/>
+            <button id="readSecuritySettings" ?disabled="${!loaded}" @click="${this.actionHandler}">Read security settings</button>
+          </div>
+          <div class="form-field">
+            <label for="securityRequirementId">Security requirement id</label>
+            <input type="text" id="securityRequirementId" value=""/>
+            <button id="readSecurityRequirement" ?disabled="${!loaded}" @click="${this.actionHandler}">Read security requirements</button>
+          </div>
+        </details>
       </div>
 
       <div>

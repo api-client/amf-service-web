@@ -301,13 +301,13 @@ export interface ApiTemplatedLink extends ApiDomainProperty {
 
 export interface ApiSecurityRequirement extends ApiDomainProperty {
   name?: string;
-  schemes: string[];
+  schemes: ApiParametrizedSecurityScheme[];
 }
 
 export interface ApiParametrizedSecurityScheme extends ApiDomainProperty {
   name?: string;
-  scheme?: string;
-  settings?: string;
+  scheme?: ApiSecurityScheme;
+  settings?: ApiSecuritySettingsUnion;
 }
 
 export interface ApiSecurityScheme extends ApiDomainProperty {
@@ -318,8 +318,53 @@ export interface ApiSecurityScheme extends ApiDomainProperty {
   headers: string[];
   queryParameters: string[];
   responses: string[];
-  settings?: string;
+  settings?: ApiSecuritySettingsUnion;
   queryString?: string;
+}
+
+export interface ApiSecuritySettings extends ApiDomainProperty {
+  additionalProperties?: ApiScalarNode|ApiObjectNode|ApiArrayNode|ApiDataNode;
+}
+
+export interface ApiSecurityOAuth1Settings extends ApiSecuritySettings {
+  requestTokenUri?: string;
+  authorizationUri?: string;
+  tokenCredentialsUri?: string;
+  signatures: string[];
+}
+
+export interface ApiSecurityOAuth2Settings extends ApiSecuritySettings {
+  authorizationGrants: string[];
+  flows: ApiSecurityOAuth2Flow[];
+}
+
+export interface ApiSecurityApiKeySettings extends ApiSecuritySettings {
+  name?: string;
+  in?: string;
+}
+
+export interface ApiSecurityHttpSettings extends ApiSecuritySettings {
+  scheme?: string;
+  bearerFormat?: string;
+}
+
+export interface ApiSecurityOpenIdConnectSettings extends ApiSecuritySettings {
+  url?: string;
+}
+
+export type ApiSecuritySettingsUnion = ApiSecuritySettings | ApiSecurityOAuth1Settings | ApiSecurityOAuth2Settings | ApiSecurityApiKeySettings | ApiSecurityHttpSettings | ApiSecurityOpenIdConnectSettings;
+
+export interface ApiSecurityOAuth2Flow {
+  authorizationUri?: string;
+  accessTokenUri?: string;
+  flow?: string;
+  refreshUri?: string;
+  scopes: ApiSecurityScope[];
+}
+
+export interface ApiSecurityScope {
+  name?: string;
+  description?: string;
 }
 
 export interface ApiRequest extends ApiDomainProperty {

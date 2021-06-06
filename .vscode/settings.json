@@ -83,6 +83,8 @@
     "apistoreresponsestatedelete",
     "apistoreresponsestateupdate",
     "apistoreresponseupdate",
+    "apistoresecurityget",
+    "apistoresecuritygetrequirement",
     "apistoresecuritylist",
     "apistoreserversadd",
     "apistoreserversget",

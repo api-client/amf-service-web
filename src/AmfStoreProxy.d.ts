@@ -1,5 +1,5 @@
 import { model } from 'amf-client-js';
-import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ShapeInit, ApiShapeUnion, ParameterInit, PayloadInit, ExampleInit } from './types';
+import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ShapeInit, ApiShapeUnion, ParameterInit, PayloadInit, ExampleInit, ApiSecurityOAuth2Flow, ApiSecurityScope } from './types';
 
 export declare const workerValue: unique symbol;
 export declare const nextIdValue: unique symbol;
@@ -60,10 +60,10 @@ export declare class AmfStoreProxy {
    */
   generateRaml(): Promise<string>;
 
-   /**
-    * Generates json+ld from the current graph.
-    * @returns JSON+ld value of the API.
-    */
+  /**
+   * Generates json+ld from the current graph.
+   * @returns JSON+ld value of the API.
+   */
   generateGraph(): Promise<string>;
 
   /**
@@ -276,24 +276,6 @@ export declare class AmfStoreProxy {
   getTemplatedLink(id: string): Promise<ApiTemplatedLink>;
 
   /**
-   * Reads the SecurityRequirement object from the graph.
-   * @param id The domain id of the SecurityRequirement
-   */
-  getSecurityRequirement(id: string): Promise<ApiSecurityRequirement>;
-
-  /**
-   * Reads the ParametrizedSecurityScheme object from the graph.
-   * @param id The domain id of the ParametrizedSecurityScheme
-   */
-  getParametrizedSecurityScheme(id: string): Promise<ApiParametrizedSecurityScheme>;
-
-  /**
-   * Reads the SecurityScheme object from the graph.
-   * @param id The domain id of the SecurityScheme
-   */
-  getSecurityScheme(id: string): Promise<ApiSecurityScheme>;
-
-  /**
    * Reads the CustomDomainProperty object from the graph.
    * @param id The domain id of the CustomDomainProperty
    */
@@ -485,6 +467,36 @@ export declare class AmfStoreProxy {
    * Lists the security definitions for the API.
    */
   listSecurity(): Promise<ApiSecuritySchemeListItem[]>;
+
+  /**
+   * Reads the SecurityRequirement object from the graph.
+   * @param id The domain id of the SecurityRequirement
+   */
+  getSecurityRequirement(id: string): Promise<ApiSecurityRequirement>;
+
+  /**
+   * Reads the ParametrizedSecurityScheme object from the graph.
+   * @param id The domain id of the ParametrizedSecurityScheme
+   */
+  getParametrizedSecurityScheme(id: string): Promise<ApiParametrizedSecurityScheme>;
+
+  /**
+   * Reads the SecurityScheme object from the graph.
+   * @param id The domain id of the SecurityScheme
+   */
+  getSecurityScheme(id: string): Promise<ApiSecurityScheme>;
+
+  /**
+   * Reads the OAuth2Flow object from the graph.
+   * @param id The domain id of the flow to read.
+   */
+  getOAuthFlow(id: string): Promise<ApiSecurityOAuth2Flow>;
+
+  /**
+   * Reads the OAuth2Flow object from the graph.
+   * @param id The domain id of the flow to read.
+   */
+  getOAuthScope(id: string): Promise<ApiSecurityScope>;
 
   /**
    * @returns The ID of the message, unique per call.

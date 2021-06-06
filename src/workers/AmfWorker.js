@@ -8,10 +8,6 @@ import { AmfService } from '../AmfService.js';
 let initialized = false;
 
 class AmfWorker {
-  constructor() {
-    this.service = new AmfService();
-  }
-
   /**
    * @param {MessageEvent} e 
    */
@@ -59,6 +55,8 @@ class AmfWorker {
     amf.plugins.features.AMFValidation.register();
     // @ts-ignore
     await amf.Core.init();
+    // @ts-ignore
+    this.service = new AmfService(amf);
   }
 
   /**

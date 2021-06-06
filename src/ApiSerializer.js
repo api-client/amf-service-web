@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import { ns } from '@api-components/amf-helper-mixin/src/Namespace.js';
 
 /** @typedef {import('amf-client-js').model.domain.ParametrizedSecurityScheme} ParametrizedSecurityScheme */
@@ -6,6 +7,13 @@ import { ns } from '@api-components/amf-helper-mixin/src/Namespace.js';
 /** @typedef {import('amf-client-js').model.domain.Payload} Payload */
 /** @typedef {import('amf-client-js').model.domain.SecurityScheme} SecurityScheme */
 /** @typedef {import('amf-client-js').model.domain.SecurityRequirement} SecurityRequirement */
+/** @typedef {import('amf-client-js').model.domain.Settings} Settings */
+/** @typedef {import('amf-client-js').model.domain.OAuth1Settings} OAuth1Settings */
+/** @typedef {import('amf-client-js').model.domain.OAuth2Settings} OAuth2Settings */
+/** @typedef {import('amf-client-js').model.domain.OAuth2Flow} OAuth2Flow */
+/** @typedef {import('amf-client-js').model.domain.HttpSettings} HttpSettings */
+/** @typedef {import('amf-client-js').model.domain.ApiKeySettings} ApiKeySettings */
+/** @typedef {import('amf-client-js').model.domain.OpenIdConnectSettings} OpenIdConnectSettings */
 /** @typedef {import('amf-client-js').model.domain.TemplatedLink} TemplatedLink */
 /** @typedef {import('amf-client-js').model.domain.Example} Example */
 /** @typedef {import('amf-client-js').model.domain.Parameter} Parameter */
@@ -30,6 +38,7 @@ import { ns } from '@api-components/amf-helper-mixin/src/Namespace.js';
 /** @typedef {import('amf-client-js').model.domain.ObjectNode} ObjectNode */
 /** @typedef {import('amf-client-js').model.domain.ArrayNode} ArrayNode */
 /** @typedef {import('amf-client-js').model.domain.XMLSerializer} XMLSerializer */
+/** @typedef {import('amf-client-js').model.domain.Scope} Scope */
 /** @typedef {import('./types').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 /** @typedef {import('./types').ApiRequest} ApiRequest */
 /** @typedef {import('./types').ApiSecurityScheme} ApiSecurityScheme */
@@ -66,11 +75,20 @@ import { ns } from '@api-components/amf-helper-mixin/src/Namespace.js';
 /** @typedef {import('./types').ApiArrayShape} ApiArrayShape */
 /** @typedef {import('./types').ApiTupleShape} ApiTupleShape */
 /** @typedef {import('./types').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('./types').ApiSecuritySettings} ApiSecuritySettings */
+/** @typedef {import('./types').ApiSecurityOAuth1Settings} ApiSecurityOAuth1Settings */
+/** @typedef {import('./types').ApiSecurityOAuth2Settings} ApiSecurityOAuth2Settings */
+/** @typedef {import('./types').ApiSecurityApiKeySettings} ApiSecurityApiKeySettings */
+/** @typedef {import('./types').ApiSecurityHttpSettings} ApiSecurityHttpSettings */
+/** @typedef {import('./types').ApiSecurityOpenIdConnectSettings} ApiSecurityOpenIdConnectSettings */
+/** @typedef {import('./types').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
+/** @typedef {import('./types').ApiSecuritySettingsUnion} ApiSecuritySettingsUnion */
+/** @typedef {import('./types').ApiSecurityScope} ApiSecurityScope */
 
 export class ApiSerializer {
   /**
-   * @param {WebApi} object The ParametrizedSecurityScheme to serialize.
-   * @returns {SerializedApi} Serialized ParametrizedSecurityScheme
+   * @param {WebApi} object The web API to serialize.
+   * @returns {SerializedApi} Serialized web API
    */
   static api(object) {
     const { 
@@ -154,17 +172,17 @@ export class ApiSerializer {
       result.name = name.value();
     }
     if (scheme) {
-      result.scheme = scheme.id;
+      result.scheme = ApiSerializer.securityScheme(scheme);
     }
     if (settings) {
-      result.settings = settings.id;
+      result.settings = ApiSerializer.securitySettings(settings);
     }
     return result;
   }
 
   /**
-   * @param {SecurityScheme} object The ParametrizedSecurityScheme to serialize.
-   * @returns {ApiSecurityScheme} Serialized ParametrizedSecurityScheme
+   * @param {SecurityScheme} object The SecurityScheme to serialize.
+   * @returns {ApiSecurityScheme} Serialized SecurityScheme
    */
   static securityScheme(object) {
     const { id, headers, queryParameters, responses, name, type, displayName, description, settings, queryString } = object;
@@ -189,7 +207,7 @@ export class ApiSerializer {
       result.description = description.value();
     }
     if (settings) {
-      result.settings = settings.id;
+      result.settings = ApiSerializer.securitySettings(settings);
     }
     if (queryString) {
       result.queryString = queryString.id;
@@ -222,7 +240,7 @@ export class ApiSerializer {
       result.name = name.value();
     }
     if (Array.isArray(schemes) && schemes.length) {
-      result.schemes = schemes.map((p) => p.id);
+      result.schemes = schemes.map((p) => ApiSerializer.parametrizedSecurityScheme(p));
     }
     return result;
   }
@@ -248,10 +266,206 @@ export class ApiSerializer {
     return result;
   }
 
+  /**
+   * @param {Settings} object 
+   * @returns {ApiSecuritySettingsUnion}
+   */
+  static securitySettings(object) {
+    const types = object.graph().types();
+    if (types.includes(ns.aml.vocabularies.security.OAuth1Settings)) {
+      return ApiSerializer.oAuth1Settings(/** @type OAuth1Settings */ (object));
+    }
+    if (types.includes(ns.aml.vocabularies.security.OAuth2Settings)) {
+      return ApiSerializer.oAuth2Settings(/** @type OAuth2Settings */ (object));
+    }
+    if (types.includes(ns.aml.vocabularies.security.ApiKeySettings)) {
+      return ApiSerializer.apiKeySettings(/** @type ApiKeySettings */ (object));
+    }
+    if (types.includes(ns.aml.vocabularies.security.HttpSettings)) {
+      return ApiSerializer.httpSettings(/** @type HttpSettings */ (object));
+    }
+    if (types.includes(ns.aml.vocabularies.security.OpenIdConnectSettings)) {
+      return ApiSerializer.openIdConnectSettings(/** @type OpenIdConnectSettings */ (object));
+    }
+    return ApiSerializer.settings(object);
+  }
 
   /**
-   * @param {Request} object The ParametrizedSecurityScheme to serialize.
-   * @returns {ApiRequest} Serialized ParametrizedSecurityScheme
+   * @param {Settings} object
+   * @returns {ApiSecuritySettings}
+   */
+  static settings(object) {
+    const { id, additionalProperties } = object;
+    const types = object.graph().types();
+    const result = /** @type ApiSecuritySettings */ ({
+      id,
+      types,
+    });
+    if (additionalProperties && additionalProperties.id) {
+      result.additionalProperties = ApiSerializer.unknownDataNode(additionalProperties);
+    }
+    return result;
+  }
+
+  /**
+   * @param {OAuth1Settings} object 
+   * @returns {ApiSecurityOAuth1Settings}
+   */
+  static oAuth1Settings(object) {
+    const { id, authorizationUri, requestTokenUri, tokenCredentialsUri, signatures, } = object;
+    const types = object.graph().types();
+    const result = /** @type ApiSecurityOAuth1Settings */ ({
+      id,
+      types,
+      signatures: [],
+    });
+    if (!authorizationUri.isNullOrEmpty) {
+      result.authorizationUri = authorizationUri.value();
+    }
+    if (!requestTokenUri.isNullOrEmpty) {
+      result.requestTokenUri = requestTokenUri.value();
+    }
+    if (!tokenCredentialsUri.isNullOrEmpty) {
+      result.tokenCredentialsUri = tokenCredentialsUri.value();
+    }
+    if (Array.isArray(signatures) && signatures.length) {
+      result.signatures = signatures.map((p) => p.value());
+    }
+    return result;
+  }
+
+  /**
+   * @param {OAuth2Settings} object 
+   * @returns {ApiSecurityOAuth2Settings}
+   */
+  static oAuth2Settings(object) {
+    const { id, authorizationGrants, flows, } = object;
+    const types = object.graph().types();
+    const result = /** @type ApiSecurityOAuth2Settings */ ({
+      id,
+      types,
+      flows: [],
+      authorizationGrants: [],
+    });
+    if (Array.isArray(authorizationGrants) && authorizationGrants.length) {
+      result.authorizationGrants = authorizationGrants.map((p) => p.value());
+    }
+    if (Array.isArray(flows) && flows.length) {
+      result.flows = flows.map((p) => ApiSerializer.oAuth2Flow(p));
+    }
+    return result;
+  }
+
+  /**
+   * @param {OAuth2Flow} object 
+   * @returns {ApiSecurityOAuth2Flow}
+   */
+  static oAuth2Flow(object) {
+    const { id, authorizationUri, accessTokenUri, flow, refreshUri, scopes } = object;
+    const types = object.graph().types();
+    const result = /** @type ApiSecurityOAuth2Flow */ ({
+      id,
+      types,
+      scopes: [],
+    });
+    if (!authorizationUri.isNullOrEmpty) {
+      result.authorizationUri = authorizationUri.value();
+    }
+    if (!accessTokenUri.isNullOrEmpty) {
+      result.accessTokenUri = accessTokenUri.value();
+    }
+    if (!flow.isNullOrEmpty) {
+      result.flow = flow.value();
+    }
+    if (!refreshUri.isNullOrEmpty) {
+      result.refreshUri = refreshUri.value();
+    }
+    if (Array.isArray(scopes) && scopes.length) {
+      result.scopes = scopes.map((p) => ApiSerializer.scope(p));
+    }
+    return result;
+  }
+
+  /**
+   * @param {Scope} object 
+   * @returns {ApiSecurityScope}
+   */
+  static scope(object) {
+    const { id, name, description } = object;
+    const types = object.graph().types();
+    const result = /** @type ApiSecurityScope */ ({
+      id,
+      types,
+    });
+    if (!name.isNullOrEmpty) {
+      result.name = name.value();
+    }
+    if (!description.isNullOrEmpty) {
+      result.description = description.value();
+    }
+    return result;
+  }
+
+  /**
+   * @param {ApiKeySettings} object 
+   * @returns {ApiSecurityApiKeySettings}
+   */
+  static apiKeySettings(object) {
+    const { id, name, in: inParam } = object;
+    const types = object.graph().types();
+    const result = /** @type ApiSecurityApiKeySettings */ ({
+      id,
+      types,
+    });
+    if (!name.isNullOrEmpty) {
+      result.name = name.value();
+    }
+    if (!inParam.isNullOrEmpty) {
+      result.in = inParam.value();
+    }
+    return result;
+  }
+
+  /**
+   * @param {HttpSettings} object 
+   * @returns {ApiSecurityHttpSettings}
+   */
+  static httpSettings(object) {
+    const { id, scheme, bearerFormat } = object;
+    const types = object.graph().types();
+    const result = /** @type ApiSecurityHttpSettings */ ({
+      id,
+      types,
+    });
+    if (!scheme.isNullOrEmpty) {
+      result.scheme = scheme.value();
+    }
+    if (!bearerFormat.isNullOrEmpty) {
+      result.bearerFormat = bearerFormat.value();
+    }
+    return result;
+  }
+
+  /**
+   * @param {OpenIdConnectSettings} object 
+   * @returns {ApiSecurityOpenIdConnectSettings}
+   */
+  static openIdConnectSettings(object) {
+    const { id, url } = object;
+    const types = object.graph().types();
+    const result = /** @type ApiSecurityOpenIdConnectSettings */ ({
+      id,
+      types,
+    });
+    if (!url.isNullOrEmpty) {
+      result.url = url.value();
+    }
+    return result;
+  }
+
+  /**
+   * @param {Request} object The API request to serialize.
+   * @returns {ApiRequest} Serialized API request
    */
   static request(object) {
     const { id, required, description, queryString, headers, queryParameters, payloads, uriParameters, cookieParameters } = object;

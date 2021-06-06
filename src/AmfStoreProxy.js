@@ -44,6 +44,8 @@
 /** @typedef {import('./types').ParameterInit} ParameterInit */
 /** @typedef {import('./types').PayloadInit} PayloadInit */
 /** @typedef {import('./types').ExampleInit} ExampleInit */
+/** @typedef {import('./types').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
+/** @typedef {import('./types').ApiSecurityScope} ApiSecurityScope */
 
 export const workerValue = Symbol("workerValue");
 export const nextIdValue = Symbol("nextIdValue");
@@ -429,33 +431,6 @@ export class AmfStoreProxy {
   }
 
   /**
-   * Reads the SecurityRequirement object from the graph.
-   * @param {string} id The domain id of the SecurityRequirement
-   * @returns {Promise<ApiSecurityRequirement>}
-   */
-  async getSecurityRequirement(id) {
-    return this[sendMessage]('getSecurityRequirement', id);
-  }
-
-  /**
-   * Reads the ParametrizedSecurityScheme object from the graph.
-   * @param {string} id The domain id of the ParametrizedSecurityScheme
-   * @returns {Promise<ApiParametrizedSecurityScheme>}
-   */
-  async getParametrizedSecurityScheme(id) {
-    return this[sendMessage]('getParametrizedSecurityScheme', id);
-  }
-
-  /**
-   * Reads the SecurityScheme object from the graph.
-   * @param {string} id The domain id of the SecurityScheme
-   * @returns {Promise<ApiSecurityScheme>}
-   */
-  async getSecurityScheme(id) {
-    return this[sendMessage]('getSecurityScheme', id);
-  }
-
-  /**
    * Reads the CustomDomainProperty object from the graph.
    * @param {string} id The domain id of the CustomDomainProperty
    * @returns {Promise<ApiCustomDomainProperty>}
@@ -718,6 +693,51 @@ export class AmfStoreProxy {
    */
   async listSecurity() {
     return this[sendMessage]('listSecurity');
+  }
+
+  /**
+   * Reads the SecurityRequirement object from the graph.
+   * @param {string} id The domain id of the SecurityRequirement
+   * @returns {Promise<ApiSecurityRequirement>}
+   */
+  async getSecurityRequirement(id) {
+    return this[sendMessage]('getSecurityRequirement', id);
+  }
+
+  /**
+   * Reads the ParametrizedSecurityScheme object from the graph.
+   * @param {string} id The domain id of the ParametrizedSecurityScheme
+   * @returns {Promise<ApiParametrizedSecurityScheme>}
+   */
+  async getParametrizedSecurityScheme(id) {
+    return this[sendMessage]('getParametrizedSecurityScheme', id);
+  }
+
+  /**
+   * Reads the SecurityScheme object from the graph.
+   * @param {string} id The domain id of the SecurityScheme
+   * @returns {Promise<ApiSecurityScheme>}
+   */
+  async getSecurityScheme(id) {
+    return this[sendMessage]('getSecurityScheme', id);
+  }
+
+  /**
+   * Reads the OAuth2Flow object from the graph.
+   * @param {string} id The domain id of the flow to read.
+   * @returns {Promise<ApiSecurityOAuth2Flow>}
+   */
+  async getOAuthFlow(id) {
+    return this[sendMessage]('getOAuthFlow', id);
+  }
+
+  /**
+   * Reads the OAuth2Flow object from the graph.
+   * @param {string} id The domain id of the flow to read.
+   * @returns {Promise<ApiSecurityScope>}
+   */
+  async getOAuthScope(id) {
+    return this[sendMessage]('getOAuthScope', id);
   }
 
   /**
