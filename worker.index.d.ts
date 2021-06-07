@@ -73,3 +73,4 @@ export { ResponseEvents } from './src/events/ResponseEvents';
 export { RequestEvents, ApiStoreCreateCookieParameterEvent, ApiStoreCreateQueryParameterEvent, ApiStoreCreateParameterEventDetail } from './src/events/RequestEvents';
 export { PayloadEvents } from './src/events/PayloadEvents';
 export { ExampleEvents } from './src/events/ExampleEvents';
+export { ApiSearch } from './src/lib/ApiSearch';

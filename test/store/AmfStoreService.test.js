@@ -348,4 +348,82 @@ describe('AmfStoreService', () => {
       assert.include(api.license, 'amf://id', 'has the value');
     });
   });
+
+  describe('loadApi()', () => {
+    let store = /** @type AmfStoreService */ (null);
+    
+    before(async () => {
+      store = new AmfStoreService();
+      await store.init();
+    });
+
+    after(() => {
+      store.worker.terminate();
+    });
+
+    it('loads a RAML API with files', async () => {
+      const api = `
+#%RAML 1.0
+title: API test
+version: v1
+uses:
+  Types: types/api-types.raml
+/path:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            type: Types.Test
+      `.trim();
+      const library = `
+#%RAML 1.0 Library
+types:
+  Test:
+    type: object
+    properties:
+      test: string
+      `.trim();
+      const files = [
+        {
+          contents: api,
+          path: 'api.raml',
+        },
+        {
+          contents: library,
+          path: 'types/api-types.raml',
+        },
+      ];
+      await store.loadApi(files, 'RAML 1.0', 'application/raml', 'api.raml');
+      const project = await store.getApi();
+      assert.lengthOf(project.endPoints, 1, 'has the API')
+    });
+
+    it('loads an OAS 3 API with files', async () => {
+      const api = `
+openapi: '3.0.2'
+servers:
+  - url: https://development.gigantic-server.com/v1
+    description: Development server
+paths:
+  /test:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+      `.trim();
+      const files = [
+        {
+          contents: api,
+          path: 'api.yaml',
+        },
+      ];
+      await store.loadApi(files, 'OAS 3.0', 'application/yaml', 'api.yaml');
+      const project = await store.getApi();
+      assert.lengthOf(project.endPoints, 1, 'has the API')
+    });
+  });
 });

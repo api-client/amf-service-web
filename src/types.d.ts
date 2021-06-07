@@ -54,6 +54,48 @@ export interface WorkerQueueItem {
   rejecter: Function;
 }
 
+export interface ApiResource {
+  /**
+   * The API file content.
+   */
+  contents: string;
+  /**
+   * The full path of the file beginning of the API project root directory.
+   */
+  path: string;
+}
+
+export type RAMLVendors = 'RAML 0.8' | 'RAML 1.0';
+export type OASVendors = 'OAS 2.0' | 'OAS 3.0';
+export type AmfVendors = 'AMF Graph' | 'JSON Schema';
+export type ParserVendors = RAMLVendors | OASVendors | AmfVendors;
+export type ParserMediaTypes = 'application/json' | 'application/ld+json' | 'application/yaml' | 'application/raml';
+
+
+export declare interface ContentFile {
+  lastModified: number;
+  name: string;
+  type: string;
+  content: string;
+  size: number;
+}
+
+export declare interface ImportFile {
+  label: string;
+  ext: string|string[];
+}
+
+export declare interface ApiSearchTypeResult {
+  /**
+   * API type
+   */
+  type: ParserVendors;
+  /**
+   * File media type
+   */
+  contentType: ParserMediaTypes;
+}
+
 interface ApiDomainProperty {
   id: string;
   types: string[];

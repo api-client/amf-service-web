@@ -1,5 +1,5 @@
 import AMF from 'amf-client-js';
-import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ApiShapeUnion, ShapeInit, ParameterInit, PayloadInit, ExampleInit, ApiSecurityScope, ApiSecurityOAuth2Flow } from './types';
+import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ApiShapeUnion, ShapeInit, ParameterInit, PayloadInit, ExampleInit, ApiSecurityScope, ApiSecurityOAuth2Flow, ApiResource, ParserVendors, ParserMediaTypes } from './types';
 
 
 export declare class AmfService {
@@ -9,6 +9,15 @@ export declare class AmfService {
    * @param amf The reference to the AMF library.
    */
   constructor(amf: unknown);
+
+  /**
+   * Loads an API project into the store.
+   * @param contents The list of files to process.
+   * @param vendor The vendor of the API.
+   * @param mediaType The API media type
+   * @param main The name of the main API file.
+   */
+  loadApi(contents: ApiResource[], vendor: ParserVendors, mediaType: ParserMediaTypes, main: string): Promise<void>;
 
   /**
    * Loads existing API model into to graph as Document.

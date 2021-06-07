@@ -3,6 +3,7 @@
 /* eslint-disable class-methods-use-this */
 
 import { ns } from '@api-components/amf-helper-mixin/src/Namespace.js';
+import { ApiProjectResourceLoader } from './ApiProjectResourceLoader.js';
 import { ApiSerializer } from './ApiSerializer.js';
 
 // Example https://github.com/aml-org/amf-examples/blob/snapshot/src/test/java/co/acme/model/WebApiBuilder.java
@@ -76,6 +77,9 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('./types').ExampleInit} ExampleInit */
 /** @typedef {import('./types').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
 /** @typedef {import('./types').ApiSecurityScope} ApiSecurityScope */
+/** @typedef {import('./types').ApiResource} ApiResource */
+/** @typedef {import('./types').ParserVendors} ParserVendors */
+/** @typedef {import('./types').ParserMediaTypes} ParserMediaTypes */
 
 export class AmfService {
   /**
@@ -90,6 +94,28 @@ export class AmfService {
      * @type {AMF}
      */
     this.amf = amf;
+  }
+
+  /**
+   * Loads an API project into the store.
+   * @param {ApiResource[]} contents The list of files to process.
+   * @param {ParserVendors} vendor The vendor of the API.
+   * @param {ParserMediaTypes} mediaType The API media type
+   * @param {string} main The name of the main API file.
+   */
+  async loadApi(contents, vendor, mediaType, main) {
+    const loader = new ApiProjectResourceLoader(contents);
+    // @ts-ignore
+    const srvFileLoader = new this.amf.JsServerFileResourceLoader();
+    const env = new this.amf.client.environment.Environment()
+    .addClientLoader(srvFileLoader)
+    .addClientLoader(loader);
+    const parser = this.amf.Core.parser(vendor, mediaType, env);
+    const entryPoint = contents.find((item) => item.path === main);
+    if (!entryPoint) {
+      throw new Error('Unable to find the API entry point');
+    }
+    this.graph = /** @type Document */ (await parser.parseStringAsync(entryPoint.contents));
   }
 
   /**

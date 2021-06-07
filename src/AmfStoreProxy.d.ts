@@ -1,5 +1,5 @@
 import { model } from 'amf-client-js';
-import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ShapeInit, ApiShapeUnion, ParameterInit, PayloadInit, ExampleInit, ApiSecurityOAuth2Flow, ApiSecurityScope } from './types';
+import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ShapeInit, ApiShapeUnion, ParameterInit, PayloadInit, ExampleInit, ApiSecurityOAuth2Flow, ApiSecurityScope, ApiResource, ParserVendors, ParserMediaTypes } from './types';
 
 export declare const workerValue: unique symbol;
 export declare const nextIdValue: unique symbol;
@@ -41,6 +41,15 @@ export declare class AmfStoreProxy {
    * Initializes the backend store.
    */
   init(): Promise<void>;
+
+  /**
+   * Loads an API project into the store.
+   * @param contents The list of files to process.
+   * @param vendor The vendor of the API.
+   * @param mediaType The API media type
+   * @param main The name of the main API file.
+   */
+  loadApi(contents: ApiResource[], vendor: ParserVendors, mediaType: ParserMediaTypes, main: string): Promise<void>;
 
   /**
    * Loads existing API model into to graph as Document.

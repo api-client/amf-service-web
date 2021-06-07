@@ -46,6 +46,9 @@
 /** @typedef {import('./types').ExampleInit} ExampleInit */
 /** @typedef {import('./types').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
 /** @typedef {import('./types').ApiSecurityScope} ApiSecurityScope */
+/** @typedef {import('./types').ApiResource} ApiResource */
+/** @typedef {import('./types').ParserVendors} ParserVendors */
+/** @typedef {import('./types').ParserMediaTypes} ParserMediaTypes */
 
 export const workerValue = Symbol("workerValue");
 export const nextIdValue = Symbol("nextIdValue");
@@ -102,6 +105,17 @@ export class AmfStoreProxy {
    */
   async init() {
     return this[sendMessage]('init');
+  }
+
+  /**
+   * Loads an API project into the store.
+   * @param {ApiResource[]} contents The list of files to process.
+   * @param {ParserVendors} vendor The vendor of the API.
+   * @param {ParserMediaTypes} mediaType The API media type
+   * @param {string} main The name of the main API file.
+   */
+  async loadApi(contents, vendor, mediaType, main) {
+    return this[sendMessage]('loadApi', contents, vendor, mediaType, main);
   }
 
   /**
