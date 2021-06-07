@@ -14,7 +14,7 @@ async function fixAmfStrictMode() {
   const fileLocation = await findAmfMain();
   let content = await fs.readFile(fileLocation, 'utf8');
   if (content.startsWith('var SHACLValidator')) {
-    return '';
+    return;
   }
   content = content.replace('SHACLValidator = require', 'var SHACLValidator = require');
   content = content.replace('Ajv = require', 'var Ajv = require');

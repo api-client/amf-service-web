@@ -218,6 +218,7 @@ class ComponentPage extends DemoPage {
         <button id="loadApiGraph" data-src="async-api-compact.json" ?disabled="${!initialized}">Load async API</button>
         <button id="loadApiGraph" data-src="google-drive-api.json" ?disabled="${!initialized}">Load Google Drive API</button>
         <button id="loadApiGraph" data-src="streetlights-compact.json" ?disabled="${!initialized}">Streetlights (async) API</button>
+        <button id="loadApiGraph" data-src="oas-3-api.json" ?disabled="${!initialized}">OAS 3 API</button>
         <button id="loadEmptyApi" ?disabled="${!initialized}">Load empty API</button>
       </div>
 

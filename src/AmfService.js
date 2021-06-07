@@ -1147,7 +1147,7 @@ export class AmfService {
    * @returns {Promise<ApiDocumentation[]>}
    */
   async listDocumentations() {
-    const docs = /** @type CreativeWork[] */ (this.graph.findByType('http://a.ml/vocabularies/core#CreativeWork'));
+    const docs = /** @type CreativeWork[] */ (this.graph.findByType(ns.aml.vocabularies.core.CreativeWork));
     return docs.map((doc) => ApiSerializer.documentation(doc));
     // const api = this.webApi();
     // return api.documentations.map((doc) => ApiSerializer.documentation(doc));
@@ -1512,7 +1512,7 @@ export class AmfService {
     const result = /** @type ApiSecuritySchemeListItem[] */ ([]);
     this.graph.declares.forEach((obj) => {
       const types = obj.graph().types();
-      if (!types.includes('http://a.ml/vocabularies/security#SecurityScheme')) {
+      if (!types.includes(ns.aml.vocabularies.security.SecurityScheme)) {
         return;
       }
       const type = /** @type SecurityScheme */ (obj);
