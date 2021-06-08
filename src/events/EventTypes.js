@@ -2,6 +2,7 @@ export const EventTypes = {
   Store: {
     init: 'apistoreinit',
     loadGraph: 'apistoreloadgraph',
+    loadApi: 'apistoreloadapi',
   },
   Api: {
     createWebApi: 'apistoreapicreatewebapi',

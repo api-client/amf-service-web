@@ -11,7 +11,7 @@ describe('StoreEvents', () => {
   }
 
   describe('StoreEvents.Store', () => {
-    describe('init', () => {
+    describe('init()', () => {
       it('dispatches the event', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
@@ -29,7 +29,7 @@ describe('StoreEvents', () => {
       });
     });
 
-    describe('loadGraph', () => {
+    describe('loadGraph()', () => {
       it('dispatches the event', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
@@ -45,6 +45,53 @@ describe('StoreEvents', () => {
         const model = 'MODEL';
         StoreEvents.Store.loadGraph(et, model);
         assert.equal(spy.args[0][0].detail.model, model);
+      });
+    });
+
+    describe('loadApi()', () => {
+      const contents = [];
+      const main = 'test.raml';
+      const vendor = 'OAS 3.0';
+      const mediaType = 'application/raml';
+
+      it('dispatches the event', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Store.loadApi, spy);
+        StoreEvents.Store.loadApi(et, contents, main, vendor, mediaType);
+        assert.isTrue(spy.calledOnce);
+      });
+
+      it('has the contents on the detail object', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Store.loadApi, spy);
+        StoreEvents.Store.loadApi(et, contents, main, vendor, mediaType);
+        assert.strictEqual(spy.args[0][0].detail.contents, contents);
+      });
+
+      it('has the main on the detail object', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Store.loadApi, spy);
+        StoreEvents.Store.loadApi(et, contents, main, vendor, mediaType);
+        assert.strictEqual(spy.args[0][0].detail.main, main);
+      });
+
+      it('has the vendor on the detail object', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Store.loadApi, spy);
+        StoreEvents.Store.loadApi(et, contents, main, vendor, mediaType);
+        assert.strictEqual(spy.args[0][0].detail.vendor, vendor);
+      });
+
+      it('has the mediaType on the detail object', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Store.loadApi, spy);
+        StoreEvents.Store.loadApi(et, contents, main, vendor, mediaType);
+        assert.strictEqual(spy.args[0][0].detail.mediaType, mediaType);
       });
     });
   });

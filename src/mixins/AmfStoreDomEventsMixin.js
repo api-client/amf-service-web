@@ -5,6 +5,7 @@ import { EventTypes } from '../events/EventTypes.js';
 
 /** @typedef {import('../AmfStoreProxy').AmfStoreProxy} AmfStoreProxy */
 /** @typedef {import('../events/StoreEvents').ApiStoreLoadGraphEvent} ApiStoreLoadGraphEvent */
+/** @typedef {import('../events/StoreEvents').ApiStoreLoadApiEvent} ApiStoreLoadApiEvent */
 /** @typedef {import('../events/EndpointEvents').ApiStoreEndpointListOperationsEvent} ApiStoreEndpointListOperationsEvent */
 /** @typedef {import('../events/EndpointEvents').ApiStoreEndpointAddEvent} ApiStoreEndpointAddEvent */
 /** @typedef {import('../events/EndpointEvents').ApiStoreEndpointDeleteEvent} ApiStoreEndpointDeleteEvent */
@@ -31,6 +32,7 @@ import { EventTypes } from '../events/EventTypes.js';
 
 export const initHandler = Symbol('initHandler');
 export const loadGraphHandler = Symbol('loadGraphHandler');
+export const loadApiHandler = Symbol('loadApiHandler');
 export const endpointListHandler = Symbol('endpointListHandler');
 export const endpointListWithOperationsHandler = Symbol('endpointListWithOperationsHandler');
 export const endpointListOperationsHandler = Symbol('listOperationsHandler');
@@ -106,6 +108,7 @@ const mxFunction = base => {
       super(...args);
       this[initHandler] = this[initHandler].bind(this);
       this[loadGraphHandler] = this[loadGraphHandler].bind(this);
+      this[loadApiHandler] = this[loadApiHandler].bind(this);
       this[endpointListHandler] = this[endpointListHandler].bind(this);
       this[endpointListWithOperationsHandler] = this[endpointListWithOperationsHandler].bind(this);
       this[endpointListOperationsHandler] = this[endpointListOperationsHandler].bind(this);
@@ -178,6 +181,7 @@ const mxFunction = base => {
       // Store related events
       node.addEventListener(EventTypes.Store.init, this[initHandler]);
       node.addEventListener(EventTypes.Store.loadGraph, this[loadGraphHandler]);
+      node.addEventListener(EventTypes.Store.loadApi, this[loadApiHandler]);
       // API related events
       node.addEventListener(EventTypes.Api.createWebApi, this[createWebApiHandler]);
       node.addEventListener(EventTypes.Api.generateRaml, this[generateRamlHandler]);
@@ -262,6 +266,7 @@ const mxFunction = base => {
       super._detachListeners(node);
       node.removeEventListener(EventTypes.Store.init, this[initHandler]);
       node.removeEventListener(EventTypes.Store.loadGraph, this[loadGraphHandler]);
+      node.removeEventListener(EventTypes.Store.loadApi, this[loadApiHandler]);
       // API related events
       node.removeEventListener(EventTypes.Api.createWebApi, this[createWebApiHandler]);
       node.removeEventListener(EventTypes.Api.generateRaml, this[generateRamlHandler]);
@@ -359,6 +364,18 @@ const mxFunction = base => {
       e.preventDefault();
       const { model } = e.detail;
       e.detail.result = this.loadGraph(model);
+    }
+
+    /**
+     * @param {ApiStoreLoadApiEvent} e 
+     */
+    [loadApiHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { contents, main, vendor, mediaType } = e.detail;
+      e.detail.result = this.loadApi(contents, vendor, mediaType, main);
     }
 
     /**

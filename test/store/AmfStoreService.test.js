@@ -1,6 +1,6 @@
-import { assert } from '@open-wc/testing';
+import { assert, fixture, html } from '@open-wc/testing';
 import { AmfLoader } from '../helpers/AmfLoader.js';
-import { AmfStoreService } from '../../worker.index.js';
+import { AmfStoreService, StoreEvents } from '../../worker.index.js';
 import { workerValue, sendMessage } from '../../src/AmfStoreProxy.js';
 import { optionsValue } from '../../src/AmfStoreService.js';
 
@@ -8,6 +8,13 @@ import { optionsValue } from '../../src/AmfStoreService.js';
 /** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
 
 describe('AmfStoreService', () => {
+  /**
+   * @return {Promise<HTMLDivElement>}
+   */
+   async function etFixture() {
+    return fixture(html`<div></div>`);
+  }
+
   describe('#worker', () => {
     let store = /** @type AmfStoreService */ (null);
 
@@ -351,9 +358,11 @@ describe('AmfStoreService', () => {
 
   describe('loadApi()', () => {
     let store = /** @type AmfStoreService */ (null);
+    let et = /** @type EventTarget */ (null);
     
     before(async () => {
-      store = new AmfStoreService();
+      et = await etFixture();
+      store = new AmfStoreService(et);
       await store.init();
     });
 
@@ -422,6 +431,33 @@ paths:
         },
       ];
       await store.loadApi(files, 'OAS 3.0', 'application/yaml', 'api.yaml');
+      const project = await store.getApi();
+      assert.lengthOf(project.endPoints, 1, 'has the API')
+    });
+
+    it('loads an API with the event', async () => {
+      const api = `
+openapi: '3.0.2'
+servers:
+  - url: https://development.gigantic-server.com/v1
+    description: Development server
+paths:
+  /test:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+      `.trim();
+      const files = [
+        {
+          contents: api,
+          path: 'api.yaml',
+        },
+      ];
+      await StoreEvents.Store.loadApi(et, files, 'api.yaml', 'OAS 3.0', 'application/yaml');
       const project = await store.getApi();
       assert.lengthOf(project.endPoints, 1, 'has the API')
     });

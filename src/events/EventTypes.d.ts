@@ -22,6 +22,7 @@ export const EventTypes: Readonly<EventTypes>;
 declare interface StoreEvents {
   init: string;
   loadGraph: string;
+  loadApi: string;
 }
 declare interface ApiEvents {
   createWebApi: string;
