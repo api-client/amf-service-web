@@ -26,7 +26,7 @@ export declare const readWorkerUrl: unique symbol;
  * - [readWorkerUrl]
  * - [sendMessage](type, ...args)
  */
-export declare class AmfStoreProxy {
+export declare class AmfStoreProxy extends EventTarget {
   /**
    * The instance of the worker.
    */

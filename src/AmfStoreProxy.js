@@ -75,7 +75,7 @@ export const readWorkerUrl = Symbol("readWorkerUrl");
  * - [readWorkerUrl]
  * - [sendMessage](type, ...args)
  */
-export class AmfStoreProxy {
+export class AmfStoreProxy extends EventTarget {
   /**
    * @type {any}
    */
@@ -84,6 +84,7 @@ export class AmfStoreProxy {
   }
 
   constructor() {
+    super();
     /**
      * @type {any}
      */
