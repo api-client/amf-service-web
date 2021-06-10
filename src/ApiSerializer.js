@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import { ns } from '@api-components/amf-helper-mixin/src/Namespace.js';
+import { ns } from './Namespace.js';
 
 /** @typedef {import('amf-client-js').model.domain.ParametrizedSecurityScheme} ParametrizedSecurityScheme */
 /** @typedef {import('amf-client-js').model.domain.Request} Request */

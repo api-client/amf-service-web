@@ -1,6 +1,5 @@
 import { assert, oneEvent } from '@open-wc/testing';
-import { ns } from '@api-components/amf-helper-mixin/src/Namespace.js';
-import { AmfStoreService, StoreEvents, StoreEventTypes } from '../../worker.index.js';
+import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.index.js';
 
 describe('AmfStoreService', () => {
   let store = /** @type AmfStoreService */ (null);

@@ -1,7 +1,6 @@
 import { assert, oneEvent } from '@open-wc/testing';
-import { ns } from '@api-components/amf-helper-mixin/src/Namespace.js';
 // import { AmfLoader } from '../helpers/AmfLoader.js';
-import { AmfStoreService, StoreEvents, StoreEventTypes } from '../../worker.index.js';
+import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.index.js';
 
 /** @typedef {import('../../').ApiEndPointListItem} ApiEndPointListItem */
 /** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
