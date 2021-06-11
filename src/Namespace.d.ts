@@ -8,6 +8,7 @@ interface Document {
   DataType: string;
   NamedExamples: string;
   DomainElement: string;
+  DomainProperty: string;
   ParametrizedDeclaration: string;
   ExternalDomainElement: string;
   customDomainProperties: string;
@@ -99,6 +100,8 @@ interface ApiContract {
   Callback: string;
   TemplatedLink: string;
   IriTemplateMapping: string;
+  Message: string;
+  DomainExtension: string;
   header: string;
   parameter: string;
   paramName: string;
@@ -131,7 +134,6 @@ interface ApiContract {
   operationId: string;
   protocol: string;
   protocolVersion: string;
-  Message: string;
   headerSchema: string;
   contentType: string;
 }

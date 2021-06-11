@@ -95,6 +95,11 @@ export const addResponsePayloadHandler = Symbol('addResponsePayloadHandler');
 export const removeResponsePayloadHandler = Symbol('removeResponsePayloadHandler');
 export const readExampleHandler = Symbol('readExampleHandler');
 export const updateExampleHandler = Symbol('updateExampleHandler');
+export const customDomainPropertyListHandler = Symbol('customDomainPropertyListHandler');
+export const customDomainPropertyAddHandler = Symbol('customDomainPropertyAddHandler');
+export const customDomainPropertyGetHandler = Symbol('customDomainPropertyGetHandler');
+export const customDomainPropertyDeleteHandler = Symbol('customDomainPropertyDeleteHandler');
+export const domainExtensionGetHandler = Symbol('domainExtensionGetHandler');
 
 /**
  * @param {AmfStoreProxy} base
@@ -171,6 +176,11 @@ const mxFunction = base => {
       this[removeResponsePayloadHandler] = this[removeResponsePayloadHandler].bind(this);
       this[readExampleHandler] = this[readExampleHandler].bind(this);
       this[updateExampleHandler] = this[updateExampleHandler].bind(this);
+      this[customDomainPropertyListHandler] = this[customDomainPropertyListHandler].bind(this);
+      this[customDomainPropertyAddHandler] = this[customDomainPropertyAddHandler].bind(this);
+      this[customDomainPropertyGetHandler] = this[customDomainPropertyGetHandler].bind(this);
+      this[customDomainPropertyDeleteHandler] = this[customDomainPropertyDeleteHandler].bind(this);
+      this[domainExtensionGetHandler] = this[domainExtensionGetHandler].bind(this);
     }
 
     /**
@@ -256,6 +266,12 @@ const mxFunction = base => {
       // Example related events
       node.addEventListener(EventTypes.Example.get, this[readExampleHandler]);
       node.addEventListener(EventTypes.Example.update, this[updateExampleHandler]);
+      // Custom domain property
+      node.addEventListener(EventTypes.CustomProperty.add, this[customDomainPropertyAddHandler]);
+      node.addEventListener(EventTypes.CustomProperty.get, this[customDomainPropertyGetHandler]);
+      node.addEventListener(EventTypes.CustomProperty.list, this[customDomainPropertyListHandler]);
+      node.addEventListener(EventTypes.CustomProperty.delete, this[customDomainPropertyDeleteHandler]);
+      node.addEventListener(EventTypes.CustomProperty.getExtension, this[domainExtensionGetHandler]);
     }
 
     /**
@@ -341,6 +357,12 @@ const mxFunction = base => {
       // Example related events
       node.removeEventListener(EventTypes.Example.get, this[readExampleHandler]);
       node.removeEventListener(EventTypes.Example.update, this[updateExampleHandler]);
+      // Custom domain property
+      node.removeEventListener(EventTypes.CustomProperty.add, this[customDomainPropertyAddHandler]);
+      node.removeEventListener(EventTypes.CustomProperty.get, this[customDomainPropertyGetHandler]);
+      node.removeEventListener(EventTypes.CustomProperty.list, this[customDomainPropertyListHandler]);
+      node.removeEventListener(EventTypes.CustomProperty.delete, this[customDomainPropertyDeleteHandler]);
+      node.removeEventListener(EventTypes.CustomProperty.getExtension, this[domainExtensionGetHandler]);
     }
 
     /**
@@ -1111,6 +1133,65 @@ const mxFunction = base => {
       e.preventDefault();
       const { id, property, value } = e.detail;
       e.detail.result = this.updateExampleProperty(id, property, value);
+    }
+
+    /**
+     * @param {ApiStoreCreateEvent} e 
+     */
+    [customDomainPropertyAddHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { init } = e.detail;
+      e.detail.result = this.addCustomDomainProperty(init);
+    }
+
+    /**
+     * @param {ApiStoreReadEvent} e 
+     */
+    [customDomainPropertyGetHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id } = e.detail;
+      e.detail.result = this.getCustomDomainProperty(id);
+    }
+
+    /**
+     * @param {ApiStoreContextEvent} e 
+     */
+    [customDomainPropertyListHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      e.detail.result = this.listCustomDomainProperties();
+    }
+
+    /**
+     * @param {ApiStoreDeleteEvent} e 
+     */
+    [customDomainPropertyDeleteHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id } = e.detail;
+      e.detail.result = this.deleteCustomDomainProperty(id);
+    }
+
+    /**
+     * @param {ApiStoreReadEvent} e 
+     */
+    [domainExtensionGetHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id } = e.detail;
+      e.detail.result = this.getDomainExtension(id);
     }
   }
   return AmfStoreDomEventsMixin;

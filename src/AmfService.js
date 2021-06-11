@@ -36,6 +36,7 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('amf-client-js').model.domain.TupleShape} TupleShape */
 /** @typedef {import('amf-client-js').model.domain.OAuth2Flow} OAuth2Flow */
 /** @typedef {import('amf-client-js').model.domain.Scope} Scope */
+/** @typedef {import('amf-client-js').model.domain.DomainExtension} DomainExtension */
 /** @typedef {import('amf-client-js').model.document.BaseUnitWithDeclaresModel} BaseUnitWithDeclaresModel */
 /** @typedef {import('amf-client-js').render.Renderer} Renderer */
 /** @typedef {import('./types').ApiInit} ApiInit */
@@ -80,6 +81,9 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('./types').ApiResource} ApiResource */
 /** @typedef {import('./types').ParserVendors} ParserVendors */
 /** @typedef {import('./types').ParserMediaTypes} ParserMediaTypes */
+/** @typedef {import('./types').ApiDomainExtension} ApiDomainExtension */
+/** @typedef {import('./types').ApiCustomDomainPropertyListItem} ApiCustomDomainPropertyListItem */
+/** @typedef {import('./types').CustomDomainPropertyInit} CustomDomainPropertyInit */
 
 export class AmfService {
   /**
@@ -785,7 +789,49 @@ export class AmfService {
   }
 
   /**
+   * Lists the custom domain properties (domain extensions, annotations) definitions for the API.
+   * @returns {Promise<ApiCustomDomainPropertyListItem[]>}
+   */
+  async listCustomDomainProperties() {
+    const result = /** @type ApiCustomDomainPropertyListItem[] */ ([]);
+    this.graph.declares.forEach((obj) => {
+      const types = obj.graph().types();
+      if (!types.includes(ns.aml.vocabularies.document.DomainProperty)) {
+        return;
+      }
+      const object = /** @type CustomDomainProperty */ (obj);
+      const item = ApiSerializer.domainPropertyListItem(object);
+      result.push(item);
+    });
+    return result;
+  }
+
+  /**
+   * Creates a new type in the API.
+   * @param {CustomDomainPropertyInit=} init The Shape init options.
+   * @returns {Promise<ApiCustomDomainProperty>}
+   */
+  async addCustomDomainProperty(init) {
+    const options = init || {};
+    const { description, name, displayName } = options;
+    const domainElement = new this.amf.model.domain.CustomDomainProperty();
+    if (name) {
+      domainElement.withName(name);
+    }
+    if (displayName) {
+      domainElement.withDisplayName(displayName);
+    }
+    if (description) {
+      domainElement.withDescription(description);
+    }
+    this.graph.withDeclaredElement(domainElement);
+    return ApiSerializer.customDomainProperty(domainElement);
+  }
+
+  /**
    * Reads the CustomDomainProperty object from the graph.
+   * This is a definition of domain extension (RAML annotation).
+   * 
    * @param {string} id The domain id of the CustomDomainProperty
    * @returns {Promise<ApiCustomDomainProperty>}
    */
@@ -794,33 +840,52 @@ export class AmfService {
     if (!object) {
       throw new Error(`No CustomDomainProperty for ${id}`);
     }
-    const result = /** @type ApiCustomDomainProperty */ ({
-      id: object.id,
-      isLink: object.isLink,
-      domain: [],
-    });
-    if (!object.name.isNullOrEmpty) {
-      result.name = object.name.value();
+    return ApiSerializer.customDomainProperty(object);
+  }
+
+  /**
+   * Removes a CustomDomainProperty from the API.
+   * @param {string} id The domain id of the CustomDomainProperty to remove
+   * @returns {Promise<boolean>} True when the property was found and removed.
+   */
+  async deleteCustomDomainProperty(id) {
+    return this.deleteFromDeclares(id);
+  }
+
+  /**
+   * Updates a scalar property of a CustomDomainProperty.
+   * @param {string} id The domain id of the object.
+   * @param {keyof CustomDomainProperty} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiCustomDomainProperty>} The updated custom domain property
+   */
+  async updateCustomDomainProperty(id, property, value) {
+    const object = /** @type CustomDomainProperty */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No CustomDomainProperty for given id ${id}`);
     }
-    if (!object.displayName.isNullOrEmpty) {
-      result.displayName = object.displayName.value();
+    switch (property) {
+      case 'description': object.withDescription(value); break;
+      case 'displayName': object.withDisplayName(value); break;
+      case 'name': object.withName(value); break;
+      default: throw new Error(`Unsupported patch property of CustomDomainProperty: ${property}`);
     }
-    if (!object.description.isNullOrEmpty) {
-      result.description = object.description.value();
+    return ApiSerializer.customDomainProperty(object);
+  }
+
+  /**
+   * Reads the DomainExtension object from the graph.
+   * This is a definition of applied to an object domain extension (RAML annotation).
+   * 
+   * @param {string} id The domain id of the CustomDomainProperty
+   * @returns {Promise<ApiDomainExtension>}
+   */
+  async getDomainExtension(id) {
+    const object = /** @type DomainExtension */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No DomainExtension for ${id}`);
     }
-    if (!object.linkLabel.isNullOrEmpty) {
-      result.linkLabel = object.linkLabel.value();
-    }
-    if (Array.isArray(object.domain) && object.domain.length) {
-      result.domain = object.domain.map((p) => p.value());
-    }
-    if (object.schema) {
-      result.schema = object.schema.id;
-    }
-    if (object.linkTarget) {
-      result.linkTarget = object.linkTarget.id;
-    }
-    return result;
+    return ApiSerializer.domainExtension(object);
   }
 
   /**
@@ -1344,29 +1409,7 @@ export class AmfService {
    * @returns {Promise<boolean>} True when the type has been found and removed.
    */
   async deleteType(id) {
-    const dIndex = this.graph.declares.findIndex((item) => item.id === id);
-    if (dIndex !== -1) {
-      const copy = Array.from(this.graph.declares);
-      copy.splice(dIndex, 1);
-      this.graph.withDeclares(copy);
-      return true;
-    }
-    const refs = /** @type BaseUnitWithDeclaresModel[] */ (this.graph.references());
-    for (let i = 0, len = refs.length; i < len; i++) {
-      const ref = refs[i];
-      const { declares } = ref;
-      if (!declares || !declares.length) {
-        continue;
-      }
-      const index = declares.findIndex((item) => item.id === id);
-      if (index !== -1) {
-        const copy = Array.from(declares);
-        copy.splice(dIndex, 1);
-        ref.withDeclares(copy);
-        return true;
-      }
-    }
-    return false;
+    return this.deleteFromDeclares(id);
   }
 
   /**
@@ -1612,5 +1655,36 @@ export class AmfService {
       throw new Error(`No OAuth2Flow for ${id}`);
     }
     return ApiSerializer.scope(object);
+  }
+
+  /**
+   * Removes an object from the declares array whether it is in the API declares or in the references.
+   * @param {string} id The domain object to remove.
+   * @returns {boolean} True when the object has been found and removed.
+   */
+  deleteFromDeclares(id) {
+    const dIndex = this.graph.declares.findIndex((item) => item.id === id);
+    if (dIndex !== -1) {
+      const copy = Array.from(this.graph.declares);
+      copy.splice(dIndex, 1);
+      this.graph.withDeclares(copy);
+      return true;
+    }
+    const refs = /** @type BaseUnitWithDeclaresModel[] */ (this.graph.references());
+    for (let i = 0, len = refs.length; i < len; i++) {
+      const ref = refs[i];
+      const { declares } = ref;
+      if (!declares || !declares.length) {
+        continue;
+      }
+      const index = declares.findIndex((item) => item.id === id);
+      if (index !== -1) {
+        const copy = Array.from(declares);
+        copy.splice(dIndex, 1);
+        ref.withDeclares(copy);
+        return true;
+      }
+    }
+    return false;
   }
 }

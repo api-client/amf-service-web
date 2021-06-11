@@ -1,5 +1,5 @@
 import { model } from 'amf-client-js';
-import { ApiAnyShape, ApiArrayNode, ApiArrayShape, ApiDataArrangeShape, ApiDataNode, ApiDocumentation, ApiEndPoint, ApiEndPointListItem, ApiEndPointWithOperationsListItem, ApiExample, ApiFileShape, ApiNodeShape, ApiNodeShapeListItem, ApiObjectNode, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiPropertyShape, ApiRequest, ApiResponse, ApiScalarNode, ApiScalarShape, ApiSchemaShape, ApiSecurityApiKeySettings, ApiSecurityHttpSettings, ApiSecurityOAuth1Settings, ApiSecurityOAuth2Flow, ApiSecurityOAuth2Settings, ApiSecurityOpenIdConnectSettings, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiSecurityScope, ApiSecuritySettings, ApiSecuritySettingsUnion, ApiServer, ApiShape, ApiShapeUnion, ApiTemplatedLink, ApiTupleShape, ApiUnionShape, ApiXMLSerializer, SerializedApi } from "./types";
+import { ApiAnyShape, ApiArrayNode, ApiArrayShape, ApiCustomDomainProperty, ApiCustomDomainPropertyListItem, ApiDataArrangeShape, ApiDataNode, ApiDocumentation, ApiDomainExtension, ApiEndPoint, ApiEndPointListItem, ApiEndPointWithOperationsListItem, ApiExample, ApiFileShape, ApiNodeShape, ApiNodeShapeListItem, ApiObjectNode, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiPropertyShape, ApiRequest, ApiResponse, ApiScalarNode, ApiScalarShape, ApiSchemaShape, ApiSecurityApiKeySettings, ApiSecurityHttpSettings, ApiSecurityOAuth1Settings, ApiSecurityOAuth2Flow, ApiSecurityOAuth2Settings, ApiSecurityOpenIdConnectSettings, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiSecurityScope, ApiSecuritySettings, ApiSecuritySettingsUnion, ApiServer, ApiShape, ApiShapeUnion, ApiTemplatedLink, ApiTupleShape, ApiUnionShape, ApiXMLSerializer, SerializedApi } from "./types";
 
 export declare class ApiSerializer {
   /**
@@ -153,5 +153,8 @@ export declare class ApiSerializer {
   static dataNode(object: model.domain.DataNode): ApiDataNode;
   static scalarNode(object: model.domain.ScalarNode): ApiScalarNode;
   static objectNode(object: model.domain.ObjectNode): ApiObjectNode;
-  static arrayNode(object: model.domain.ArrayNode): ApiArrayNode;
+  static arrayNode(object: model.domain.ArrayNode): ApiArrayNode;  
+  static domainPropertyListItem(object: model.domain.CustomDomainProperty): ApiCustomDomainPropertyListItem;
+  static customDomainProperty(object: model.domain.CustomDomainProperty): ApiCustomDomainProperty;
+  static domainExtension(object: model.domain.DomainExtension): ApiDomainExtension;
 }

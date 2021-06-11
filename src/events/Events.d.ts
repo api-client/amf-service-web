@@ -11,6 +11,7 @@ import { IRequestEvents } from './RequestEvents';
 import { IPayloadEvents } from './PayloadEvents';
 import { IParameterEvents } from './ParameterEvents';
 import { IExampleEvents } from './ExampleEvents';
+import { ICustomPropertyEvents } from './CustomPropertyEvents';
 
 declare interface IEvents {
   Store: IStoreEvents;
@@ -26,6 +27,7 @@ declare interface IEvents {
   Payload: IPayloadEvents;
   Parameter: IParameterEvents;
   Example: IExampleEvents;
+  CustomProperty: ICustomPropertyEvents;
 }
 
 export const Events: Readonly<IEvents>;

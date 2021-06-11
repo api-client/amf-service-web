@@ -36,6 +36,11 @@ annotationTypes:
       signature:
         pattern: "\\d{3}-\\w{12}"
         required: true
+  unusedInTheApi:
+    properties:
+      test:
+        type: string
+        required: true
 uses:
   ExampleType: resourceTypes/example-types.raml
 types:
@@ -468,3 +473,37 @@ securitySchemes:
         body:
           application/json:
             type: ExampleType.Manager
+/annotable:
+  displayName: Annotations
+  get:
+    (deprecated): This method is deprecated
+    displayName: Deprecated
+    description: |
+      This should render an annotation saying that this method is deprecated.
+    responses: 
+      200:
+        body: 
+          application/json:
+            type: AppPerson
+  post:
+    (annotationTest):
+    displayName: Nillable
+    description: |
+      This should render an annotation that has no value
+    responses: 
+      200:
+        body: 
+          application/json:
+            type: AppPerson
+  put:
+    (clearanceLevel):
+      level: medium
+      signature: qwerty1234567
+    displayName: Complex
+    description: |
+      This should render an annotation that has complex values
+    responses: 
+      200:
+        body: 
+          application/json:
+            type: AppPerson

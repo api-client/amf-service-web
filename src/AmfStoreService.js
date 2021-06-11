@@ -40,6 +40,8 @@ import { EventTypes } from './events/EventTypes.js';
 /** @typedef {import('./types').ParameterInit} ParameterInit */
 /** @typedef {import('./types').ApiPayload} ApiPayload */
 /** @typedef {import('./types').PayloadInit} PayloadInit */
+/** @typedef {import('./types').CustomDomainPropertyInit} CustomDomainPropertyInit */
+/** @typedef {import('./types').ApiCustomDomainProperty} ApiCustomDomainProperty */
 /** @typedef {import('./events/BaseEvents').ApiStoreCreateRecord} ApiStoreCreateRecord */
 /** @typedef {import('./events/BaseEvents').ApiStoreDeleteRecord} ApiStoreDeleteRecord */
 /** @typedef {import('./events/BaseEvents').ApiStoreChangeRecord} ApiStoreChangeRecord */
@@ -54,6 +56,7 @@ import { EventTypes } from './events/EventTypes.js';
 /** @typedef {import('amf-client-js').model.domain.Request} Request */
 /** @typedef {import('amf-client-js').model.domain.Payload} Payload */
 /** @typedef {import('amf-client-js').model.domain.Example} Example */
+/** @typedef {import('amf-client-js').model.domain.CustomDomainProperty} CustomDomainProperty */
 
 export const optionsValue = Symbol('options');
 
@@ -425,6 +428,61 @@ export class AmfStoreService extends AmfStoreDomEventsMixin(StorePersistenceMixi
       property,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Payload.State.updated, record));
+    this.persist();
+    return result;
+  }
+
+  /**
+   * Creates a new type in the API.
+   * @param {CustomDomainPropertyInit=} init The Shape init options.
+   * @returns {Promise<ApiCustomDomainProperty>}
+   */
+  async addCustomDomainProperty(init) {
+    const result = await super.addCustomDomainProperty(init);
+    const record = /** @type ApiStoreCreateRecord */ ({
+      graphId: result.id,
+      domainType: ns.aml.vocabularies.document.DomainProperty,
+      item: result,
+    });
+    this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.CustomProperty.State.created, record));
+    this.persist();
+    return result;
+  }
+
+  /**
+   * Removes a CustomDomainProperty from the API.
+   * @param {string} id The domain id of the CustomDomainProperty to remove
+   * @returns {Promise<boolean>} True when the property was found and removed.
+   */
+  async deleteCustomDomainProperty(id) {
+    const result = await super.deleteCustomDomainProperty(id);
+    if (result) {
+      const record = /** @type ApiStoreDeleteRecord */ ({
+        graphId: id,
+        domainType: ns.aml.vocabularies.document.DomainProperty,
+      });
+      this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.CustomProperty.State.deleted, record));
+      this.persist();
+    }
+    return result;
+  }
+
+  /**
+   * Updates a scalar property of a CustomDomainProperty.
+   * @param {string} id The domain id of the object.
+   * @param {keyof CustomDomainProperty} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiCustomDomainProperty>} The updated custom domain property
+   */
+  async updateCustomDomainProperty(id, property, value) {
+    const result = await super.updateCustomDomainProperty(id, property, value);
+    const record = /** @type ApiStoreChangeRecord */ ({
+      graphId: id,
+      domainType: ns.aml.vocabularies.document.DomainProperty,
+      item: result,
+      property,
+    });
+    this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.CustomProperty.State.updated, record));
     this.persist();
     return result;
   }

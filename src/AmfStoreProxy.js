@@ -9,6 +9,7 @@
 /** @typedef {import('amf-client-js').model.domain.CreativeWork} CreativeWork */
 /** @typedef {import('amf-client-js').model.domain.Payload} Payload */
 /** @typedef {import('amf-client-js').model.domain.Example} Example */
+/** @typedef {import('amf-client-js').model.domain.CustomDomainProperty} CustomDomainProperty */
 /** @typedef {import('./types').WorkerResponse} WorkerResponse */
 /** @typedef {import('./types').WorkerQueueItem} WorkerQueueItem */
 /** @typedef {import('./types').ApiInit} ApiInit */
@@ -49,6 +50,9 @@
 /** @typedef {import('./types').ApiResource} ApiResource */
 /** @typedef {import('./types').ParserVendors} ParserVendors */
 /** @typedef {import('./types').ParserMediaTypes} ParserMediaTypes */
+/** @typedef {import('./types').ApiDomainExtension} ApiDomainExtension */
+/** @typedef {import('./types').ApiCustomDomainPropertyListItem} ApiCustomDomainPropertyListItem */
+/** @typedef {import('./types').CustomDomainPropertyInit} CustomDomainPropertyInit */
 
 export const workerValue = Symbol("workerValue");
 export const nextIdValue = Symbol("nextIdValue");
@@ -445,12 +449,62 @@ export class AmfStoreProxy {
   }
 
   /**
+   * Lists the custom domain properties (domain extensions, annotations) definitions for the API.
+   * @returns {Promise<ApiCustomDomainPropertyListItem[]>}
+   */
+  async listCustomDomainProperties() {
+    return this[sendMessage]('listCustomDomainProperties');
+  }
+
+  /**
+   * Creates a new type in the API.
+   * @param {CustomDomainPropertyInit=} init The Shape init options.
+   * @returns {Promise<ApiCustomDomainProperty>}
+   */
+  async addCustomDomainProperty(init) {
+    return this[sendMessage]('addCustomDomainProperty', init);
+  }
+
+  /**
    * Reads the CustomDomainProperty object from the graph.
+   * This is a definition of domain extension (RAML annotation).
+   * 
    * @param {string} id The domain id of the CustomDomainProperty
    * @returns {Promise<ApiCustomDomainProperty>}
    */
   async getCustomDomainProperty(id) {
     return this[sendMessage]('getCustomDomainProperty', id);
+  }
+
+  /**
+   * Removes a CustomDomainProperty from the API.
+   * @param {string} id The domain id of the CustomDomainProperty to remove
+   * @returns {Promise<boolean>} True when the property was found and removed.
+   */
+  async deleteCustomDomainProperty(id) {
+    return this[sendMessage]('deleteCustomDomainProperty', id);
+  }
+
+  /**
+   * Updates a scalar property of a CustomDomainProperty.
+   * @param {string} id The domain id of the object.
+   * @param {keyof CustomDomainProperty} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiCustomDomainProperty>} The updated custom domain property
+   */
+  async updateCustomDomainProperty(id, property, value) {
+    return this[sendMessage]('updateCustomDomainProperty', id, property, value);
+  }
+
+  /**
+   * Reads the DomainExtension object from the graph.
+   * This is a definition of applied to an object domain extension (RAML annotation).
+   * 
+   * @param {string} id The domain id of the CustomDomainProperty
+   * @returns {Promise<ApiDomainExtension>}
+   */
+  async getDomainExtension(id) {
+    return this[sendMessage]('getDomainExtension', id);
   }
 
   /**

@@ -15,13 +15,13 @@ declare interface ITypeEvents {
   /**
    * Reads a type (schema) from the store.
    * @param target The node on which to dispatch the event
-   * @param id The id of the document to read.
+   * @param id The id of the object to read.
    */
   get(target: EventTarget, id: string): Promise<ApiShapeUnion>;
   /**
    * Updates a scalar property of a type (schema).
    * @param target The node on which to dispatch the event
-   * @param id The domain id of the documentation.
+   * @param id The domain id of the object.
    * @param property The property name to update
    * @param value The new value to set.
    */
@@ -29,7 +29,7 @@ declare interface ITypeEvents {
   /**
    * Removes the type (schema) from the graph.
    * @param target The node on which to dispatch the event
-   * @param id The domain id of the documentation object
+   * @param id The domain id of the object object
    */
   delete(target: EventTarget, id: string): Promise<void>;
 }

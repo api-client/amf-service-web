@@ -15,6 +15,7 @@ declare interface EventTypes {
   Security: Readonly<SecurityEvents>;
   Server: Readonly<ServerEvents>;
   Type: Readonly<TypeEvents>;
+  CustomProperty: Readonly<CustomPropertyEvents>;
 }
 
 export const EventTypes: Readonly<EventTypes>;
@@ -118,6 +119,15 @@ declare interface TypeEvents {
   update: string;
   delete: string;
   list: string;
+  State: Readonly<StateCUD>;
+}
+declare interface CustomPropertyEvents {
+  add: string;
+  get: string;
+  getExtension: string;
+  update: string;
+  list: string;
+  delete: string;
   State: Readonly<StateCUD>;
 }
 

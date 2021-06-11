@@ -646,4 +646,61 @@ describe('StoreEventTypes', () => {
       ensureUnique('StoreEventTypes.Type.State', StoreEventTypes.Type.State);
     });
   });
+
+  describe('CustomProperty', () => {
+    it('has CustomProperty namespace', () => {
+      assert.typeOf(StoreEventTypes.CustomProperty, 'object');
+    });
+
+    it('is frozen', () => {
+      assert.throws(() => {
+        // @ts-ignore
+        StoreEventTypes.CustomProperty = { read: '' };
+      });
+    });
+
+    [
+      ['add', 'apistorecdpadd'],
+      ['get', 'apistorecdpget'],
+      ['getExtension', 'apistoredomainextensionget'],
+      ['update', 'apistorecdpupdate'],
+      ['list', 'apistorecdplist'],
+      ['delete', 'apistorecdpdelete'],
+    ].forEach(([prop, value]) => {
+      it(`has ${prop} property`, () => {
+        assert.equal(StoreEventTypes.CustomProperty[prop], value);
+      });
+    });
+
+    it('has unique events for the namespace', () => {
+      ensureUnique('StoreEventTypes.CustomProperty', StoreEventTypes.CustomProperty);
+    });
+  });
+
+  describe('CustomProperty.State', () => {
+    it('has CustomProperty.State namespace', () => {
+      assert.typeOf(StoreEventTypes.CustomProperty.State, 'object');
+    });
+
+    it('is frozen', () => {
+      assert.throws(() => {
+        // @ts-ignore
+        StoreEventTypes.CustomProperty.State = { read: '' };
+      });
+    });
+
+    [
+      ['updated', 'apistorecdpstateupdate'],
+      ['deleted', 'apistorecdpstatedelete'],
+      ['created', 'apistorecdpstatecreate'],
+    ].forEach(([prop, value]) => {
+      it(`has ${prop} property`, () => {
+        assert.equal(StoreEventTypes.CustomProperty.State[prop], value);
+      });
+    });
+
+    it('has unique events for the namespace', () => {
+      ensureUnique('StoreEventTypes.CustomProperty.State', StoreEventTypes.CustomProperty.State);
+    });
+  });
 });

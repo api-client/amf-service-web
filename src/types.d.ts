@@ -372,7 +372,7 @@ export interface ApiExample extends ApiDomainProperty {
   displayName?: string;
   description?: string;
   value?: string;
-  structuredValue?: ApiScalarNode | ApiObjectNode | ApiArrayNode;
+  structuredValue?: ApiDataNodeUnion;
   strict: boolean;
   mediaType?: string;
 }
@@ -429,7 +429,7 @@ export interface ApiSecurityScheme extends ApiDomainProperty {
 }
 
 export interface ApiSecuritySettings extends ApiDomainProperty {
-  additionalProperties?: ApiScalarNode | ApiObjectNode | ApiArrayNode | ApiDataNode;
+  additionalProperties?: ApiDataNodeUnion;
 }
 
 export interface ApiSecurityOAuth1Settings extends ApiSecuritySettings {
@@ -484,16 +484,45 @@ export interface ApiRequest extends ApiDomainProperty {
   cookieParameters: string[];
 }
 
-export interface ApiCustomDomainProperty {
-  id: string;
+/**
+ * The definition of the domain extension
+ */
+export interface ApiCustomDomainProperty extends ApiDomainProperty {
   name?: string;
   displayName?: string;
   description?: string;
   domain: string[];
-  schema?: string;
-  isLink: boolean;
-  linkTarget?: string;
-  linkLabel?: string;
+  schema?: ApiShapeUnion;
+}
+
+export interface CustomDomainPropertyInit {
+  /**
+   * The custom property (annotation) name
+   */
+  name?: string;
+  /**
+   * The custom property (annotation) display name
+   */
+  displayName?: string;
+  /**
+   * The custom property (annotation) description
+   */
+  description?: string;
+}
+
+/**
+ * Applies to an object domain extension
+ */
+export interface ApiDomainExtension extends ApiDomainProperty {
+  name?: string;
+  definedBy?: ApiCustomDomainProperty;
+  extension?: ApiDataNodeUnion;
+}
+
+export interface ApiCustomDomainPropertyListItem {
+  id: string;
+  name?: string;
+  displayName?: string;
 }
 
 export interface ApiSecuritySchemeListItem {
@@ -564,7 +593,7 @@ export interface ShapeInit {
 export type ApiShapeUnion = ApiScalarShape | ApiNodeShape | ApiUnionShape | ApiFileShape | ApiSchemaShape | ApiAnyShape | ApiArrayShape | ApiTupleShape;
 
 export interface ApiShape extends ApiDomainProperty {
-  values: (ApiScalarNode | ApiObjectNode | ApiArrayNode)[];
+  values: ApiDataNodeUnion[];
   inherits: ApiShapeUnion[];
   or: ApiShapeUnion[];
   and: ApiShapeUnion[];
@@ -669,7 +698,7 @@ export interface ApiDataNode extends ApiDomainProperty {
 }
 
 export interface ApiObjectNode extends ApiDataNode {
-  properties: { [key: string]: ApiScalarNode | ApiObjectNode | ApiArrayNode };
+  properties: { [key: string]: ApiDataNodeUnion };
 }
 
 export interface ApiScalarNode extends ApiDataNode {
@@ -678,5 +707,7 @@ export interface ApiScalarNode extends ApiDataNode {
 }
 
 export interface ApiArrayNode extends ApiDataNode {
-  members: (ApiScalarNode | ApiObjectNode | ApiArrayNode)[];
+  members: ApiDataNodeUnion[];
 }
+
+export type ApiDataNodeUnion = ApiDataNode | ApiObjectNode | ApiScalarNode | ApiArrayNode;

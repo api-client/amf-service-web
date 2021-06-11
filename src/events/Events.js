@@ -11,6 +11,7 @@ import { RequestEvents } from './RequestEvents.js';
 import { PayloadEvents } from './PayloadEvents.js';
 import { ParameterEvents } from './ParameterEvents.js';
 import { ExampleEvents } from './ExampleEvents.js';
+import { CustomPropertyEvents } from './CustomPropertyEvents.js';
 
 export const Events = {
   Store: StoreEvents,
@@ -26,6 +27,7 @@ export const Events = {
   Payload: PayloadEvents,
   Parameter: ParameterEvents,
   Example: ExampleEvents,
+  CustomProperty: CustomPropertyEvents,
 };
 
 Object.freeze(Events);

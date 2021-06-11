@@ -1,5 +1,5 @@
 import { model } from 'amf-client-js';
-import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ShapeInit, ApiShapeUnion, ParameterInit, PayloadInit, ExampleInit, ApiSecurityOAuth2Flow, ApiSecurityScope, ApiResource, ParserVendors, ParserMediaTypes } from './types';
+import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ShapeInit, ApiShapeUnion, ParameterInit, PayloadInit, ExampleInit, ApiSecurityOAuth2Flow, ApiSecurityScope, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit } from './types';
 
 export declare const workerValue: unique symbol;
 export declare const nextIdValue: unique symbol;
@@ -285,10 +285,47 @@ export declare class AmfStoreProxy extends EventTarget {
   getTemplatedLink(id: string): Promise<ApiTemplatedLink>;
 
   /**
+   * Lists the custom domain properties (domain extensions, annotations) definitions for the API.
+   */
+  listCustomDomainProperties(): Promise<ApiCustomDomainPropertyListItem[]>;
+
+  /**
+   * Creates a new type in the API.
+   * @param init The Shape init options.
+   */
+  addCustomDomainProperty(init?: CustomDomainPropertyInit): Promise<ApiCustomDomainProperty>;
+
+  /**
    * Reads the CustomDomainProperty object from the graph.
+   * This is a definition of domain extension (RAML annotation).
+   * 
    * @param id The domain id of the CustomDomainProperty
    */
   getCustomDomainProperty(id: string): Promise<ApiCustomDomainProperty>;
+
+  /**
+   * Removes a CustomDomainProperty from the API.
+   * @param id The domain id of the CustomDomainProperty to remove
+   * @returns True when the property was found and removed.
+   */
+  deleteCustomDomainProperty(id: string): Promise<boolean>;
+
+  /**
+   * Updates a scalar property of a CustomDomainProperty.
+   * @param id The domain id of the object.
+   * @param property The property name to update
+   * @param value The new value to set.
+   * @returns The updated custom domain property
+   */
+  updateCustomDomainProperty(id: string, property: keyof model.domain.CustomDomainProperty, value: any): Promise<ApiCustomDomainProperty>;
+
+  /**
+   * Reads the DomainExtension object from the graph.
+   * This is a definition of applied to an object domain extension (RAML annotation).
+   * 
+   * @param id The domain id of the CustomDomainProperty
+   */
+  getDomainExtension(id: string): Promise<ApiDomainExtension>;
 
   /**
    * Reads the Request object from the graph.

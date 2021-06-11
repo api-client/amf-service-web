@@ -140,6 +140,19 @@ export const EventTypes = {
       created: 'apistoretypestatecreate',
     },
   },
+  CustomProperty: {
+    add: 'apistorecdpadd',
+    get: 'apistorecdpget',
+    getExtension: 'apistoredomainextensionget',
+    update: 'apistorecdpupdate',
+    list: 'apistorecdplist',
+    delete: 'apistorecdpdelete',
+    State: {
+      updated: 'apistorecdpstateupdate',
+      deleted: 'apistorecdpstatedelete',
+      created: 'apistorecdpstatecreate',
+    },
+  },
 };
 
 Object.freeze(EventTypes);
@@ -160,3 +173,5 @@ Object.freeze(EventTypes.Security);
 Object.freeze(EventTypes.Server);
 Object.freeze(EventTypes.Type);
 Object.freeze(EventTypes.Type.State);
+Object.freeze(EventTypes.CustomProperty);
+Object.freeze(EventTypes.CustomProperty.State);

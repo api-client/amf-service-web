@@ -31,7 +31,7 @@ export const TypeEvents = {
   /**
    * Reads a type (schema) from the store.
    * @param {EventTarget} target The node on which to dispatch the event
-   * @param {string} id The id of the document to read.
+   * @param {string} id The id of the object to read.
    * @returns {Promise<ApiShapeUnion>}
    */
   get: async (target, id) => {
@@ -42,7 +42,7 @@ export const TypeEvents = {
   /**
    * Updates a scalar property of a type (schema).
    * @param {EventTarget} target The node on which to dispatch the event
-   * @param {string} id The domain id of the documentation.
+   * @param {string} id The domain id of the object.
    * @param {string} property The property name to update
    * @param {any} value The new value to set.
    * @returns {Promise<void>}
@@ -55,7 +55,7 @@ export const TypeEvents = {
   /**
    * Removes the type (schema) from the graph.
    * @param {EventTarget} target The node on which to dispatch the event
-   * @param {string} id The domain id of the documentation object
+   * @param {string} id The domain id of the object object
    * @returns {Promise<void>}
    */
   delete: async (target, id) => {

@@ -4,6 +4,7 @@ import { DemoPage } from '@advanced-rest-client/arc-demo-helper';
 import { AmfStoreService } from '../worker.index.js';
 import { ApiSorting } from '../src/ApiSorting.js';
 import { EndpointsTree } from '../src/EndpointsTree.js';
+import { ApiSearch } from '../src/lib/ApiSearch.js';
 
 class ComponentPage extends DemoPage {
   constructor() {
@@ -52,6 +53,36 @@ class ComponentPage extends DemoPage {
       return;
     }
     const result = await this.store.getSecurityRequirement(id);
+    this.log(result);
+  }
+
+  async readCustomDomainProperty() {
+    const input = /** @type HTMLInputElement */ (document.getElementById('cdpId'));
+    const id = input.value.trim();
+    if (!id) {
+      return;
+    }
+    const result = await this.store.getCustomDomainProperty(id);
+    this.log(result);
+  }
+
+  async readDomainExtension() {
+    const input = /** @type HTMLInputElement */ (document.getElementById('extId'));
+    const id = input.value.trim();
+    if (!id) {
+      return;
+    }
+    const result = await this.store.getDomainExtension(id);
+    this.log(result);
+  }
+
+  async listCustomDomainProperties() {
+    const input = /** @type HTMLInputElement */ (document.getElementById('extId'));
+    const id = input.value.trim();
+    if (!id) {
+      return;
+    }
+    const result = await this.store.listCustomDomainProperties();
     this.log(result);
   }
 
@@ -198,6 +229,65 @@ class ComponentPage extends DemoPage {
     this.log('void');
   }
 
+  async selectApiDirectory() {
+    // @ts-ignore
+    const dirHandle = await window.showDirectoryPicker();
+    if (!dirHandle) {
+      return;
+    }
+    const files = [];
+    await this.listDirectory(dirHandle, files, '');
+    // @ts-ignore
+    const [mainHandle] = await window.showOpenFilePicker({
+      types: [
+        {
+          description: 'API files',
+          accept: {
+            'application/json': ['.json'],
+            'application/ld+json': ['.jsonld'],
+            'application/yaml': ['.raml', '.yaml'],
+            'application/raml': ['.raml'],
+          }
+        },
+      ],
+      excludeAcceptAllOption: true,
+    });
+    const file = await mainHandle.getFile();
+    const content = await file.text();
+    const helper = new ApiSearch();
+    const result = helper.readApiType({
+      content,
+      name: mainHandle.name,
+      lastModified: Date.now(),
+      size: 0,
+      type: '',
+    });
+    await this.store.loadApi(files, result.type, result.contentType, mainHandle.name);
+    this.loaded = true;
+  }
+
+  async listDirectory(handle, result, parent) {
+    for await (const entry of handle.values()) {
+      await this.listContent(entry, result, parent);
+    }
+  }
+
+  async listContent(handle, result, parent='/') {
+    if (handle.kind === 'file') {
+      const file = await handle.getFile();
+      const contents = await file.text();
+      const fPath = `${parent}${handle.name}`;
+      result.push({
+        contents,
+        path: fPath,
+        parent,
+        name: handle.name,
+      });
+    } else {
+      await this.listDirectory(handle, result, `${parent}${handle.name}/`);
+    }
+  }
+
   contentTemplate() {
     return html`
       <h2>Amf store proxy (web worker)</h2>
@@ -220,6 +310,7 @@ class ComponentPage extends DemoPage {
         <button id="loadApiGraph" data-src="streetlights.json" ?disabled="${!initialized}">Streetlights (async) API</button>
         <button id="loadApiGraph" data-src="oas-3-api.json" ?disabled="${!initialized}">OAS 3 API</button>
         <button id="loadEmptyApi" ?disabled="${!initialized}">Load empty API</button>
+        <button ?disabled="${!initialized}" id="selectApiDirectory">Select API</button>
       </div>
 
       <h4>Reading data</h4>
@@ -228,6 +319,7 @@ class ComponentPage extends DemoPage {
         <button id="listEndpointsWithOperations" ?disabled="${!loaded}">List endpoints & operations</button>
         <button id="listTypes" ?disabled="${!loaded}">List types</button>
         <button id="listSecurity" ?disabled="${!loaded}">List security</button>
+        <button id="listCustomDomainProperties" ?disabled="${!loaded}">List annotations/extensions</button>
       </div>
 
       <h4>API manipulation</h4>
@@ -235,7 +327,7 @@ class ComponentPage extends DemoPage {
         <h4>Endpoints</h4>
         <div>
           <label for="endpointIdPath">Endpoint path or id</label>
-          <input type="text" id="endpointIdPath" value="/demo-endpoint"/>
+          <input type="text" id="endpointIdPath" value="/annotable"/>
           <button id="addEndpoint" ?disabled="${!loaded}" @click="${this.actionHandler}">Add endpoint</button>
           <button id="readEndpoint" ?disabled="${!loaded}" @click="${this.actionHandler}">Read endpoint</button>
           <button id="deleteEndpoint" ?disabled="${!loaded}" @click="${this.actionHandler}">Delete endpoint</button>
@@ -246,7 +338,7 @@ class ComponentPage extends DemoPage {
           <label for="operationId">Operation id (or method)</label>
           <input type="text" id="operationId" value="get"/>
           <label for="operationEndpointIdOrPath">Endpoint id (or path)</label>
-          <input type="text" id="operationEndpointIdOrPath" value=""/>
+          <input type="text" id="operationEndpointIdOrPath" value="/annotable"/>
           <button id="addOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Add operation (needs endpoint and operation)</button>
           <button id="readOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Read operation</button>
           <button id="deleteOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Delete operation</button>
@@ -259,7 +351,7 @@ class ComponentPage extends DemoPage {
           <button id="readType" ?disabled="${!loaded}" @click="${this.actionHandler}">Read type</button>
         </div>
 
-        <details open>
+        <details>
           <summary>Security</summary>
           
           <div class="form-field">
@@ -276,6 +368,22 @@ class ComponentPage extends DemoPage {
             <label for="securityRequirementId">Security requirement id</label>
             <input type="text" id="securityRequirementId" value=""/>
             <button id="readSecurityRequirement" ?disabled="${!loaded}" @click="${this.actionHandler}">Read security requirements</button>
+          </div>
+        </details>
+
+        <details open>
+          <summary>Custom domain properties</summary>
+          
+          <div class="form-field">
+            <label for="cdpId">Property id</label>
+            <input type="text" id="cdpId" value="amf://id#397 "/>
+            <button id="readCustomDomainProperty" ?disabled="${!loaded}" @click="${this.actionHandler}">Read property</button>
+          </div>
+
+          <div class="form-field">
+            <label for="extId">Extension id</label>
+            <input type="text" id="extId" value="amf://id#397 "/>
+            <button id="readDomainExtension" ?disabled="${!loaded}" @click="${this.actionHandler}">Read extension</button>
           </div>
         </details>
       </div>

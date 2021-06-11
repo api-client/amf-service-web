@@ -39,6 +39,8 @@ import { ns } from './Namespace.js';
 /** @typedef {import('amf-client-js').model.domain.ArrayNode} ArrayNode */
 /** @typedef {import('amf-client-js').model.domain.XMLSerializer} XMLSerializer */
 /** @typedef {import('amf-client-js').model.domain.Scope} Scope */
+/** @typedef {import('amf-client-js').model.domain.CustomDomainProperty} CustomDomainProperty */
+/** @typedef {import('amf-client-js').model.domain.DomainExtension} DomainExtension */
 /** @typedef {import('./types').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 /** @typedef {import('./types').ApiRequest} ApiRequest */
 /** @typedef {import('./types').ApiSecurityScheme} ApiSecurityScheme */
@@ -84,6 +86,9 @@ import { ns } from './Namespace.js';
 /** @typedef {import('./types').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
 /** @typedef {import('./types').ApiSecuritySettingsUnion} ApiSecuritySettingsUnion */
 /** @typedef {import('./types').ApiSecurityScope} ApiSecurityScope */
+/** @typedef {import('./types').ApiCustomDomainProperty} ApiCustomDomainProperty */
+/** @typedef {import('./types').ApiDomainExtension} ApiDomainExtension */
+/** @typedef {import('./types').ApiCustomDomainPropertyListItem} ApiCustomDomainPropertyListItem */
 
 export class ApiSerializer {
   /**
@@ -1415,6 +1420,81 @@ export class ApiSerializer {
     const { members } = object;
     if (Array.isArray(members) && members.length) {
       result.members = members.map((item) => ApiSerializer.unknownDataNode(item));
+    }
+    return result;
+  }
+
+  /**
+   * @param {CustomDomainProperty} object
+   * @returns {ApiCustomDomainPropertyListItem}
+   */
+  static domainPropertyListItem(object) {
+    const { id, name, displayName } = object;
+    const result = /** @type ApiSecuritySchemeListItem */ ({
+      id,
+    });
+    if (!name.isNullOrEmpty) {
+      result.name = name.value();
+    }
+    if (!displayName.isNullOrEmpty) {
+      result.displayName = displayName.value();
+    }
+    return result;
+  }
+
+  /**
+   * @param {CustomDomainProperty} object
+   * @returns {ApiCustomDomainProperty}
+   */
+  static customDomainProperty(object) {
+    let target = object;
+    if (target.isLink) {
+      target = /** @type CustomDomainProperty */ (object.linkTarget);
+    }
+    const { id, name, displayName, description, domain, schema } = target;
+    const types = object.graph().types();
+    const result = /** @type ApiCustomDomainProperty */ ({
+      id,
+      types,
+      domain: [],
+    });
+    if (!name.isNullOrEmpty) {
+      result.name = name.value();
+    }
+    if (!displayName.isNullOrEmpty) {
+      result.displayName = displayName.value();
+    }
+    if (!description.isNullOrEmpty) {
+      result.description = description.value();
+    }
+    if (schema && schema.id) {
+      result.schema = ApiSerializer.unknownShape(schema);
+    }
+    if (Array.isArray(domain) && domain.length) {
+      result.domain = domain.map((p) => p.value());
+    }
+    return result;
+  }
+
+  /**
+   * @param {DomainExtension} object
+   * @returns {ApiDomainExtension}
+   */
+  static domainExtension(object) {
+    const { id, name, definedBy, extension } = object;
+    const types = object.graph().types();
+    const result = /** @type ApiDomainExtension */ ({
+      id,
+      types,
+    });
+    if (!name.isNullOrEmpty) {
+      result.name = name.value();
+    }
+    if (definedBy && definedBy.id) {
+      result.definedBy = ApiSerializer.customDomainProperty(definedBy);
+    }
+    if (extension && extension.id) {
+      result.extension = ApiSerializer.unknownDataNode(extension);
     }
     return result;
   }
