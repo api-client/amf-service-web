@@ -38,7 +38,7 @@ describe('AmfStoreService', () => {
     });
   });
 
-  describe.skip('addCustomDomainProperty()', () => {
+  describe('addCustomDomainProperty()', () => {
     beforeEach(async () => {
       await store.createWebApi();
     });

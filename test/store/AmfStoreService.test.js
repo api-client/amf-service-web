@@ -175,7 +175,7 @@ describe('AmfStoreService', () => {
     it('initializes empty web API', async () => {
       await store.createWebApi();
       const api = await store.getApi();
-      assert.typeOf(api.id, 'string', 'has the id');
+      assert.equal(api.id, 'amf://document#/web-api', 'has the id');
       assert.deepEqual(api.schemes, [], 'has empty schemes');
       assert.deepEqual(api.accepts, [], 'has empty accepts');
       assert.deepEqual(api.contentType, [], 'has empty contentType');

@@ -138,10 +138,10 @@ export class AmfService {
    */
   async createWebApi(init) {
     const opts = init || {};
-    const g = new this.amf.model.document.Document();
-    this.graph = g;
+    const doc = new this.amf.model.document.Document().withId('amf://document');
+    this.graph = doc;
     const wa = new this.amf.model.domain.WebApi();
-    g.withEncodes(wa);
+    doc.withEncodes(wa);
     if (opts.name) {
       wa.withName(opts.name);
     }
