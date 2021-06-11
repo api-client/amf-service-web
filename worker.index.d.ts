@@ -1,5 +1,6 @@
 export { AmfStoreProxy, responseHandler, processResponse, createWorker, workerValue, sendMessage, getId, createResponsePromise, errorHandler } from './src/AmfStoreProxy';
 export { AmfStoreService } from './src/AmfStoreService';
+export { AmfStoreHttpService } from './src/AmfStoreHttpService';
 export { ApiSorting } from './src/ApiSorting';
 export { EndpointsTree } from './src/EndpointsTree';
 export * from './src/types';

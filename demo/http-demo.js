@@ -1,7 +1,7 @@
 /* eslint-disable lit-a11y/click-events-have-key-events */
 import { html } from 'lit-html';
 import { DemoPage } from '@advanced-rest-client/arc-demo-helper';
-import { AmfStoreService } from '../worker.index.js';
+import { AmfStoreHttpService } from '../worker.index.js';
 import { ApiSorting } from '../src/ApiSorting.js';
 import { EndpointsTree } from '../src/EndpointsTree.js';
 
@@ -12,11 +12,12 @@ class ComponentPage extends DemoPage {
     this.loaded = false;
     this.initialized = false;
     this.latestOutput = '';
-    this.store = new AmfStoreService();
-    this.componentName = 'AmfStoreProxy';
+    /**
+     * @type {AmfStoreHttpService}
+     */
+    this.store = undefined;
+    this.componentName = 'AmfStoreHttpService';
     this.actionHandler = this.actionHandler.bind(this);
-
-    this.init();
   }
 
   async init() {
@@ -198,10 +199,43 @@ class ComponentPage extends DemoPage {
     this.log('void');
   }
 
+  /**
+   * @param {Event} e 
+   */
+  _connectHandler(e) {
+    e.preventDefault();
+    const form = /** @type HTMLFormElement */ (e.target);
+    const url = /** @type HTMLInputElement */(form.elements.namedItem('url'));
+    const baseUri = url.value;
+    if (!baseUri) {
+      return;
+    }
+    this.store = new AmfStoreHttpService({
+      baseUri,
+    });
+    this.init();
+  }
+
   contentTemplate() {
     return html`
-      <h2>Amf store proxy (web worker)</h2>
+      <h2>Amf store proxy (HTTP server)</h2>
+      ${this._baseUriTemplate()}
       ${this._demoTemplate()}
+    `;
+  }
+
+  _baseUriTemplate() {
+    return html`
+    <section class="documentation-section">
+      <h3>API base URI</h3>
+      <form @submit="${this._connectHandler}">
+        <fieldset>
+          <legend>Server configuration</legend>
+          <input type="url" name="url"/>
+          <input type="submit" value="Connect"/>
+        </fieldset>
+      </form>
+    </section>
     `;
   }
 
@@ -213,7 +247,6 @@ class ComponentPage extends DemoPage {
 
       <h4>Initialization</h4>
       <div @click="${this.actionHandler}">
-        <button id="init">Init</button>
         <button id="loadApiGraph" data-src="demo-api.json" ?disabled="${!initialized}">Load demo API</button>
         <button id="loadApiGraph" data-src="async-api.json" ?disabled="${!initialized}">Load async API</button>
         <button id="loadApiGraph" data-src="google-drive-api.json" ?disabled="${!initialized}">Load Google Drive API</button>

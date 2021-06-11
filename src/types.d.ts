@@ -49,6 +49,25 @@ export declare interface AmfWorkerStoreInit {
   amfLocation?: string;
 }
 
+export declare interface AmfHttpWorkerInit {
+  /**
+   * The API base URI.
+   * e.g. https://api.domain.com/v1/
+   */
+  baseUri: string;
+  /**
+   * The AMF store process to use.
+   * If not set the application must call `init()` to initialize new
+   * session.
+   */
+  pid?: string;
+  /**
+   * The events target for the DOM events. 
+   * @default Window
+   */
+  eventsTarget?: EventTarget;
+}
+
 export interface WorkerQueueItem {
   resolver: Function;
   rejecter: Function;
@@ -63,6 +82,51 @@ export interface ApiResource {
    * The full path of the file beginning of the API project root directory.
    */
   path: string;
+}
+
+export declare interface ProxyStatusResponse {
+  kind: 'AMF#SessionStatus',
+  status: 'closed' | 'created' | 'active';
+  /**
+   * The id of the created server process.
+   */
+  id: string;
+  timeout?: number;
+}
+
+export declare interface ProxyRequest {
+  /**
+   * The id of the server process.
+   */
+  id: string;
+  /**
+   * The function to call in the proxy.
+   */
+  type: string;
+  /**
+   * The function arguments.
+   */
+  args?: any[];
+}
+
+export declare interface ProxyResponse {
+  kind: 'AMF#ProxyResponse',
+  /**
+   * The id of the server process.
+   */
+  id: string;
+  /**
+   * The number of milliseconds after which the server destroys the instance of the API process.
+   * All unsaved information will be lost. The application should use the `ping()` function to keep
+   * the process alive.
+   */
+  timeout: number;
+  result?: any;
+}
+
+export declare interface ProxyErrorResponse {
+  error: boolean;
+  message: string;
 }
 
 export type RAMLVendors = 'RAML 0.8' | 'RAML 1.0';
@@ -82,7 +146,7 @@ export declare interface ContentFile {
 
 export declare interface ImportFile {
   label: string;
-  ext: string|string[];
+  ext: string | string[];
 }
 
 export declare interface ApiSearchTypeResult {
@@ -365,7 +429,7 @@ export interface ApiSecurityScheme extends ApiDomainProperty {
 }
 
 export interface ApiSecuritySettings extends ApiDomainProperty {
-  additionalProperties?: ApiScalarNode|ApiObjectNode|ApiArrayNode|ApiDataNode;
+  additionalProperties?: ApiScalarNode | ApiObjectNode | ApiArrayNode | ApiDataNode;
 }
 
 export interface ApiSecurityOAuth1Settings extends ApiSecuritySettings {

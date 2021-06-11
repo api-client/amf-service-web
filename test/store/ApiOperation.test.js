@@ -470,8 +470,7 @@ describe('AmfStoreService', () => {
       await store.deleteRequest(requestId, opId);
       let thrown = false;
       try {
-        const request = await store.getRequest(requestId);
-        console.log(request);
+        await store.getRequest(requestId);
       } catch (e) {
         thrown = true;
       }
