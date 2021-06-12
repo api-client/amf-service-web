@@ -98,6 +98,7 @@ export const updateExampleHandler = Symbol('updateExampleHandler');
 export const customDomainPropertyListHandler = Symbol('customDomainPropertyListHandler');
 export const customDomainPropertyAddHandler = Symbol('customDomainPropertyAddHandler');
 export const customDomainPropertyGetHandler = Symbol('customDomainPropertyGetHandler');
+export const customDomainPropertyUpdateHandler = Symbol('customDomainPropertyUpdateHandler');
 export const customDomainPropertyDeleteHandler = Symbol('customDomainPropertyDeleteHandler');
 export const domainExtensionGetHandler = Symbol('domainExtensionGetHandler');
 
@@ -179,6 +180,7 @@ const mxFunction = base => {
       this[customDomainPropertyListHandler] = this[customDomainPropertyListHandler].bind(this);
       this[customDomainPropertyAddHandler] = this[customDomainPropertyAddHandler].bind(this);
       this[customDomainPropertyGetHandler] = this[customDomainPropertyGetHandler].bind(this);
+      this[customDomainPropertyUpdateHandler] = this[customDomainPropertyUpdateHandler].bind(this);
       this[customDomainPropertyDeleteHandler] = this[customDomainPropertyDeleteHandler].bind(this);
       this[domainExtensionGetHandler] = this[domainExtensionGetHandler].bind(this);
     }
@@ -269,6 +271,7 @@ const mxFunction = base => {
       // Custom domain property
       node.addEventListener(EventTypes.CustomProperty.add, this[customDomainPropertyAddHandler]);
       node.addEventListener(EventTypes.CustomProperty.get, this[customDomainPropertyGetHandler]);
+      node.addEventListener(EventTypes.CustomProperty.update, this[customDomainPropertyUpdateHandler]);
       node.addEventListener(EventTypes.CustomProperty.list, this[customDomainPropertyListHandler]);
       node.addEventListener(EventTypes.CustomProperty.delete, this[customDomainPropertyDeleteHandler]);
       node.addEventListener(EventTypes.CustomProperty.getExtension, this[domainExtensionGetHandler]);
@@ -360,6 +363,7 @@ const mxFunction = base => {
       // Custom domain property
       node.removeEventListener(EventTypes.CustomProperty.add, this[customDomainPropertyAddHandler]);
       node.removeEventListener(EventTypes.CustomProperty.get, this[customDomainPropertyGetHandler]);
+      node.removeEventListener(EventTypes.CustomProperty.update, this[customDomainPropertyUpdateHandler]);
       node.removeEventListener(EventTypes.CustomProperty.list, this[customDomainPropertyListHandler]);
       node.removeEventListener(EventTypes.CustomProperty.delete, this[customDomainPropertyDeleteHandler]);
       node.removeEventListener(EventTypes.CustomProperty.getExtension, this[domainExtensionGetHandler]);
@@ -1157,6 +1161,18 @@ const mxFunction = base => {
       e.preventDefault();
       const { id } = e.detail;
       e.detail.result = this.getCustomDomainProperty(id);
+    }
+
+    /**
+     * @param {ApiStoreUpdateScalarEvent} e 
+     */
+     [customDomainPropertyUpdateHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id, property, value } = e.detail;
+      e.detail.result = this.updateCustomDomainProperty(id, property, value);
     }
 
     /**
