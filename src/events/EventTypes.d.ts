@@ -105,6 +105,7 @@ declare interface DocumentationEvents {
 declare interface SecurityEvents {
   get: string;
   getRequirement: string;
+  getSettings: string;
   list: string;
 }
 declare interface ServerEvents {

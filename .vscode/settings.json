@@ -95,6 +95,7 @@
     "apistoreresponseupdate",
     "apistoresecurityget",
     "apistoresecuritygetrequirement",
+    "apistoresecuritygetsettings",
     "apistoresecuritylist",
     "apistoreserversadd",
     "apistoreserversget",

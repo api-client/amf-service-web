@@ -5,6 +5,7 @@ import { ApiStoreContextEvent, ApiStoreReadEvent } from './BaseEvents.js';
 /** @typedef {import('../types').ApiSecuritySchemeListItem} ApiSecuritySchemeListItem */
 /** @typedef {import('../types').ApiSecurityScheme} ApiSecurityScheme */
 /** @typedef {import('../types').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('../types').ApiSecuritySettingsUnion} ApiSecuritySettingsUnion */
 
 export const SecurityEvents = {
   /**
@@ -31,6 +32,19 @@ export const SecurityEvents = {
    */
   getRequirement: async (target, id) => {
     const e = new ApiStoreReadEvent(EventTypes.Security.getRequirement, id);
+    target.dispatchEvent(e);
+    return e.detail.result;
+  },
+
+  /**
+   * Reads a security settings for an endpoint or operation.
+   * 
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string} id The id of the Payload to read.
+   * @returns {Promise<ApiSecuritySettingsUnion>}
+   */
+  getSettings: async (target, id) => {
+    const e = new ApiStoreReadEvent(EventTypes.Security.getSettings, id);
     target.dispatchEvent(e);
     return e.detail.result;
   },

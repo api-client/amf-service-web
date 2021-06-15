@@ -89,7 +89,7 @@ describe('EndpointsTree', () => {
 
     it('creates the tree structure', async () => {
       assert.typeOf(tree, 'array', 'the tree is an array');
-      assert.lengthOf(tree, 2, 'has 2 endpoints');
+      assert.lengthOf(tree, 3, 'has all endpoints');
     });
 
     it('has labels', async () => {

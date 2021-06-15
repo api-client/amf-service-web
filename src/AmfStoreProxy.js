@@ -53,6 +53,7 @@
 /** @typedef {import('./types').ApiDomainExtension} ApiDomainExtension */
 /** @typedef {import('./types').ApiCustomDomainPropertyListItem} ApiCustomDomainPropertyListItem */
 /** @typedef {import('./types').CustomDomainPropertyInit} CustomDomainPropertyInit */
+/** @typedef {import('./types').ApiSecuritySettingsUnion} ApiSecuritySettingsUnion */
 
 export const workerValue = Symbol("workerValue");
 export const nextIdValue = Symbol("nextIdValue");
@@ -788,6 +789,14 @@ export class AmfStoreProxy {
    */
   async getSecurityScheme(id) {
     return this[sendMessage]('getSecurityScheme', id);
+  }
+
+  /**
+   * @param {string} id The domain id of the security settings.
+   * @returns {Promise<ApiSecuritySettingsUnion>}
+   */
+  async getSecuritySettings(id) {
+    return this[sendMessage]('getSecuritySettings', id);
   }
 
   /**

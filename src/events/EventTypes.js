@@ -116,6 +116,7 @@ export const EventTypes = {
   Security: {
     get: 'apistoresecurityget',
     getRequirement: 'apistoresecuritygetrequirement',
+    getSettings: 'apistoresecuritygetsettings',
     list: 'apistoresecuritylist',
   },
   Server: {

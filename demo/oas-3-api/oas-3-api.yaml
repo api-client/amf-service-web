@@ -194,3 +194,20 @@ paths:
                     properties:
                       description:
                         type: string
+  /securityCombo:
+    get:
+      security:
+        - petstore_auth:
+          - write:pets
+        - api_key: []
+        - OpenID: []
+        - OAuth2:
+          - read
+        - cookieAuth: []
+      responses:
+        '200':
+          description: All security
+          content:
+            application/json:
+              schema:
+                type: string

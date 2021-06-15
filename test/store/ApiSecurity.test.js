@@ -9,17 +9,24 @@ import { AmfStoreService, StoreEvents } from '../../worker.index.js';
 describe('AmfStoreService', () => {
   describe('Reading data', () => {
     let demoStore = /** @type AmfStoreService */ (null);
-    let demoApi;
+    let oasStore = /** @type AmfStoreService */ (null);
 
     before(async () => {
-      demoApi = await AmfLoader.loadApi();
       demoStore = new AmfStoreService();
+      oasStore = new AmfStoreService();
       await demoStore.init();
+      await oasStore.init();
+      
+      const demoApi = await AmfLoader.loadApi();
       await demoStore.loadGraph(demoApi);
+
+      const oasApi = await AmfLoader.loadApi('oas-3-api.json');
+      await oasStore.loadGraph(oasApi);
     });
 
     after(() => {
       demoStore.worker.terminate();
+      oasStore.worker.terminate();
     });
 
     describe('listSecurity()', () => {
@@ -87,5 +94,17 @@ describe('AmfStoreService', () => {
         assert.equal(scheme.name, 'basic', 'has the scheme details');
       });
     });
+
+    // describe('getSecuritySettings()', () => {
+    //   it('reads the security definition on an operation', async () => {
+    //     const op = await oasStore.getOperation('get', '/securityCombo');
+    //     const requirement = await demoStore.getSecurityRequirement(op.security[0]);
+    //     console.log('requirement', requirement);
+    //     const settingsId = requirement.schemes[0].settings.id;
+
+    //     const result = await demoStore.getSecuritySettings(settingsId);
+    //     console.log(result);
+    //   });
+    // });
   });
 });

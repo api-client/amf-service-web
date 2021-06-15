@@ -37,6 +37,7 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('amf-client-js').model.domain.OAuth2Flow} OAuth2Flow */
 /** @typedef {import('amf-client-js').model.domain.Scope} Scope */
 /** @typedef {import('amf-client-js').model.domain.DomainExtension} DomainExtension */
+/** @typedef {import('amf-client-js').model.domain.Settings} Settings */
 /** @typedef {import('amf-client-js').model.document.BaseUnitWithDeclaresModel} BaseUnitWithDeclaresModel */
 /** @typedef {import('amf-client-js').render.Renderer} Renderer */
 /** @typedef {import('./types').ApiInit} ApiInit */
@@ -84,6 +85,7 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('./types').ApiDomainExtension} ApiDomainExtension */
 /** @typedef {import('./types').ApiCustomDomainPropertyListItem} ApiCustomDomainPropertyListItem */
 /** @typedef {import('./types').CustomDomainPropertyInit} CustomDomainPropertyInit */
+/** @typedef {import('./types').ApiSecuritySettingsUnion} ApiSecuritySettingsUnion */
 
 export class AmfService {
   /**
@@ -1629,6 +1631,18 @@ export class AmfService {
       throw new Error(`No SecurityScheme for ${id}`);
     }
     return ApiSerializer.securityScheme(object);
+  }
+
+  /**
+   * @param {string} id The domain id of the security settings.
+   * @returns {Promise<ApiSecuritySettingsUnion>}
+   */
+  async getSecuritySettings(id) {
+    const object = /** @type Settings */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No Security Settings for ${id}`);
+    }
+    return ApiSerializer.securitySettings(object);
   }
 
   /**
