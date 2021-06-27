@@ -199,6 +199,14 @@ export class AmfService {
     // @ts-ignore
     return generator.generateString(this.graph, opts);
   }
+
+  /**
+   * Checks whether an API is currently loaded.
+   * @returns {boolean} True when the API is loaded.
+   */
+  hasApi() {
+    return !!this.graph;
+  }
   
   /**
    * Reads basic info about the API.

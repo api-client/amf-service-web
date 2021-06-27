@@ -58,6 +58,11 @@ declare interface IStoreEvents {
    * @returns Resolved when the API is loaded.
    */
   loadApi(target: EventTarget, contents: ApiResource[], main: string, vendor: ParserVendors, mediaType: ParserMediaTypes): Promise<void>;
+  /**
+   * @param target The node on which to dispatch the event
+   * @returns True if the store has an API loaded.
+   */
+  hasApi(target: EventTarget): Promise<boolean>;
 }
 
 export declare const StoreEvents: Readonly<IStoreEvents>;

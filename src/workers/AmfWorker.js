@@ -26,6 +26,10 @@ class AmfWorker {
       this.processTaskResult(this.init(args[0]), message.id);
       return;
     }
+    if (message.type === 'hasApi' && !this.service) {
+      this.processTaskResult(Promise.resolve(false), message.id);
+      return;
+    }
     if (typeof this.service[message.type] !== 'function') {
       process.send({
         error: true,

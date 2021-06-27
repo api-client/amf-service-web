@@ -1,6 +1,6 @@
 {
   "name": "@api-client/amf-store",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "description": "A library to work with the AMF parser and model in a web worker. Exposes a set of APIs to manipulate the API model.",
   "license": "cc-by-4.0",
   "main": "node.js",
@@ -33,21 +33,21 @@
   },
   "devDependencies": {
     "@advanced-rest-client/arc-demo-helper": "^3.0.2",
-    "@api-components/api-model-generator": "^0.2.11",
+    "@api-components/api-model-generator": "^0.2.13",
     "@open-wc/eslint-config": "^4.3.0",
     "@open-wc/testing": "^2.5.33",
     "@web/dev-server": "^0.1.17",
-    "@web/test-runner": "^0.13.11",
+    "@web/test-runner": "^0.13.12",
     "@web/test-runner-commands": "^0.5.4",
     "@web/test-runner-playwright": "^0.8.6",
     "amf-client-js": "4.7.4",
-    "eslint": "^7.28.0",
+    "eslint": "^7.29.0",
     "eslint-config-prettier": "^8.3.0",
     "fs-extra": "^10.0.0",
     "husky": "^6.0.0",
     "lint-staged": "^11.0.0",
     "sinon": "^11.1.1",
-    "typescript": "^4.3.2",
+    "typescript": "^4.3.4",
     "typescript-lit-html-plugin": "^0.9.0"
   },
   "scripts": {

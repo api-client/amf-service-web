@@ -462,4 +462,40 @@ paths:
       assert.lengthOf(project.endPoints, 1, 'has the API')
     });
   });
+
+  describe('hasApi()', () => {
+    let store = /** @type AmfStoreService */ (null);
+    let et = /** @type EventTarget */ (null);
+
+    before(async () => {
+      et = await etFixture();
+      store = new AmfStoreService(et);
+    });
+
+    after(() => {
+      store.worker.terminate();
+    });
+
+    it('returns false before initialization', async () => {
+      const result = await store.hasApi();
+      assert.isFalse(result);
+    });
+
+    it('returns false after initialization', async () => {
+      await store.init();
+      const result = await store.hasApi();
+      assert.isFalse(result);
+    });
+
+    it('returns true when has an API', async () => {
+      await store.createWebApi();
+      const result = await store.hasApi();
+      assert.isTrue(result);
+    });
+
+    it('returns the value from the event', async () => {
+      const result = await StoreEvents.Store.hasApi(et);
+      assert.isTrue(result);
+    });
+  });
 });

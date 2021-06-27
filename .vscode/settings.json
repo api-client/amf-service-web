@@ -42,6 +42,7 @@
     "apistoreexamplestatedelete",
     "apistoreexamplestateupdate",
     "apistoreexampleupdate",
+    "apistorehasapi",
     "apistoreinit",
     "apistoreloadapi",
     "apistoreloadgraph",

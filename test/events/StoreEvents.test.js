@@ -94,5 +94,24 @@ describe('StoreEvents', () => {
         assert.strictEqual(spy.args[0][0].detail.mediaType, mediaType);
       });
     });
+
+    describe('hasApi()', () => {
+      it('dispatches the event', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Store.hasApi, spy);
+        StoreEvents.Store.hasApi(et);
+        assert.isTrue(spy.calledOnce);
+      });
+
+      it('waits until resolved', async () => {
+        const et = await etFixture();
+        et.addEventListener(StoreEventTypes.Store.hasApi, (e) => {
+          e.detail.result = Promise.resolve(true);
+        });
+        const result = await StoreEvents.Store.hasApi(et);
+        assert.isTrue(result);
+      });
+    });
   });
 });

@@ -157,6 +157,14 @@ export class AmfStoreProxy {
   }
 
   /**
+   * Checks whether an API is currently loaded.
+   * @returns {Promise<boolean>} True when the API is loaded.
+   */
+  async hasApi() {
+    return this[sendMessage]('hasApi');
+  }
+
+  /**
    * Reads basic info about the API.
    * @returns {Promise<SerializedApi>}
    */

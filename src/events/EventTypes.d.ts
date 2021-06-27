@@ -24,6 +24,7 @@ declare interface StoreEvents {
   init: string;
   loadGraph: string;
   loadApi: string;
+  hasApi: string;
 }
 declare interface ApiEvents {
   createWebApi: string;

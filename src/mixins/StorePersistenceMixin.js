@@ -50,11 +50,11 @@ const mxFunction = base => {
 
     /**
      * Restores the store state from the persistence layer and loads it into the store.
-     * @return {Promise<void>}
+     * @return {Promise<boolean>} Whether a state has been restored.
      * @abstract
      */
     async restoreState() {
-      // 
+      return false;
     }
   }
   return StorePersistenceMixin;

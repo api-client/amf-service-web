@@ -33,6 +33,7 @@ import { EventTypes } from '../events/EventTypes.js';
 export const initHandler = Symbol('initHandler');
 export const loadGraphHandler = Symbol('loadGraphHandler');
 export const loadApiHandler = Symbol('loadApiHandler');
+export const hasApiHandler = Symbol('hasApiHandler');
 export const endpointListHandler = Symbol('endpointListHandler');
 export const endpointListWithOperationsHandler = Symbol('endpointListWithOperationsHandler');
 export const endpointListOperationsHandler = Symbol('listOperationsHandler');
@@ -116,6 +117,7 @@ const mxFunction = base => {
       this[initHandler] = this[initHandler].bind(this);
       this[loadGraphHandler] = this[loadGraphHandler].bind(this);
       this[loadApiHandler] = this[loadApiHandler].bind(this);
+      this[hasApiHandler] = this[hasApiHandler].bind(this);
       this[endpointListHandler] = this[endpointListHandler].bind(this);
       this[endpointListWithOperationsHandler] = this[endpointListWithOperationsHandler].bind(this);
       this[endpointListOperationsHandler] = this[endpointListOperationsHandler].bind(this);
@@ -196,6 +198,7 @@ const mxFunction = base => {
       node.addEventListener(EventTypes.Store.init, this[initHandler]);
       node.addEventListener(EventTypes.Store.loadGraph, this[loadGraphHandler]);
       node.addEventListener(EventTypes.Store.loadApi, this[loadApiHandler]);
+      node.addEventListener(EventTypes.Store.hasApi, this[hasApiHandler]);
       // API related events
       node.addEventListener(EventTypes.Api.createWebApi, this[createWebApiHandler]);
       node.addEventListener(EventTypes.Api.generateRaml, this[generateRamlHandler]);
@@ -289,6 +292,7 @@ const mxFunction = base => {
       node.removeEventListener(EventTypes.Store.init, this[initHandler]);
       node.removeEventListener(EventTypes.Store.loadGraph, this[loadGraphHandler]);
       node.removeEventListener(EventTypes.Store.loadApi, this[loadApiHandler]);
+      node.removeEventListener(EventTypes.Store.hasApi, this[hasApiHandler]);
       // API related events
       node.removeEventListener(EventTypes.Api.createWebApi, this[createWebApiHandler]);
       node.removeEventListener(EventTypes.Api.generateRaml, this[generateRamlHandler]);
@@ -406,6 +410,17 @@ const mxFunction = base => {
       e.preventDefault();
       const { contents, main, vendor, mediaType } = e.detail;
       e.detail.result = this.loadApi(contents, vendor, mediaType, main);
+    }
+
+    /**
+     * @param {CustomEvent} e 
+     */
+    [hasApiHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      e.detail.result = this.hasApi();
     }
 
     /**

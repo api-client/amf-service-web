@@ -76,6 +76,12 @@ export declare class AmfStoreProxy extends EventTarget {
   generateGraph(): Promise<string>;
 
   /**
+   * Checks whether an API is currently loaded.
+   * @returns True when the API is loaded.
+   */
+  hasApi(): Promise<boolean>;
+
+  /**
    * Reads basic info about the API.
    */
   getApi(): Promise<SerializedApi>;

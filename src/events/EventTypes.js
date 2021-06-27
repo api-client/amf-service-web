@@ -3,6 +3,7 @@ export const EventTypes = {
     init: 'apistoreinit',
     loadGraph: 'apistoreloadgraph',
     loadApi: 'apistoreloadapi',
+    hasApi: 'apistorehasapi',
   },
   Api: {
     createWebApi: 'apistoreapicreatewebapi',

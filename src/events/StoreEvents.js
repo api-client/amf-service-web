@@ -92,6 +92,23 @@ export const StoreEvents = {
     target.dispatchEvent(e);
     return e.detail.result;
   },
+
+  /**
+   * @param {EventTarget} target 
+   * @returns {Promise<boolean>} True if the store has an API loaded.
+   */
+  hasApi: async (target) => {
+    const e = new CustomEvent(EventTypes.Store.hasApi, {
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+      detail: {
+        result: undefined,
+      }
+    });
+    target.dispatchEvent(e);
+    return e.detail.result;
+  }
 };
 
 Object.freeze(StoreEvents);

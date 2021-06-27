@@ -18,6 +18,8 @@ describe('StoreEventTypes', () => {
     [
       ['init', 'apistoreinit'],
       ['loadGraph', 'apistoreloadgraph'],
+      ['loadApi', 'apistoreloadapi'],
+      ['hasApi', 'apistorehasapi'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
         assert.equal(StoreEventTypes.Store[prop], value);

@@ -29,7 +29,8 @@ export declare interface StorePersistenceMixin {
 
   /**
    * Restores the store state from the persistence layer and loads it into the store.
+   * @return Whether a state has been restored.
    * @abstract
    */
-  restoreState(): Promise<void>;
+  restoreState(): Promise<boolean>;
 }

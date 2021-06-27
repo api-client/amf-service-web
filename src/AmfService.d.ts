@@ -49,6 +49,12 @@ export declare class AmfService {
   generateGraph(): Promise<string>;
 
   /**
+   * Checks whether an API is currently loaded.
+   * @returns True when the API is loaded.
+   */
+  hasApi(): boolean;
+
+  /**
    * Reads basic info about the API.
    */
   getApi(): Promise<SerializedApi>;
