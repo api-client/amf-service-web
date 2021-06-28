@@ -52,8 +52,9 @@ export class ApiStoreUpdateScalarEvent extends CustomEvent<ApiStoreUpdateScalarE
    * @param id The domain id of the object to remove
    * @param property The name of the scalar property to update
    * @param value The value to set.
+   * @param parent Domain parent id, if applicable
    */
-  constructor(type: string, id: string, property: string, value: any);
+  constructor(type: string, id: string, property: string, value: any, parent?: string);
 }
 
 /**
@@ -235,4 +236,8 @@ export declare interface ApiStoreUpdateScalarEventDetail extends StoreEventDetai
    * The value to set.
    */
   value: any;
+  /**
+   * Domain parent id, if applicable
+   */
+  parent?: string;
 }

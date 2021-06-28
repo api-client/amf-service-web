@@ -10,6 +10,7 @@
 /** @typedef {import('amf-client-js').model.domain.Payload} Payload */
 /** @typedef {import('amf-client-js').model.domain.Example} Example */
 /** @typedef {import('amf-client-js').model.domain.CustomDomainProperty} CustomDomainProperty */
+/** @typedef {import('amf-client-js').model.domain.PropertyShape} PropertyShape */
 /** @typedef {import('./types').WorkerResponse} WorkerResponse */
 /** @typedef {import('./types').WorkerQueueItem} WorkerQueueItem */
 /** @typedef {import('./types').ApiInit} ApiInit */
@@ -54,6 +55,8 @@
 /** @typedef {import('./types').ApiCustomDomainPropertyListItem} ApiCustomDomainPropertyListItem */
 /** @typedef {import('./types').CustomDomainPropertyInit} CustomDomainPropertyInit */
 /** @typedef {import('./types').ApiSecuritySettingsUnion} ApiSecuritySettingsUnion */
+/** @typedef {import('./types').ApiPropertyShape} ApiPropertyShape */
+/** @typedef {import('./types').PropertyShapeInit} PropertyShapeInit */
 
 export const workerValue = Symbol("workerValue");
 export const nextIdValue = Symbol("nextIdValue");
@@ -762,6 +765,50 @@ export class AmfStoreProxy {
    */
   async updateTypeProperty(id, property, value) {
     return this[sendMessage]('updateTypeProperty', id, property, value);
+  }
+
+  /**
+   * Reads the definition of a property of a NodeShape.
+   * @param {string} id The domain id of the property.
+   * @returns {Promise<ApiPropertyShape>}
+   * @throws {Error} An error when the type couldn't be find.
+   */
+  async getPropertyShape(id) {
+    return this[sendMessage]('getPropertyShape', id);
+  }
+
+  /**
+   * Creates a new property on a type.
+   * @param {string} id The id of the type to add the property to.
+   * @param {PropertyShapeInit} init The property initialization configuration.
+   * @returns {Promise<ApiPropertyShape>}
+   * @throws {Error} An error when the type couldn't be find.
+   * @throws {Error} An error when the type is not a NodeShape.
+   */
+  async addPropertyShape(id, init) {
+    return this[sendMessage]('addPropertyShape', id, init);
+  }
+
+  /**
+   * Removes a property from a node shape.
+   * @param {string} typeId The domain id of a parent type
+   * @param {string} propertyId The id of the property to remove.
+   * @throws {Error} An error when the type couldn't be find.
+   */
+  async deletePropertyShape(typeId, propertyId) {
+    return this[sendMessage]('deletePropertyShape', typeId, propertyId);
+  }
+
+  /**
+   * Updates a scalar property of a property of a NodeShape.
+   * @param {string} parent The domain id of the parent type.
+   * @param {string} id The domain id of the property.
+   * @param {keyof PropertyShape} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiPropertyShape>}
+   */
+  async updatePropertyShapeProperty(parent, id, property, value) {
+    return this[sendMessage]('updatePropertyShapeProperty', parent, id, property, value);
   }
 
   /**

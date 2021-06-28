@@ -1,5 +1,5 @@
 import { model } from 'amf-client-js';
-import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ShapeInit, ApiShapeUnion, ParameterInit, PayloadInit, ExampleInit, ApiSecurityOAuth2Flow, ApiSecurityScope, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit, ApiSecuritySettingsUnion } from './types';
+import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ShapeInit, ApiShapeUnion, ParameterInit, PayloadInit, ExampleInit, ApiSecurityOAuth2Flow, ApiSecurityScope, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit, ApiSecuritySettingsUnion, ApiPropertyShape, PropertyShapeInit } from './types';
 
 export declare const workerValue: unique symbol;
 export declare const nextIdValue: unique symbol;
@@ -514,6 +514,39 @@ export declare class AmfStoreProxy extends EventTarget {
    * @param value The new value to set.
    */
   updateTypeProperty(id: string, property: string, value: any): Promise<ApiShapeUnion>;
+
+  /**
+   * Reads the definition of a property of a NodeShape.
+   * @param id The domain id of the property.
+   * @throws An error when the type couldn't be find.
+   */
+  getPropertyShape(id: string): Promise<ApiPropertyShape>;
+
+  /**
+   * Creates a new property on a type.
+   * @param id The id of the type to add the property to.
+   * @param init The property initialization configuration.
+   * @throws An error when the type couldn't be find.
+   * @throws An error when the type is not a NodeShape.
+   */
+  addPropertyShape(id: string, name: PropertyShapeInit): Promise<ApiPropertyShape>;
+
+  /**
+   * Removes a property from a node shape.
+   * @param typeId The domain id of a parent type
+   * @param propertyId The id of the property to remove.
+   * @throws An error when the type couldn't be find.
+   */
+  deletePropertyShape(typeId: string, propertyId: string): Promise<void>;
+
+  /**
+   * Updates a scalar property of a property of a NodeShape.
+   * @param parent The domain id of the parent type.
+   * @param id The domain id of the type.
+   * @param property The property name to update
+   * @param value The new value to set.
+   */
+  updatePropertyShapeProperty(parent: string, id: string, property: keyof model.domain.PropertyShape, value: any): Promise<ApiPropertyShape>;
 
   /**
    * Lists the security definitions for the API.

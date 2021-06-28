@@ -1,5 +1,5 @@
 import AMF from 'amf-client-js';
-import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ApiShapeUnion, ShapeInit, ParameterInit, PayloadInit, ExampleInit, ApiSecurityScope, ApiSecurityOAuth2Flow, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit, ApiSecuritySettingsUnion } from './types';
+import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ApiShapeUnion, ShapeInit, ParameterInit, PayloadInit, ExampleInit, ApiSecurityScope, ApiSecurityOAuth2Flow, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit, ApiSecuritySettingsUnion, ApiPropertyShape, PropertyShapeInit } from './types';
 
 
 export declare class AmfService {
@@ -493,7 +493,11 @@ export declare class AmfService {
    * @param id The domain id of the API type (schema).
    */
   getType(id: string): Promise<ApiShapeUnion>;
-
+  /**
+   * Creates a new type in the API.
+   * @param init The Shape init options.
+   */
+  buildShape(init?: ShapeInit): AMF.model.domain.Shape;
   /**
    * Creates a new type in the API.
    * @param init The Shape init options.
@@ -563,6 +567,39 @@ export declare class AmfService {
    * @param value The new value to set.
    */
   updateTupleShapeProperty(shape: AMF.model.domain.TupleShape, property: string, value: any): void;
+
+  /**
+   * Reads the definition of a property of a NodeShape.
+   * @param id The domain id of the property.
+   * @throws An error when the type couldn't be find.
+   */
+  getPropertyShape(id: string): ApiPropertyShape
+
+  /**
+   * Creates a new property on a type.
+   * @param id The id of the type to add the property to.
+   * @param init The property initialization configuration.
+   * @throws An error when the type couldn't be find.
+   * @throws An error when the type is not a NodeShape.
+   */
+  addPropertyShape(id: string, init: PropertyShapeInit): ApiPropertyShape;
+
+  /**
+   * Removes a property from a node shape.
+   * @param typeId The domain id of a parent type
+   * @param propertyId The id of the property to remove.
+   * @throws An error when the type couldn't be find.
+   */
+  deletePropertyShape(typeId: string, propertyId: string): void;
+
+  /**
+   * Updates a scalar property of a property of a NodeShape.
+   * @param parent The domain id of the parent type.
+   * @param id The domain id of the type.
+   * @param property The property name to update
+   * @param value The new value to set.
+   */
+  updatePropertyShapeProperty(parent: string, id: string, property: keyof AMF.model.domain.PropertyShape, value: any): ApiPropertyShape;
 
   /**
    * Lists the security definitions for the API.

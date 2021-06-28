@@ -2,6 +2,7 @@ import { assert, oneEvent } from '@open-wc/testing';
 import { AmfLoader } from '../helpers/AmfLoader.js';
 import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.index.js';
 
+/** @typedef {import('amf-client-js').model.domain.PropertyShape} PropertyShape */
 /** @typedef {import('../../').ApiEndPointListItem} ApiEndPointListItem */
 /** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
 /** @typedef {import('../..').ApiScalarShape} ApiScalarShape */
@@ -971,6 +972,279 @@ describe('AmfStoreService', () => {
         assert.equal(detail.property, 'name', 'has the property');
         assert.typeOf(detail.item, 'object', 'has the item');
       });
+    });
+  });
+
+  describe('addPropertyShape()', () => {
+    /** @type string */
+    let typeId;
+    beforeEach(async () => {
+      await store.createWebApi();
+      const result = await store.addType({
+        type: ns.w3.shacl.NodeShape,
+      });
+      typeId = result.id;
+    });
+
+    const initBase = Object.freeze({ name: 'test property' });
+
+    it('creates a new property and returns it', async () => {
+      const result = await store.addPropertyShape(typeId, { ...initBase });
+      assert.typeOf(result, 'object', 'has the result');
+      assert.equal(result.name, 'test property');
+      assert.equal(result.types[0], ns.w3.shacl.PropertyShape, 'is a PropertyShape');
+    });
+
+    it('adds multiple properties', async () => {
+      const result1 = await store.addPropertyShape(typeId, { ...initBase });
+      const result2 = await store.addPropertyShape(typeId, { name: 'other property' });
+      assert.typeOf(result1, 'object', 'has the result');
+      assert.equal(result1.name, 'test property');
+      assert.equal(result1.types[0], ns.w3.shacl.PropertyShape, 'is a PropertyShape');
+      const type = /** @type ApiNodeShape */ (await store.getType(typeId));
+      const [p1, p2] = type.properties;
+      assert.deepEqual(result1, p1, 'has the property #1');
+      assert.deepEqual(result2, p2, 'has the property #2');
+    });
+
+    [
+      'displayName', 'description', 'defaultValueStr', 'patternName', 
+    ].forEach((prop) => {
+      it(`adds the ${prop}`, async () => {
+        const value = 'added value';
+        const result = await store.addPropertyShape(typeId, { ...initBase, [prop]: value });
+        assert.equal(result[prop], value, 'returns the property');
+        const stored = await store.getPropertyShape(result.id);
+        assert.equal(stored[prop], value, 'stores the property');
+      });
+
+      it(`ignores invalid type for ${prop}`, async () => {
+        const result = await store.addPropertyShape(typeId, { ...initBase, [prop]: true });
+        assert.isUndefined(result[prop], 'has no property');
+      });
+    });
+
+    [
+      'deprecated', 'readOnly', 'writeOnly', 
+    ].forEach((prop) => {
+      it(`adds the ${prop}`, async () => {
+        const value = true;
+        const result = await store.addPropertyShape(typeId, { ...initBase, [prop]: value });
+        assert.strictEqual(result[prop], value, 'returns the property');
+        const stored = await store.getPropertyShape(result.id);
+        assert.strictEqual(stored[prop], value, 'stores the property');
+      });
+
+      it(`ignores invalid type for ${prop}`, async () => {
+        const result = await store.addPropertyShape(typeId, { ...initBase, [prop]: 'test' });
+        assert.isUndefined(result[prop], 'has no property');
+      });
+    });
+
+    [
+      'minCount', 'maxCount', 
+    ].forEach((prop) => {
+      it(`adds the ${prop}`, async () => {
+        const value = 10;
+        const result = await store.addPropertyShape(typeId, { ...initBase, [prop]: value });
+        assert.strictEqual(result[prop], value, 'returns the property');
+        const stored = await store.getPropertyShape(result.id);
+        assert.strictEqual(stored[prop], value, 'stores the property');
+      });
+
+      it(`ignores invalid type for ${prop}`, async () => {
+        const result = await store.addPropertyShape(typeId, { ...initBase, [prop]: 'test' });
+        assert.isUndefined(result[prop], 'has no property');
+      });
+    });
+
+    it(`adds the range`, async () => {
+      const result = await store.addPropertyShape(typeId, { ...initBase, range: { name: 'range name' } });
+      assert.typeOf(result.range, 'object', 'has the range');
+      assert.equal(result.range.name, 'range name', 'has the passed init properties');
+      const stored = await store.getPropertyShape(result.id);
+      assert.equal(stored.range.name, 'range name', 'stores the range');
+    });
+
+    it('throws when unknown type', async () => {
+      let msg;
+      try {
+        await store.addPropertyShape('unknown', { name: 'test property' });
+      } catch (e) {
+        msg = e.message;
+      }
+      assert.equal(msg, 'No type for unknown');
+    });
+
+    it('throws when not a node type type', async () => {
+      const type = await store.addType();
+      let msg;
+      try {
+        await store.addPropertyShape(type.id, { name: 'test property' });
+      } catch (e) {
+        msg = e.message;
+      }
+      assert.equal(msg, 'Unable to add a property to a non Node shape.');
+    });
+
+    it('throws when no init object', async () => {
+      let msg;
+      try {
+        await store.addPropertyShape(typeId, undefined);
+      } catch (e) {
+        msg = e.message;
+      }
+      assert.equal(msg, 'Missing property initialization object.');
+    });
+
+    it('throws when no name in the init object', async () => {
+      let msg;
+      try {
+        await store.addPropertyShape(typeId, { name: undefined });
+      } catch (e) {
+        msg = e.message;
+      }
+      assert.equal(msg, 'Missing property name.');
+    });
+
+    it('creates the property from the event', async () => {
+      const created = await StoreEvents.Type.addProperty(window, typeId, { ...initBase });
+      const stored = await store.getPropertyShape(created.id);
+      assert.deepEqual(stored, created);
+    });
+
+    it('dispatches the created event', async () => {
+      store.addPropertyShape(typeId, { ...initBase });
+      const e = await oneEvent(window, StoreEventTypes.Type.State.propertyCreated);
+      const { detail } = e;
+      assert.typeOf(detail.graphId, 'string', 'has the graphId');
+      assert.typeOf(detail.domainType, 'string', 'has the domainType');
+      assert.typeOf(detail.item, 'object', 'has the item');
+      assert.equal(detail.domainParent, typeId, 'has the domainParent');
+    });
+  });
+
+  describe('updatePropertyShapeProperty()', () => {
+    /** @type string */
+    let propertyId;
+    /** @type string */
+    let typeId;
+    beforeEach(async () => {
+      await store.createWebApi();
+      const type = await store.addType({
+        type: ns.w3.shacl.NodeShape,
+      });
+      typeId = type.id;
+      const result = await store.addPropertyShape(typeId, { name: 'a property' });
+      propertyId = result.id;
+    });
+
+    [
+      'name', 'description', 'defaultValueStr', 'displayName', 'patternName',
+    ].forEach((prop) => {
+      const property = /** @type keyof PropertyShape */ (prop);
+      it(`updates the ${property}`, async () => {
+        const result = await store.updatePropertyShapeProperty(typeId, propertyId, property, `updated ${property}`);
+        assert.equal(result[property], `updated ${property}`, 'result has the updated property');
+        const stored = await store.getPropertyShape(propertyId);
+        assert.equal(stored[property], `updated ${property}`, 'updated value is stored in the graph');
+      });
+    });
+
+    [
+      'deprecated', 'readOnly', 'writeOnly',
+    ].forEach((prop) => {
+      const property = /** @type keyof PropertyShape */ (prop);
+      it(`updates the ${property}`, async () => {
+        const result = await store.updatePropertyShapeProperty(typeId, propertyId, property, true);
+        assert.isTrue(result[property], 'result has the updated property');
+        const stored = await store.getPropertyShape(propertyId);
+        assert.isTrue(stored[property], 'updated value is stored in the graph');
+      });
+    });
+
+    [
+      'minCount', 'maxCount',
+    ].forEach((prop) => {
+      const property = /** @type keyof PropertyShape */ (prop);
+      it(`updates the ${property}`, async () => {
+        const result = await store.updatePropertyShapeProperty(typeId, propertyId, property, 5);
+        assert.equal(result[property], 5, 'result has the updated property');
+        const stored = await store.getPropertyShape(propertyId);
+        assert.equal(stored[property], 5, 'updated value is stored in the graph');
+      });
+    });
+
+    it('throws when unknown property', async () => {
+      let msg;
+      try {
+        // @ts-ignore
+        await store.updatePropertyShapeProperty(typeId, propertyId, 'unknown', 5);
+      } catch (e) {
+        msg = e.message;
+      }
+      assert.equal(msg, 'Unsupported patch property of PropertyShape: unknown');
+    });
+
+    it('updates the property from the event', async () => {
+      await StoreEvents.Type.updateProperty(window, typeId, propertyId, 'deprecated', true);
+      const stored = await store.getPropertyShape(propertyId);
+      assert.isTrue(stored.deprecated, 'updated value is stored in the graph');
+    });
+
+    it('dispatches the change event', async () => {
+      store.updatePropertyShapeProperty(typeId, propertyId, 'deprecated', true);
+      const e = await oneEvent(window, StoreEventTypes.Type.State.propertyUpdated);
+      const { detail } = e;
+      assert.equal(detail.graphId, propertyId, 'has the graphId');
+      assert.equal(detail.domainType, ns.w3.shacl.PropertyShape, 'has the graphType');
+      assert.equal(detail.domainParent, typeId, 'has the domainParent');
+      assert.equal(detail.property, 'deprecated', 'has the property');
+      assert.typeOf(detail.item, 'object', 'has the item');
+    });
+  });
+
+  describe('deletePropertyShape()', () => {
+    /** @type string */
+    let propertyId;
+    /** @type string */
+    let typeId;
+    beforeEach(async () => {
+      await store.createWebApi();
+      const type = await store.addType({
+        type: ns.w3.shacl.NodeShape,
+      });
+      typeId = type.id;
+      const result = await store.addPropertyShape(typeId, { name: 'a property' });
+      propertyId = result.id;
+    });
+
+    it('removes the property from the type', async () => {
+      await store.deletePropertyShape(typeId, propertyId);
+      const type = /** @type ApiNodeShape */ (await store.getType(typeId));
+      assert.deepEqual(type.properties, []);
+    });
+
+    it('removes the selected property only', async () => {
+      const other = await store.addPropertyShape(typeId, { name: 'other property' });
+      await store.deletePropertyShape(typeId, propertyId);
+      const type = /** @type ApiNodeShape */ (await store.getType(typeId));
+      assert.deepEqual(type.properties, [other]);
+    });
+
+    it('removes the property from the event', async () => {
+      await StoreEvents.Type.deleteProperty(window, propertyId, typeId);
+      const type = /** @type ApiNodeShape */ (await store.getType(typeId));
+      assert.deepEqual(type.properties, []);
+    });
+
+    it('dispatches the delete event', async () => {
+      store.deletePropertyShape(typeId, propertyId);
+      const e = await oneEvent(window, StoreEventTypes.Type.State.propertyDeleted);
+      const { detail } = e;
+      assert.equal(detail.graphId, propertyId, 'has the graphId');
+      assert.equal(detail.domainType, ns.w3.shacl.PropertyShape, 'has the graphType');
+      assert.equal(detail.domainParent, typeId, 'has the domainParent');
     });
   });
 });

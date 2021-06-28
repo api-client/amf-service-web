@@ -103,6 +103,10 @@ export const customDomainPropertyGetHandler = Symbol('customDomainPropertyGetHan
 export const customDomainPropertyUpdateHandler = Symbol('customDomainPropertyUpdateHandler');
 export const customDomainPropertyDeleteHandler = Symbol('customDomainPropertyDeleteHandler');
 export const domainExtensionGetHandler = Symbol('domainExtensionGetHandler');
+export const propertyShapeGetHandler = Symbol('propertyShapeGetHandler');
+export const propertyShapeAddHandler = Symbol('propertyShapeAddHandler');
+export const propertyShapeDeleteHandler = Symbol('propertyShapeDeleteHandler');
+export const propertyShapeUpdateHandler = Symbol('propertyShapeUpdateHandler');
 
 /**
  * @param {AmfStoreProxy} base
@@ -187,6 +191,10 @@ const mxFunction = base => {
       this[customDomainPropertyUpdateHandler] = this[customDomainPropertyUpdateHandler].bind(this);
       this[customDomainPropertyDeleteHandler] = this[customDomainPropertyDeleteHandler].bind(this);
       this[domainExtensionGetHandler] = this[domainExtensionGetHandler].bind(this);
+      this[propertyShapeGetHandler] = this[propertyShapeGetHandler].bind(this);
+      this[propertyShapeAddHandler] = this[propertyShapeAddHandler].bind(this);
+      this[propertyShapeDeleteHandler] = this[propertyShapeDeleteHandler].bind(this);
+      this[propertyShapeUpdateHandler] = this[propertyShapeUpdateHandler].bind(this);
     }
 
     /**
@@ -243,6 +251,10 @@ const mxFunction = base => {
       node.addEventListener(EventTypes.Type.get, this[readTypeHandler]);
       node.addEventListener(EventTypes.Type.update, this[updateTypeHandler]);
       node.addEventListener(EventTypes.Type.delete, this[deleteTypeHandler]);
+      node.addEventListener(EventTypes.Type.addProperty, this[propertyShapeAddHandler]);
+      node.addEventListener(EventTypes.Type.getProperty, this[propertyShapeGetHandler]);
+      node.addEventListener(EventTypes.Type.deleteProperty, this[propertyShapeDeleteHandler]);
+      node.addEventListener(EventTypes.Type.updateProperty, this[propertyShapeUpdateHandler]);
       // Parameter related events
       node.addEventListener(EventTypes.Parameter.get, this[readParameterHandler]);
       node.addEventListener(EventTypes.Parameter.update, this[updateParameterHandler]);
@@ -337,6 +349,10 @@ const mxFunction = base => {
       node.removeEventListener(EventTypes.Type.get, this[readTypeHandler]);
       node.removeEventListener(EventTypes.Type.update, this[updateTypeHandler]);
       node.removeEventListener(EventTypes.Type.delete, this[deleteTypeHandler]);
+      node.removeEventListener(EventTypes.Type.addProperty, this[propertyShapeAddHandler]);
+      node.removeEventListener(EventTypes.Type.getProperty, this[propertyShapeGetHandler]);
+      node.removeEventListener(EventTypes.Type.deleteProperty, this[propertyShapeDeleteHandler]);
+      node.removeEventListener(EventTypes.Type.updateProperty, this[propertyShapeUpdateHandler]);
       // Parameter related events
       node.removeEventListener(EventTypes.Parameter.get, this[readParameterHandler]);
       node.removeEventListener(EventTypes.Parameter.update, this[updateParameterHandler]);
@@ -749,6 +765,56 @@ const mxFunction = base => {
       const { id } = e.detail;
       e.detail.result = this.deleteType(id);
     }
+
+    /**
+     * @param {ApiStoreCreatePropertyEvent} e 
+     */
+    [propertyShapeAddHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { init, parent } = e.detail;
+      e.detail.result = this.addPropertyShape(parent, init);
+    }
+
+    /**
+     * @param {ApiStoreReadEvent} e 
+     */
+    [propertyShapeGetHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id } = e.detail;
+      e.detail.result = this.getPropertyShape(id);
+    }
+
+    /**
+     * @param {ApiStoreDeleteEvent} e 
+     */
+    [propertyShapeDeleteHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id, parent } = e.detail;
+      e.detail.result = this.deletePropertyShape(parent, id);
+    }
+
+    /**
+     * @param {ApiStoreUpdateScalarEvent} e 
+     */
+    [propertyShapeUpdateHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { id, property, value, parent } = e.detail;
+      e.detail.result = this.updatePropertyShapeProperty(parent, id, property, value);
+    }
+    
+    // node.removeEventListener(EventTypes.Type.updateProperty, this[propertyShapeUpdateHandler]);
 
     /**
      * @param {ApiStoreOperationCreateEvent} e 

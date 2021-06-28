@@ -42,6 +42,8 @@ import { EventTypes } from './events/EventTypes.js';
 /** @typedef {import('./types').PayloadInit} PayloadInit */
 /** @typedef {import('./types').CustomDomainPropertyInit} CustomDomainPropertyInit */
 /** @typedef {import('./types').ApiCustomDomainProperty} ApiCustomDomainProperty */
+/** @typedef {import('./types').PropertyShapeInit} PropertyShapeInit */
+/** @typedef {import('./types').ApiPropertyShape} ApiPropertyShape */
 /** @typedef {import('./events/BaseEvents').ApiStoreCreateRecord} ApiStoreCreateRecord */
 /** @typedef {import('./events/BaseEvents').ApiStoreDeleteRecord} ApiStoreDeleteRecord */
 /** @typedef {import('./events/BaseEvents').ApiStoreChangeRecord} ApiStoreChangeRecord */
@@ -56,6 +58,7 @@ import { EventTypes } from './events/EventTypes.js';
 /** @typedef {import('amf-client-js').model.domain.Request} Request */
 /** @typedef {import('amf-client-js').model.domain.Payload} Payload */
 /** @typedef {import('amf-client-js').model.domain.Example} Example */
+/** @typedef {import('amf-client-js').model.domain.PropertyShape} PropertyShape */
 /** @typedef {import('amf-client-js').model.domain.CustomDomainProperty} CustomDomainProperty */
 
 export const optionsValue = Symbol('options');
@@ -846,6 +849,66 @@ export class AmfStoreService extends AmfStoreDomEventsMixin(StorePersistenceMixi
       property,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Type.State.updated, record));
+    this.persist();
+    return type;
+  }
+
+  /**
+   * Creates a new property on a type.
+   * @param {string} id The id of the type to add the property to.
+   * @param {PropertyShapeInit} init The property initialization configuration.
+   * @returns {Promise<ApiPropertyShape>}
+   * @throws {Error} An error when the type couldn't be find.
+   * @throws {Error} An error when the type is not a NodeShape.
+   */
+  async addPropertyShape(id, init) {
+    const result = await super.addPropertyShape(id, init);
+    const record = /** @type ApiStoreCreateRecord */ ({
+      graphId: result.id,
+      domainType: ns.w3.shacl.PropertyShape,
+      item: result,
+      domainParent: id,
+    });
+    this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Type.State.propertyCreated, record));
+    this.persist();
+    return result;
+  }
+
+  /**
+   * Removes a property from a node shape.
+   * @param {string} typeId The domain id of a parent type
+   * @param {string} propertyId The id of the property to remove.
+   * @throws {Error} An error when the type couldn't be find.
+   */
+  async deletePropertyShape(typeId, propertyId) {
+    await super.deletePropertyShape(typeId, propertyId);
+    const record = /** @type ApiStoreDeleteRecord */ ({
+      graphId: propertyId,
+      domainParent: typeId,
+      domainType: ns.w3.shacl.PropertyShape,
+    });
+    this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Type.State.propertyDeleted, record));
+    this.persist();
+  }
+
+  /**
+   * Updates a scalar property of a property of a NodeShape.
+   * @param {string} parent The domain id of the parent type.
+   * @param {string} id The domain id of the type.
+   * @param {keyof PropertyShape} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {Promise<ApiPropertyShape>}
+   */
+  async updatePropertyShapeProperty(parent, id, property, value) {
+    const type = await super.updatePropertyShapeProperty(parent, id, property, value);
+    const record = /** @type ApiStoreChangeRecord */ ({
+      graphId: id,
+      domainType: ns.w3.shacl.PropertyShape,
+      item: type,
+      property,
+      domainParent: parent,
+    });
+    this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Type.State.propertyUpdated, record));
     this.persist();
     return type;
   }

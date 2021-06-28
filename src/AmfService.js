@@ -38,6 +38,7 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('amf-client-js').model.domain.Scope} Scope */
 /** @typedef {import('amf-client-js').model.domain.DomainExtension} DomainExtension */
 /** @typedef {import('amf-client-js').model.domain.Settings} Settings */
+/** @typedef {import('amf-client-js').model.domain.PropertyShape} PropertyShape */
 /** @typedef {import('amf-client-js').model.document.BaseUnitWithDeclaresModel} BaseUnitWithDeclaresModel */
 /** @typedef {import('amf-client-js').render.Renderer} Renderer */
 /** @typedef {import('./types').ApiInit} ApiInit */
@@ -86,6 +87,8 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('./types').ApiCustomDomainPropertyListItem} ApiCustomDomainPropertyListItem */
 /** @typedef {import('./types').CustomDomainPropertyInit} CustomDomainPropertyInit */
 /** @typedef {import('./types').ApiSecuritySettingsUnion} ApiSecuritySettingsUnion */
+/** @typedef {import('./types').ApiPropertyShape} ApiPropertyShape */
+/** @typedef {import('./types').PropertyShapeInit} PropertyShapeInit */
 
 export class AmfService {
   /**
@@ -1369,9 +1372,9 @@ export class AmfService {
   /**
    * Creates a new type in the API.
    * @param {ShapeInit=} init The Shape init options.
-   * @returns {Promise<ApiShapeUnion>}
+   * @returns {Shape}
    */
-  async addType(init) {
+  buildShape(init) {
     const options = init || {};
     const { type, description, name, displayName, readOnly, writeOnly } = options;
     let domainElement = /** @type Shape */ (null);
@@ -1409,6 +1412,16 @@ export class AmfService {
     if (typeof writeOnly === 'boolean') {
       domainElement.withWriteOnly(writeOnly);
     }
+    return domainElement;
+  }
+
+  /**
+   * Creates a new type in the API.
+   * @param {ShapeInit=} init The Shape init options.
+   * @returns {Promise<ApiShapeUnion>}
+   */
+  async addType(init) {
+    const domainElement = this.buildShape(init);
     this.graph.withDeclaredElement(domainElement);
     return ApiSerializer.unknownShape(domainElement);
   }
@@ -1581,6 +1594,123 @@ export class AmfService {
       case 'additionalItems': shape.withAdditionalItems(value); break;
       default: throw new Error(`Unsupported patch property of TupleShape: ${property}`);
     }
+  }
+
+  /**
+   * Reads the definition of a property of a NodeShape.
+   * @param {string} id The domain id of the property.
+   * @returns {ApiPropertyShape}
+   * @throws {Error} An error when the type couldn't be find.
+   */
+  getPropertyShape(id) {
+    const object = /** @type PropertyShape */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No property shape for ${id}`);
+    }
+    return ApiSerializer.propertyShape(object);
+  }
+
+  /**
+   * Creates a new property on a type.
+   * @param {string} id The id of the type to add the property to.
+   * @param {PropertyShapeInit} init The property initialization configuration.
+   * @returns {ApiPropertyShape}
+   * @throws {Error} An error when the type couldn't be find.
+   * @throws {Error} An error when the type is not a NodeShape.
+   */
+  addPropertyShape(id, init) {
+    const object = /** @type NodeShape */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No type for ${id}`);
+    }
+    const types = object.graph().types();
+    if (!types.includes(ns.w3.shacl.NodeShape)) {
+      throw new Error(`Unable to add a property to a non Node shape.`);
+    }
+    if (!init) {
+      throw new Error(`Missing property initialization object.`);
+    }
+    const { name } = init;
+    if (!name) {
+      throw new Error(`Missing property name.`);
+    }
+    const addedProperty = object.withProperty(name);
+    if (typeof init.displayName === 'string') {
+      addedProperty.withDisplayName(init.displayName);
+    }
+    if (typeof init.description === 'string') {
+      addedProperty.withDescription(init.description);
+    }
+    if (typeof init.defaultValueStr === 'string') {
+      addedProperty.withDefaultStr(init.defaultValueStr);
+    }
+    if (typeof init.patternName === 'string') {
+      addedProperty.withPatternName(init.patternName);
+    }
+    if (typeof init.deprecated === 'boolean') {
+      addedProperty.withDeprecated(init.deprecated);
+    }
+    if (typeof init.readOnly === 'boolean') {
+      addedProperty.withReadOnly(init.readOnly);
+    }
+    if (typeof init.writeOnly === 'boolean') {
+      addedProperty.withWriteOnly(init.writeOnly);
+    }
+    if (typeof init.minCount === 'number') {
+      addedProperty.withMinCount(init.minCount);
+    }
+    if (typeof init.maxCount === 'number') {
+      addedProperty.withMaxCount(init.maxCount);
+    }
+    if (typeof init.range === 'object') {
+      const domainElement = this.buildShape(init.range);
+      addedProperty.withRange(domainElement);
+    }
+    return ApiSerializer.propertyShape(addedProperty);
+  }
+
+  /**
+   * Removes a property from a node shape.
+   * @param {string} typeId The domain id of a parent type
+   * @param {string} propertyId The id of the property to remove.
+   * @throws {Error} An error when the type couldn't be find.
+   */
+  deletePropertyShape(typeId, propertyId) {
+    const object = /** @type NodeShape */ (this.graph.findById(typeId));
+    if (!object) {
+      throw new Error(`No type for ${typeId}`);
+    }
+    const filtered = object.properties.filter((prop) => prop.id !== propertyId);
+    object.withProperties(filtered);
+  }
+
+  /**
+   * Updates a scalar property of a property of a NodeShape.
+   * @param {string} parent The domain id of the parent type.
+   * @param {string} id The domain id of the type.
+   * @param {keyof PropertyShape} property The property name to update
+   * @param {any} value The new value to set.
+   * @returns {ApiPropertyShape}
+   */
+  updatePropertyShapeProperty(parent, id, property, value) {
+    const object = /** @type PropertyShape */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No property shape for ${id}`);
+    }
+    switch (property) {
+      case 'name': object.withName(value); break;
+      case 'displayName': object.withDisplayName(value); break;
+      case 'description': object.withDescription(value); break;
+      case 'defaultValueStr': object.withDefaultStr(value); break;
+      case 'patternName': object.withPatternName(value); break;
+      case 'deprecated': object.withDeprecated(value); break;
+      case 'minCount': object.withMinCount(value); break;
+      case 'maxCount': object.withMaxCount(value); break;
+      case 'readOnly': object.withReadOnly(value); break;
+      case 'writeOnly': object.withWriteOnly(value); break;
+      default: throw new Error(`Unsupported patch property of PropertyShape: ${property}`);
+    }
+    return ApiSerializer.propertyShape(object);
   }
 
   /**

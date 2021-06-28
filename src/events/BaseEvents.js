@@ -78,9 +78,10 @@ export class ApiStoreUpdateScalarEvent extends ApiStoreContextEvent {
    * @param {string} id The domain id of the object to change
    * @param {string} property The name of the scalar property to update
    * @param {any} value The value to set.
+   * @param {string=} parent Domain parent id, if applicable
    */
-  constructor(type, id, property, value) {
-    super(type, { id, property, value });
+  constructor(type, id, property, value, parent) {
+    super(type, { id, property, value, parent });
   }
 }
 

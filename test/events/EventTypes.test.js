@@ -611,6 +611,10 @@ describe('StoreEventTypes', () => {
       ['update', 'apistoretypeupdate'],
       ['delete', 'apistoretypedelete'],
       ['list', 'apistoretypelist'],
+      ['addProperty', 'apistoretypeaddproperty'],
+      ['getProperty', 'apistoretypegetproperty'],
+      ['deleteProperty', 'apistoretypedeleteproperty'],
+      ['updateProperty', 'apistoretypeupdateproperty'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
         assert.equal(StoreEventTypes.Type[prop], value);
@@ -638,6 +642,9 @@ describe('StoreEventTypes', () => {
       ['updated', 'apistoretypestateupdate'],
       ['deleted', 'apistoretypestatedelete'],
       ['created', 'apistoretypestatecreate'],
+      ['propertyUpdated', 'apistoretypestatepropertyupdated'],
+      ['propertyDeleted', 'apistoretypestatepropertydeleted'],
+      ['propertyCreated', 'apistoretypestatepropertycreated'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
         assert.equal(StoreEventTypes.Type.State[prop], value);

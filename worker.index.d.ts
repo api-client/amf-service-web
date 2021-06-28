@@ -63,6 +63,7 @@ export {
 } from './src/events/ServerEvents.js';
 export {
   TypeEvents,
+  ApiStoreCreatePropertyEvent,
 } from './src/events/TypeEvents';
 export {
   SecurityEvents,

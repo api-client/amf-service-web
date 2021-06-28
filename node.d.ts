@@ -26,3 +26,6 @@ export {
   ApiStoreCreateExampleEvent,
   ApiStoreCreateExampleEventDetail,
 } from './src/events/BaseEvents';
+export {
+  ApiStoreCreatePropertyEvent,
+} from './src/events/TypeEvents';

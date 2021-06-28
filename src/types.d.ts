@@ -711,3 +711,17 @@ export interface ApiArrayNode extends ApiDataNode {
 }
 
 export type ApiDataNodeUnion = ApiDataNode | ApiObjectNode | ApiScalarNode | ApiArrayNode;
+
+export interface PropertyShapeInit {
+  name: string;
+  displayName?: string;
+  description?: string;
+  defaultValueStr?: string;
+  patternName?: string;
+  readOnly?: boolean;
+  writeOnly?: boolean;
+  deprecated?: boolean;
+  minCount?: number;
+  maxCount?: number;
+  range?: ShapeInit;
+}

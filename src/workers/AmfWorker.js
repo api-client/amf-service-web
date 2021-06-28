@@ -37,7 +37,12 @@ class AmfWorker {
       });
       return;
     }
-    const promise = this.service[message.type].call(this.service, ...args);
+    let promise;
+    try {
+      promise = this.service[message.type].call(this.service, ...args);
+    } catch (cause) {
+      promise = Promise.reject(cause);
+    }
     this.processTaskResult(promise, message.id);
   }
 

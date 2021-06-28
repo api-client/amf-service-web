@@ -136,10 +136,17 @@ export const EventTypes = {
     update: 'apistoretypeupdate',
     delete: 'apistoretypedelete',
     list: 'apistoretypelist',
+    addProperty: 'apistoretypeaddproperty',
+    getProperty: 'apistoretypegetproperty',
+    deleteProperty: 'apistoretypedeleteproperty',
+    updateProperty: 'apistoretypeupdateproperty',
     State: {
       updated: 'apistoretypestateupdate',
       deleted: 'apistoretypestatedelete',
       created: 'apistoretypestatecreate',
+      propertyUpdated: 'apistoretypestatepropertyupdated',
+      propertyDeleted: 'apistoretypestatepropertydeleted',
+      propertyCreated: 'apistoretypestatepropertycreated',
     },
   },
   CustomProperty: {

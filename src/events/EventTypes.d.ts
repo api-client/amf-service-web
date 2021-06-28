@@ -115,13 +115,24 @@ declare interface ServerEvents {
   get: string;
   State: Readonly<StateCUD>;
 }
+
+declare interface TypeStateEvents extends StateCUD {
+  propertyUpdated: string;
+  propertyDeleted: string;
+  propertyCreated: string;
+}
+
 declare interface TypeEvents {
   add: string;
   get: string;
   update: string;
   delete: string;
   list: string;
-  State: Readonly<StateCUD>;
+  addProperty: string;
+  getProperty: string;
+  deleteProperty: string;
+  updateProperty: string;
+  State: Readonly<TypeStateEvents>;
 }
 declare interface CustomPropertyEvents {
   add: string;

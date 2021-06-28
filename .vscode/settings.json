@@ -105,13 +105,20 @@
     "apistoreserversstatedelete",
     "apistoreserversstateupdate",
     "apistoretypeadd",
+    "apistoretypeaddproperty",
     "apistoretypedelete",
+    "apistoretypedeleteproperty",
     "apistoretypeget",
+    "apistoretypegetproperty",
     "apistoretypelist",
     "apistoretypestatecreate",
     "apistoretypestatedelete",
+    "apistoretypestatepropertycreated",
+    "apistoretypestatepropertydeleted",
+    "apistoretypestatepropertyupdated",
     "apistoretypestateupdate",
     "apistoretypeupdate",
+    "apistoretypeupdateproperty",
     "xone"
   ]
 }
