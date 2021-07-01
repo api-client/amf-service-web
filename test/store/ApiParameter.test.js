@@ -32,6 +32,41 @@ describe('AmfStoreService', () => {
       });
     });
 
+    describe('getParameters()', () => {
+      let ids = /** @type string[] */ (null);
+
+      beforeEach(async () => {
+        await store.createWebApi();
+        const ep = await store.addEndpoint({ path: '/test' });
+        const op = await store.addOperation(ep.id, { method: 'get' });
+        const request = await store.addRequest(op.id, { queryParameters: ['t1', 't2', 't3'] });
+        ids = request.queryParameters;
+      });
+
+      it('reads all parameters from the store', async () => {
+        const result = await store.getParameters(ids);
+        assert.typeOf(result, 'array', 'result is an array');
+        assert.lengthOf(result, 3, 'has all results');
+        const [type] = result[0].types;
+        assert.equal(type, ns.aml.vocabularies.apiContract.Parameter, 'has parameters');
+      });
+
+      it('inserts undefined when no parameter', async () => {
+        const result = await store.getParameters([ids[0], 'tUnknown', ids[2]]);
+        assert.typeOf(result, 'array', 'result is an array');
+        assert.lengthOf(result, 3, 'has all results');
+        assert.ok(result[0], 'has first result');
+        assert.isUndefined(result[1], 'has no missing result');
+        assert.ok(result[2], 'has third result');
+      });
+
+      it('can query bulk with the event', async () => {
+        const result = await StoreEvents.Parameter.getBulk(window, ids);
+        assert.typeOf(result, 'array', 'result is an array');
+        assert.lengthOf(result, 3, 'has all results');
+      });
+    });
+
     describe('updateParameterProperty()', () => {
       let id = /** @type string */ (null);
 

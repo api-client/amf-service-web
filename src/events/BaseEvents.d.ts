@@ -31,6 +31,17 @@ export class ApiStoreReadEvent<T> extends CustomEvent<ApiStoreReadEventDetail<T>
 }
 
 /**
+ * An event to be used to read a list of object from the API store.
+ */
+export class ApiStoreReadBulkEvent<T> extends CustomEvent<ApiStoreReadBulkEventDetail<T>> {
+  /**
+   * @param type The type of the event
+   * @param ids The list of domain ids to read. These must be of the same domain type.
+   */
+  constructor(type: string, ids: string[]);
+}
+
+/**
  * An event to be used to delete an object from the API store.
  */
 export class ApiStoreDeleteEvent extends CustomEvent<ApiStoreDeleteEventDetail> {
@@ -210,6 +221,13 @@ export declare interface ApiStoreReadEventDetail<T> extends StoreEventDetailWith
    * The domain id of the domain object to read.
    */
   id: string;
+}
+
+export declare interface ApiStoreReadBulkEventDetail<T> extends StoreEventDetailWithResult<T[]> {
+  /**
+   * The list of domain ids to read.
+   */
+  ids: string;
 }
 
 export declare interface ApiStoreDeleteEventDetail extends StoreEventDetailWithResult<void> {

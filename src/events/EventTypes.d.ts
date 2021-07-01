@@ -56,6 +56,7 @@ declare interface OperationEvents {
 }
 declare interface ParameterEvents {
   get: string;
+  getBulk: string;
   update: string;
   addExample: string;
   removeExample: string;
@@ -63,11 +64,13 @@ declare interface ParameterEvents {
 }
 declare interface ExampleEvents {
   get: string;
+  getBulk: string;
   update: string;
   State: Readonly<StateCUD>;
 }
 declare interface PayloadEvents {
   get: string;
+  getBulk: string;
   update: string;
   addExample: string;
   removeExample: string;
@@ -88,6 +91,7 @@ declare interface RequestEvents {
 }
 declare interface ResponseEvents {
   get: string;
+  getBulk: string;
   update: string;
   addHeader: string;
   removeHeader: string;

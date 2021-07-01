@@ -24,6 +24,7 @@ import { EventTypes } from '../events/EventTypes.js';
 /** @typedef {import('../events/BaseEvents').ApiStoreCreateExampleEvent} ApiStoreCreateExampleEvent */
 /** @typedef {import('../events/BaseEvents').ApiStoreCreatePayloadEvent} ApiStoreCreatePayloadEvent */
 /** @typedef {import('../events/BaseEvents').ApiStoreCreateHeaderEvent} ApiStoreCreateHeaderEvent */
+/** @typedef {import('../events/BaseEvents').ApiStoreReadBulkEvent} ApiStoreReadBulkEvent */
 /** @typedef {import('../events/ApiEvents').ApiCreateEvent} ApiCreateEvent */
 /** @typedef {import('../events/ServerEvents').ApiServerReadEvent} ApiServerReadEvent */
 /** @typedef {import('../events/ServerEvents').ApiServerAddEvent} ApiServerAddEvent */
@@ -72,10 +73,12 @@ export const removeRequestHandler = Symbol('removeRequestHandler');
 export const addResponseHandler = Symbol('addResponseHandler');
 export const removeResponseHandler = Symbol('removeResponseHandler');
 export const readParameterHandler = Symbol('readParameterHandler');
+export const readParameterBulkHandler = Symbol('readParameterBulkHandler');
 export const updateParameterHandler = Symbol('updateParameterHandler');
 export const addParameterExampleHandler = Symbol('addParameterExampleHandler');
 export const removeParameterExampleHandler = Symbol('removeParameterExampleHandler');
 export const readPayloadHandler = Symbol('readPayloadHandler');
+export const readPayloadBulkHandler = Symbol('readPayloadBulkHandler');
 export const updatePayloadHandler = Symbol('updatePayloadHandler');
 export const addPayloadExampleHandler = Symbol('addPayloadExampleHandler');
 export const removePayloadExampleHandler = Symbol('removePayloadExampleHandler');
@@ -90,12 +93,14 @@ export const removeRequestQueryParameterHandler = Symbol('removeRequestQueryPara
 export const addRequestCookieParameterHandler = Symbol('addRequestCookieParameterHandler');
 export const removeRequestCookieParameterHandler = Symbol('removeRequestCookieParameterHandler');
 export const readResponseHandler = Symbol('readResponseHandler');
+export const readResponseBatchHandler = Symbol('readResponseBatchHandler');
 export const updateResponseHandler = Symbol('updateResponseHandler');
 export const addResponseHeaderHandler = Symbol('addResponseHeaderHandler');
 export const removeResponseHeaderHandler = Symbol('removeResponseHeaderHandler');
 export const addResponsePayloadHandler = Symbol('addResponsePayloadHandler');
 export const removeResponsePayloadHandler = Symbol('removeResponsePayloadHandler');
 export const readExampleHandler = Symbol('readExampleHandler');
+export const readExampleBulkHandler = Symbol('readExampleBulkHandler');
 export const updateExampleHandler = Symbol('updateExampleHandler');
 export const customDomainPropertyListHandler = Symbol('customDomainPropertyListHandler');
 export const customDomainPropertyAddHandler = Symbol('customDomainPropertyAddHandler');
@@ -160,10 +165,12 @@ const mxFunction = base => {
       this[addResponseHandler] = this[addResponseHandler].bind(this);
       this[removeResponseHandler] = this[removeResponseHandler].bind(this);
       this[readParameterHandler] = this[readParameterHandler].bind(this);
+      this[readParameterBulkHandler] = this[readParameterBulkHandler].bind(this);
       this[updateParameterHandler] = this[updateParameterHandler].bind(this);
       this[addParameterExampleHandler] = this[addParameterExampleHandler].bind(this);
       this[removeParameterExampleHandler] = this[removeParameterExampleHandler].bind(this);
       this[readPayloadHandler] = this[readPayloadHandler].bind(this);
+      this[readPayloadBulkHandler] = this[readPayloadBulkHandler].bind(this);
       this[updatePayloadHandler] = this[updatePayloadHandler].bind(this);
       this[addPayloadExampleHandler] = this[addPayloadExampleHandler].bind(this);
       this[removePayloadExampleHandler] = this[removePayloadExampleHandler].bind(this);
@@ -178,12 +185,14 @@ const mxFunction = base => {
       this[addRequestCookieParameterHandler] = this[addRequestCookieParameterHandler].bind(this);
       this[removeRequestCookieParameterHandler] = this[removeRequestCookieParameterHandler].bind(this);
       this[readResponseHandler] = this[readResponseHandler].bind(this);
+      this[readResponseBatchHandler] = this[readResponseBatchHandler].bind(this);
       this[updateResponseHandler] = this[updateResponseHandler].bind(this);
       this[addResponseHeaderHandler] = this[addResponseHeaderHandler].bind(this);
       this[removeResponseHeaderHandler] = this[removeResponseHeaderHandler].bind(this);
       this[addResponsePayloadHandler] = this[addResponsePayloadHandler].bind(this);
       this[removeResponsePayloadHandler] = this[removeResponsePayloadHandler].bind(this);
       this[readExampleHandler] = this[readExampleHandler].bind(this);
+      this[readExampleBulkHandler] = this[readExampleBulkHandler].bind(this);
       this[updateExampleHandler] = this[updateExampleHandler].bind(this);
       this[customDomainPropertyListHandler] = this[customDomainPropertyListHandler].bind(this);
       this[customDomainPropertyAddHandler] = this[customDomainPropertyAddHandler].bind(this);
@@ -257,11 +266,13 @@ const mxFunction = base => {
       node.addEventListener(EventTypes.Type.updateProperty, this[propertyShapeUpdateHandler]);
       // Parameter related events
       node.addEventListener(EventTypes.Parameter.get, this[readParameterHandler]);
+      node.addEventListener(EventTypes.Parameter.getBulk, this[readParameterBulkHandler]);
       node.addEventListener(EventTypes.Parameter.update, this[updateParameterHandler]);
       node.addEventListener(EventTypes.Parameter.addExample, this[addParameterExampleHandler]);
       node.addEventListener(EventTypes.Parameter.removeExample, this[removeParameterExampleHandler]);
       // Payload related events
       node.addEventListener(EventTypes.Payload.get, this[readPayloadHandler]);
+      node.addEventListener(EventTypes.Payload.getBulk, this[readPayloadBulkHandler]);
       node.addEventListener(EventTypes.Payload.update, this[updatePayloadHandler]);
       node.addEventListener(EventTypes.Payload.addExample, this[addPayloadExampleHandler]);
       node.addEventListener(EventTypes.Payload.removeExample, this[removePayloadExampleHandler]);
@@ -278,6 +289,7 @@ const mxFunction = base => {
       node.addEventListener(EventTypes.Request.removeCookieParameter, this[removeRequestCookieParameterHandler]);
       // Response related events
       node.addEventListener(EventTypes.Response.get, this[readResponseHandler]);
+      node.addEventListener(EventTypes.Response.getBulk, this[readResponseBatchHandler]);
       node.addEventListener(EventTypes.Response.update, this[updateResponseHandler]);
       node.addEventListener(EventTypes.Response.addHeader, this[addResponseHeaderHandler]);
       node.addEventListener(EventTypes.Response.removeHeader, this[removeResponseHeaderHandler]);
@@ -285,6 +297,7 @@ const mxFunction = base => {
       node.addEventListener(EventTypes.Response.removePayload, this[removeResponsePayloadHandler]);
       // Example related events
       node.addEventListener(EventTypes.Example.get, this[readExampleHandler]);
+      node.addEventListener(EventTypes.Example.getBulk, this[readExampleBulkHandler]);
       node.addEventListener(EventTypes.Example.update, this[updateExampleHandler]);
       // Custom domain property
       node.addEventListener(EventTypes.CustomProperty.add, this[customDomainPropertyAddHandler]);
@@ -355,11 +368,13 @@ const mxFunction = base => {
       node.removeEventListener(EventTypes.Type.updateProperty, this[propertyShapeUpdateHandler]);
       // Parameter related events
       node.removeEventListener(EventTypes.Parameter.get, this[readParameterHandler]);
+      node.removeEventListener(EventTypes.Parameter.getBulk, this[readParameterBulkHandler]);
       node.removeEventListener(EventTypes.Parameter.update, this[updateParameterHandler]);
       node.removeEventListener(EventTypes.Parameter.addExample, this[addParameterExampleHandler]);
       node.removeEventListener(EventTypes.Parameter.removeExample, this[removeParameterExampleHandler]);
       // Payload related events
       node.removeEventListener(EventTypes.Payload.get, this[readPayloadHandler]);
+      node.removeEventListener(EventTypes.Payload.getBulk, this[readPayloadBulkHandler]);
       node.removeEventListener(EventTypes.Payload.update, this[updatePayloadHandler]);
       node.removeEventListener(EventTypes.Payload.addExample, this[addPayloadExampleHandler]);
       node.removeEventListener(EventTypes.Payload.removeExample, this[removePayloadExampleHandler]);
@@ -376,6 +391,7 @@ const mxFunction = base => {
       node.removeEventListener(EventTypes.Request.removeCookieParameter, this[removeRequestCookieParameterHandler]);
       // Response related events
       node.removeEventListener(EventTypes.Response.get, this[readResponseHandler]);
+      node.removeEventListener(EventTypes.Response.getBulk, this[readResponseBatchHandler]);
       node.removeEventListener(EventTypes.Response.update, this[updateResponseHandler]);
       node.removeEventListener(EventTypes.Response.addHeader, this[addResponseHeaderHandler]);
       node.removeEventListener(EventTypes.Response.removeHeader, this[removeResponseHeaderHandler]);
@@ -383,6 +399,7 @@ const mxFunction = base => {
       node.removeEventListener(EventTypes.Response.removePayload, this[removeResponsePayloadHandler]);
       // Example related events
       node.removeEventListener(EventTypes.Example.get, this[readExampleHandler]);
+      node.removeEventListener(EventTypes.Example.getBulk, this[readExampleBulkHandler]);
       node.removeEventListener(EventTypes.Example.update, this[updateExampleHandler]);
       // Custom domain property
       node.removeEventListener(EventTypes.CustomProperty.add, this[customDomainPropertyAddHandler]);
@@ -937,6 +954,18 @@ const mxFunction = base => {
     }
 
     /**
+     * @param {ApiStoreReadBulkEvent} e 
+     */
+    [readParameterBulkHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { ids } = e.detail;
+      e.detail.result = this.getParameters(ids);
+    }
+
+    /**
      * @param {ApiStoreUpdateScalarEvent} e 
      */
     [updateParameterHandler](e) {
@@ -982,6 +1011,18 @@ const mxFunction = base => {
       e.preventDefault();
       const { id } = e.detail;
       e.detail.result = this.getPayload(id);
+    }
+
+    /**
+     * @param {ApiStoreReadBulkEvent} e 
+     */
+    [readPayloadBulkHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { ids } = e.detail;
+      e.detail.result = this.getPayloads(ids);
     }
 
     /**
@@ -1153,6 +1194,18 @@ const mxFunction = base => {
     }
 
     /**
+     * @param {ApiStoreReadBulkEvent} e 
+     */
+    [readResponseBatchHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { ids } = e.detail;
+      e.detail.result = this.getResponses(ids);
+    }
+
+    /**
      * @param {ApiStoreUpdateScalarEvent} e 
      */
     [updateResponseHandler](e) {
@@ -1222,6 +1275,18 @@ const mxFunction = base => {
       e.preventDefault();
       const { id } = e.detail;
       e.detail.result = this.getExample(id);
+    }
+
+    /**
+     * @param {ApiStoreReadBulkEvent} e 
+     */
+    [readExampleBulkHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { ids } = e.detail;
+      e.detail.result = this.getExamples(ids);
     }
 
     /**

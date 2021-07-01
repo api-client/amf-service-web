@@ -8,6 +8,12 @@ declare interface IParameterEvents {
    */
   get(target: EventTarget, id: string): Promise<ApiParameter>;
   /**
+   * Reads a list of Parameters in a bulk operation.
+   * @param target The node on which to dispatch the event
+   * @param ids The list of ids to read.
+   */
+  getBulk(target: EventTarget, ids: string[]): Promise<ApiParameter[]>;
+  /**
    * Updates a scalar property of a Parameter.
    * @param target The node on which to dispatch the event
    * @param id The domain id of the Parameter.

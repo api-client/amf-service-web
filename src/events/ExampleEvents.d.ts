@@ -8,6 +8,12 @@ declare interface IExampleEvents {
    */
   get(target: EventTarget, id: string): Promise<ApiExample>;
   /**
+   * Reads a list of Examples in a bulk operation.
+   * @param target The node on which to dispatch the event
+   * @param ids The list of ids to read.
+   */
+  getBulk(target: EventTarget, ids: string[]): Promise<ApiExample[]>;
+  /**
    * Updates a scalar property of a Example.
    * @param target The node on which to dispatch the event
    * @param id The domain id of the Example.

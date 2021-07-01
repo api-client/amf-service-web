@@ -55,6 +55,19 @@ export class ApiStoreReadEvent extends ApiStoreContextEvent {
 }
 
 /**
+ * An event to be used to read a list of object from the API store.
+ */
+export class ApiStoreReadBulkEvent extends ApiStoreContextEvent {
+  /**
+   * @param {string} type The type of the event
+   * @param {string[]} ids The list of domain ids to read. These must be of the same domain type.
+   */
+  constructor(type, ids) {
+    super(type, { ids });
+  }
+}
+
+/**
  * An event to be used to delete an object from the API store.
  */
 export class ApiStoreDeleteEvent extends ApiStoreContextEvent {

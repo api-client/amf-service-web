@@ -188,6 +188,12 @@ export declare class AmfService {
   getResponse(id: string): Promise<ApiResponse>;
 
   /**
+   * Reads Response data in a bulk operation
+   * @param ids The ids to read
+   */
+  getResponses(ids: string[]): Promise<ApiResponse[]>;
+
+  /**
    * Adds a header to the response.
    * @param responseId The response domain id
    * @param init The Parameter init options.
@@ -239,6 +245,12 @@ export declare class AmfService {
   getExample(id: string): Promise<ApiExample>;
 
   /**
+   * Reads Example data in a bulk operation
+   * @param ids The ids to read
+   */
+  getExamples(ids: string[]): Promise<ApiExample[]>;
+
+  /**
    * Updates a scalar property of an Example.
    * @param id The domain id of the response.
    * @param property The property name to update
@@ -252,6 +264,12 @@ export declare class AmfService {
    * @param id The domain id of the payload
    */
   getPayload(id: string): Promise<ApiPayload>;
+
+  /**
+   * Reads Payload data in a bulk operation
+   * @param ids The ids to read
+   */
+  getPayloads(ids: string[]): Promise<ApiPayload[]>;
 
   /**
    * Adds an example to a Payload
@@ -420,6 +438,11 @@ export declare class AmfService {
    * @param id The domain id of the parameter
    */
   getParameter(id: string): Promise<ApiParameter>;
+  /**
+   * Reads the list of Parameters in a single call.
+   * @param ids
+   */
+  getParameters(ids: string[]): Promise<ApiParameter[]>;
 
   /**
    * Updates a scalar property of a Parameter.

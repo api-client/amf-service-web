@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { EventTypes } from './EventTypes.js';
-import { ApiStoreReadEvent, ApiStoreUpdateScalarEvent, ApiStoreDeleteEvent, ApiStoreCreateHeaderEvent, ApiStoreCreatePayloadEvent } from './BaseEvents.js';
+import { ApiStoreReadEvent, ApiStoreUpdateScalarEvent, ApiStoreDeleteEvent, ApiStoreCreateHeaderEvent, ApiStoreCreatePayloadEvent, ApiStoreReadBulkEvent } from './BaseEvents.js';
 
 /** @typedef {import('../types').ApiResponse} ApiResponse */
 /** @typedef {import('../types').ParameterInit} ParameterInit */
@@ -17,6 +17,17 @@ export const ResponseEvents = {
    */
   get: async (target, id) => {
     const e = new ApiStoreReadEvent(EventTypes.Response.get, id);
+    target.dispatchEvent(e);
+    return e.detail.result;
+  },
+  /**
+   * Reads a list of Response in a bulk operation.
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string[]} ids The list of ids to read.
+   * @returns {Promise<ApiResponse[]>}
+   */
+  getBulk: async (target, ids) => {
+    const e = new ApiStoreReadBulkEvent(EventTypes.Response.getBulk, ids);
     target.dispatchEvent(e);
     return e.detail.result;
   },

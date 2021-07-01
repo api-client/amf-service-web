@@ -8,6 +8,12 @@ declare interface IPayloadEvents {
    */
   get(target: EventTarget, id: string): Promise<ApiPayload>;
   /**
+   * Reads a list of Payloads in a bulk operation.
+   * @param target The node on which to dispatch the event
+   * @param ids The list of ids to read.
+   */
+  getBulk(target: EventTarget, ids: string[]): Promise<ApiPayload[]>;
+  /**
    * Updates a scalar property of a ApiPayload.
    * @param target The node on which to dispatch the event
    * @param id The domain id of the ApiPayload.

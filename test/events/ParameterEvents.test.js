@@ -40,6 +40,35 @@ describe('StoreEvents', () => {
         assert.equal(result, data);
       });
     });
+    describe('getBulk()', () => {
+      const ids = ['amf://id'];
+
+      it('dispatches the event', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Parameter.getBulk, spy);
+        StoreEvents.Parameter.getBulk(et, ids);
+        assert.isTrue(spy.calledOnce);
+      });
+
+      it('the event has the "id" property', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Parameter.getBulk, spy);
+        StoreEvents.Parameter.getBulk(et, ids);
+        assert.deepEqual(spy.args[0][0].detail.ids, ids);
+      });
+
+      it('waits until resolved', async () => {
+        const et = await etFixture();
+        const data = /** @type any */ ({ test: true });
+        et.addEventListener(StoreEventTypes.Parameter.getBulk, (e) => {
+          e.detail.result = Promise.resolve(data);
+        });
+        const result = await StoreEvents.Parameter.getBulk(et, ids);
+        assert.deepEqual(result, data);
+      });
+    });
 
     describe('update()', () => {
       const id = 'amf://id';

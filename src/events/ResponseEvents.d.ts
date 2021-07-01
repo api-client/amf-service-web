@@ -8,6 +8,12 @@ declare interface IResponseEvents {
    */
   get(target: EventTarget, id: string): Promise<ApiResponse>;
   /**
+   * Reads a list of Response in a bulk operation.
+   * @param target The node on which to dispatch the event
+   * @param ids The list of ids to read.
+   */
+  getBulk(target: EventTarget, ids: string[]): Promise<ApiResponse[]>;
+  /**
    * Updates a scalar property of a Response.
    * @param target The node on which to dispatch the event
    * @param id The domain id of the Response.

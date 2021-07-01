@@ -43,6 +43,7 @@ export const EventTypes = {
   },
   Parameter: {
     get: 'apistoreparamget',
+    getBulk: 'apistoreparamgetbulk',
     update: 'apistoreparamupdate',
     addExample: 'apistoreparamupdateaddexample',
     removeExample: 'apistoreparamupdateremoveexample',
@@ -54,6 +55,7 @@ export const EventTypes = {
   },
   Example: {
     get: 'apistoreexampleget',
+    getBulk: 'apistoreexamplegetbulk',
     update: 'apistoreexampleupdate',
     State: {
       updated: 'apistoreexamplestateupdate',
@@ -63,6 +65,7 @@ export const EventTypes = {
   },
   Payload: {
     get: 'apistorepayloadget',
+    getBulk: 'apistorepayloadgetbulk',
     update: 'apistorepayloadupdate',
     addExample: 'apistorepayloadaddexample',
     removeExample: 'apistorepayloadremoveexample',
@@ -91,6 +94,7 @@ export const EventTypes = {
   },
   Response: {
     get: 'apistoreresponseget',
+    getBulk: 'apistoreresponsegetbulk',
     update: 'apistoreresponseupdate',
     addHeader: 'apistoreresponseaddheader',
     removeHeader: 'apistoreresponseremoveheader',

@@ -333,6 +333,15 @@ export class AmfStoreProxy {
   }
 
   /**
+   * Reads Response data in a bulk operation
+   * @param {string[]} ids The ids to read
+   * @returns {Promise<ApiResponse[]>}
+   */
+  async getResponses(ids) {
+    return this[sendMessage]('getResponses', ids);
+  }
+
+  /**
    * Adds a header to the response.
    * @param {string} responseId The response domain id
    * @param {ParameterInit} init The Parameter init options.
@@ -402,6 +411,15 @@ export class AmfStoreProxy {
   }
 
   /**
+   * Reads Example data in a bulk operation
+   * @param {string[]} ids The ids to read
+   * @returns {Promise<ApiExample[]>}
+   */
+  async getExamples(ids) {
+    return this[sendMessage]('getExamples', ids);
+  }
+
+  /**
    * Updates a scalar property of an Example.
    * @param {string} id The domain id of the response.
    * @param {keyof Example} property The property name to update
@@ -419,6 +437,15 @@ export class AmfStoreProxy {
    */
   async getPayload(id) {
     return this[sendMessage]('getPayload', id);
+  }
+
+  /**
+   * Reads Payload data in a bulk operation
+   * @param {string[]} ids The ids to read
+   * @returns {Promise<ApiPayload[]>}
+   */
+  async getPayloads(ids) {
+    return this[sendMessage]('getPayloads', ids);
   }
 
   /**
@@ -644,6 +671,15 @@ export class AmfStoreProxy {
    */
   async getParameter(id) {
     return this[sendMessage]('getParameter', id);
+  }
+
+  /**
+   * Reads the list of Parameters in a single call.
+   * @param {string[]} ids
+   * @returns {Promise<ApiParameter[]>}
+   */
+  async getParameters(ids) {
+    return this[sendMessage]('getParameters', ids);
   }
 
   /**

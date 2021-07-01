@@ -191,6 +191,7 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistoreparamget'],
+      ['getBulk', 'apistoreparamgetbulk'],
       ['update', 'apistoreparamupdate'],
       ['addExample', 'apistoreparamupdateaddexample'],
       ['removeExample', 'apistoreparamupdateremoveexample'],
@@ -246,6 +247,7 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistoreexampleget'],
+      ['getBulk', 'apistoreexamplegetbulk'],
       ['update', 'apistoreexampleupdate'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
@@ -299,6 +301,7 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistorepayloadget'],
+      ['getBulk', 'apistorepayloadgetbulk'],
       ['update', 'apistorepayloadupdate'],
       ['addExample', 'apistorepayloadaddexample'],
       ['removeExample', 'apistorepayloadremoveexample'],
@@ -415,6 +418,7 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistoreresponseget'],
+      ['getBulk', 'apistoreresponsegetbulk'],
       ['update', 'apistoreresponseupdate'],
       ['addHeader', 'apistoreresponseaddheader'],
       ['removeHeader', 'apistoreresponseremoveheader'],

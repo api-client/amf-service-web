@@ -10,6 +10,7 @@ export {
   ApiStoreCreateEvent, 
   ApiStoreDeleteEvent, 
   ApiStoreReadEvent, 
+  ApiStoreReadBulkEvent,
   ApiStoreUpdateScalarEvent, 
   ApiStoreStateCreateEvent, 
   ApiStoreStateDeleteEvent, 

@@ -589,6 +589,25 @@ export class AmfService {
   }
 
   /**
+   * Reads Response data in a bulk operation
+   * @param {string[]} ids The ids to read
+   * @returns {Promise<ApiResponse[]>}
+   */
+  async getResponses(ids) {
+    /** @type ApiResponse[] */
+    const result = [];
+    ids.forEach((id) => {
+      const param = /** @type Response */ (this.graph.findById(id));
+      if (param) {
+        result.push(ApiSerializer.response(param));
+      } else {
+        result.push(undefined);
+      }
+    });
+    return result;
+  }
+
+  /**
    * Adds a header to the response.
    * @param {string} responseId The response domain id
    * @param {ParameterInit} init The Parameter init options.
@@ -702,6 +721,25 @@ export class AmfService {
   }
 
   /**
+   * Reads Example data in a bulk operation
+   * @param {string[]} ids The ids to read
+   * @returns {Promise<ApiExample[]>}
+   */
+  async getExamples(ids) {
+    /** @type ApiExample[] */
+    const result = [];
+    ids.forEach((id) => {
+      const param = /** @type Example */ (this.graph.findById(id));
+      if (param) {
+        result.push(ApiSerializer.example(param));
+      } else {
+        result.push(undefined);
+      }
+    });
+    return result;
+  }
+
+  /**
    * Updates a scalar property of an Example.
    * @param {string} id The domain id of the response.
    * @param {keyof Example} property The property name to update
@@ -736,6 +774,25 @@ export class AmfService {
       throw new Error(`No Payload for ${id}`);
     }
     return ApiSerializer.payload(payload);
+  }
+
+  /**
+   * Reads Payload data in a bulk operation
+   * @param {string[]} ids The ids to read
+   * @returns {Promise<ApiPayload[]>}
+   */
+  async getPayloads(ids) {
+    /** @type ApiPayload[] */
+    const result = [];
+    ids.forEach((id) => {
+      const param = /** @type Payload */ (this.graph.findById(id));
+      if (param) {
+        result.push(ApiSerializer.payload(param));
+      } else {
+        result.push(undefined);
+      }
+    });
+    return result;
   }
 
   /**
@@ -1164,6 +1221,25 @@ export class AmfService {
       throw new Error(`No Parameter for ${id}`);
     }
     return ApiSerializer.parameter(param);
+  }
+
+  /**
+   * Reads the list of Parameters in a single call.
+   * @param {string[]} ids
+   * @returns {Promise<ApiParameter[]>}
+   */
+  async getParameters(ids) {
+    /** @type ApiParameter[] */
+    const result = [];
+    ids.forEach((id) => {
+      const param = /** @type Parameter */ (this.graph.findById(id));
+      if (param) {
+        result.push(ApiSerializer.parameter(param));
+      } else {
+        result.push(undefined);
+      }
+    });
+    return result;
   }
 
   /**

@@ -72,6 +72,53 @@ describe('AmfStoreService', () => {
       });
     });
 
+    describe('getExamples()', () => {
+      let ids = /** @type string[] */ (null);
+      const init = Object.freeze({
+        name: 'test', 
+        mediaType: 'application/json', 
+        description: 'test desc', 
+        displayName: 'test dn', 
+        strict: true, 
+        value: '{"test":true}',
+      });
+
+      beforeEach(async () => {
+        await store.createWebApi();
+        const ep = await store.addEndpoint({ path: '/test' });
+        const op = await store.addOperation(ep.id, { method: 'get' });
+        const request = await store.addRequest(op.id);
+        const payload = await store.addRequestPayload(request.id, { mediaType: 'application/json' });
+        const example1 = await store.addParameterExample(payload.id, { ...init });
+        const example2 = await store.addParameterExample(payload.id, { ...init, name: 'test 2' });
+        const example3 = await store.addParameterExample(payload.id, { ...init, name: 'test 3' });
+        ids = [example1.id, example2.id, example3.id];
+      });
+
+      it('reads the examples from the store', async () => {
+        const example = await store.getExamples(ids);
+        assert.typeOf(example, 'array', 'result is an array');
+        assert.lengthOf(example, 3, 'has all the results');
+        const [type] = example[0].types;
+        assert.equal(type, ns.aml.vocabularies.apiContract.Example, 'has the data type');
+      });
+
+      it('inserts undefined when no parameter', async () => {
+        const result = await store.getExamples([ids[0], 'tUnknown', ids[2]]);
+        assert.typeOf(result, 'array', 'result is an array');
+        assert.lengthOf(result, 3, 'has all results');
+        assert.ok(result[0], 'has first result');
+        assert.isUndefined(result[1], 'has no missing result');
+        assert.ok(result[2], 'has third result');
+      });
+
+      it('can query bulk with the event', async () => {
+        const result = await StoreEvents.Example.getBulk(window, ids);
+        assert.typeOf(result, 'array', 'result is an array');
+        assert.lengthOf(result, 3, 'has all results');
+      });
+    });
+
     describe('updateParameterProperty()', () => {
       let id = /** @type string */ (null);
       const init = Object.freeze({
