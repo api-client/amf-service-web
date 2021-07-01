@@ -1446,6 +1446,25 @@ export class AmfService {
   }
 
   /**
+   * Reads types data in a bulk operation
+   * @param {string[]} ids The ids to read
+   * @returns {Promise<ApiShapeUnion[]>}
+   */
+  async getTypes(ids) {
+    /** @type ApiShapeUnion[] */
+    const result = [];
+    ids.forEach((id) => {
+      const param = /** @type Shape */ (this.graph.findById(id));
+      if (param) {
+        result.push(ApiSerializer.unknownShape(param));
+      } else {
+        result.push(undefined);
+      }
+    });
+    return result;
+  }
+
+  /**
    * Creates a new type in the API.
    * @param {ShapeInit=} init The Shape init options.
    * @returns {Shape}

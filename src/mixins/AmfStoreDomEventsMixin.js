@@ -57,6 +57,7 @@ export const securityListHandler = Symbol('securityListHandler');
 export const typeListHandler = Symbol('typeListHandler');
 export const addTypeHandler = Symbol('addTypeHandler');
 export const readTypeHandler = Symbol('readTypeHandler');
+export const readTypeBulkHandler = Symbol('readTypeBulkHandler');
 export const updateTypeHandler = Symbol('updateTypeHandler');
 export const deleteTypeHandler = Symbol('deleteTypeHandler');
 export const addDocumentationHandler = Symbol('addDocumentationHandler');
@@ -153,6 +154,7 @@ const mxFunction = base => {
       this[deleteDocumentationHandler] = this[deleteDocumentationHandler].bind(this);
       this[addTypeHandler] = this[addTypeHandler].bind(this);
       this[readTypeHandler] = this[readTypeHandler].bind(this);
+      this[readTypeBulkHandler] = this[readTypeBulkHandler].bind(this);
       this[updateTypeHandler] = this[updateTypeHandler].bind(this);
       this[deleteTypeHandler] = this[deleteTypeHandler].bind(this);
       this[addOperationHandler] = this[addOperationHandler].bind(this);
@@ -258,6 +260,7 @@ const mxFunction = base => {
       node.addEventListener(EventTypes.Type.list, this[typeListHandler]);
       node.addEventListener(EventTypes.Type.add, this[addTypeHandler]);
       node.addEventListener(EventTypes.Type.get, this[readTypeHandler]);
+      node.addEventListener(EventTypes.Type.getBulk, this[readTypeBulkHandler]);
       node.addEventListener(EventTypes.Type.update, this[updateTypeHandler]);
       node.addEventListener(EventTypes.Type.delete, this[deleteTypeHandler]);
       node.addEventListener(EventTypes.Type.addProperty, this[propertyShapeAddHandler]);
@@ -360,6 +363,7 @@ const mxFunction = base => {
       node.removeEventListener(EventTypes.Type.list, this[typeListHandler]);
       node.removeEventListener(EventTypes.Type.add, this[addTypeHandler]);
       node.removeEventListener(EventTypes.Type.get, this[readTypeHandler]);
+      node.removeEventListener(EventTypes.Type.getBulk, this[readTypeBulkHandler]);
       node.removeEventListener(EventTypes.Type.update, this[updateTypeHandler]);
       node.removeEventListener(EventTypes.Type.delete, this[deleteTypeHandler]);
       node.removeEventListener(EventTypes.Type.addProperty, this[propertyShapeAddHandler]);
@@ -757,6 +761,18 @@ const mxFunction = base => {
       e.preventDefault();
       const { id } = e.detail;
       e.detail.result = this.getType(id);
+    }
+
+    /**
+     * @param {ApiStoreReadBulkEvent} e 
+     */
+    [readTypeBulkHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { ids } = e.detail;
+      e.detail.result = this.getTypes(ids);
     }
 
     /**

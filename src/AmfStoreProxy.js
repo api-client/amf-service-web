@@ -775,6 +775,15 @@ export class AmfStoreProxy {
   }
 
   /**
+   * Reads types data in a bulk operation
+   * @param {string[]} ids The ids to read
+   * @returns {Promise<ApiShapeUnion[]>}
+   */
+  async getTypes(ids) {
+    return this[sendMessage]('getTypes', ids);
+  }
+
+  /**
    * Creates a new type in the API.
    * @param {ShapeInit=} init The Shape init options.
    * @returns {Promise<ApiShapeUnion>}

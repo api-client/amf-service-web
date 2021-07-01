@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { EventTypes } from './EventTypes.js';
-import { ApiStoreContextEvent, ApiStoreCreateEvent, ApiStoreReadEvent, ApiStoreUpdateScalarEvent, ApiStoreDeleteEvent } from './BaseEvents.js';
+import { ApiStoreContextEvent, ApiStoreCreateEvent, ApiStoreReadEvent, ApiStoreUpdateScalarEvent, ApiStoreDeleteEvent, ApiStoreReadBulkEvent } from './BaseEvents.js';
 
 /** @typedef {import('../types').PropertyShapeInit} PropertyShapeInit */
 /** @typedef {import('../types').ApiPropertyShape} ApiPropertyShape */
@@ -52,6 +52,17 @@ export const TypeEvents = {
    */
   get: async (target, id) => {
     const e = new ApiStoreReadEvent(EventTypes.Type.get, id);
+    target.dispatchEvent(e);
+    return e.detail.result;
+  },
+  /**
+   * Reads a list of types (schemas) in a bulk operation.
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string[]} ids The list of ids to read.
+   * @returns {Promise<ApiShapeUnion[]>}
+   */
+  getBulk: async (target, ids) => {
+    const e = new ApiStoreReadBulkEvent(EventTypes.Type.getBulk, ids);
     target.dispatchEvent(e);
     return e.detail.result;
   },

@@ -517,6 +517,11 @@ export declare class AmfService {
    */
   getType(id: string): Promise<ApiShapeUnion>;
   /**
+   * Reads types data in a bulk operation
+   * @param ids The ids to read
+   */
+  getTypes(ids: string[]): Promise<ApiShapeUnion[]>;
+  /**
    * Creates a new type in the API.
    * @param init The Shape init options.
    */

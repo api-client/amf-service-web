@@ -96,10 +96,10 @@ describe('AmfStoreService', () => {
       });
 
       it('reads the examples from the store', async () => {
-        const example = await store.getExamples(ids);
-        assert.typeOf(example, 'array', 'result is an array');
-        assert.lengthOf(example, 3, 'has all the results');
-        const [type] = example[0].types;
+        const result = await store.getExamples(ids);
+        assert.typeOf(result, 'array', 'result is an array');
+        assert.lengthOf(result, 3, 'has all the results');
+        const [type] = result[0].types;
         assert.equal(type, ns.aml.vocabularies.apiContract.Example, 'has the data type');
       });
 

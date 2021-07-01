@@ -612,6 +612,7 @@ describe('StoreEventTypes', () => {
     [
       ['add', 'apistoretypeadd'],
       ['get', 'apistoretypeget'],
+      ['getBulk', 'apistoretypegetbulk'],
       ['update', 'apistoretypeupdate'],
       ['delete', 'apistoretypedelete'],
       ['list', 'apistoretypelist'],

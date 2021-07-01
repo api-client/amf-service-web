@@ -129,6 +129,7 @@ declare interface TypeStateEvents extends StateCUD {
 declare interface TypeEvents {
   add: string;
   get: string;
+  getBulk: string;
   update: string;
   delete: string;
   list: string;

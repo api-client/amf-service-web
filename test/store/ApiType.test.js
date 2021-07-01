@@ -10,6 +10,7 @@ import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.
 /** @typedef {import('../..').ApiFileShape} ApiFileShape */
 /** @typedef {import('../..').ApiSchemaShape} ApiSchemaShape */
 /** @typedef {import('../..').ApiTupleShape} ApiTupleShape */
+/** @typedef {import('../..').ApiShapeUnion} ApiShapeUnion */
 
 describe('AmfStoreService', () => {
   let store = /** @type AmfStoreService */ (null);
@@ -321,6 +322,7 @@ describe('AmfStoreService', () => {
   });
 
   describe('getType()', () => {
+    /** @type ApiShapeUnion */
     let created;
     beforeEach(async () => {
       await store.createWebApi();
@@ -340,6 +342,41 @@ describe('AmfStoreService', () => {
     it('reads the type from the event', async () => {
       const result = await StoreEvents.Type.get(window, created.id);
       assert.deepEqual(result, created);
+    });
+  });
+
+  describe('getTypes()', () => {
+    let ids = /** @type string[] */ (null);
+    beforeEach(async () => {
+      await store.createWebApi();
+      const t1 = await store.addType({ name: 'test-type1' });
+      const t2 = await store.addType({ name: 'test-type2' });
+      const t3 = await store.addType({ name: 'test-type3' });
+      ids = [t1.id, t2.id, t3.id];
+    });
+
+    it('reads the types from the store', async () => {
+      const result = await store.getTypes(ids);
+      assert.typeOf(result, 'array', 'result is an array');
+      assert.lengthOf(result, 3, 'has all the results');
+      assert.ok(result[0], 'has result #1');
+      assert.ok(result[1], 'has result #2');
+      assert.ok(result[2], 'has result #3');
+    });
+
+    it('inserts undefined when no type', async () => {
+      const result = await store.getTypes([ids[0], 'tUnknown', ids[2]]);
+      assert.typeOf(result, 'array', 'result is an array');
+      assert.lengthOf(result, 3, 'has all results');
+      assert.ok(result[0], 'has first result');
+      assert.isUndefined(result[1], 'has no missing result');
+      assert.ok(result[2], 'has third result');
+    });
+
+    it('can query bulk with the event', async () => {
+      const result = await StoreEvents.Type.getBulk(window, ids);
+      assert.typeOf(result, 'array', 'result is an array');
+      assert.lengthOf(result, 3, 'has all results');
     });
   });
 

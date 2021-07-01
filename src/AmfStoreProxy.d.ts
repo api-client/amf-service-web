@@ -510,26 +510,27 @@ export declare class AmfStoreProxy extends EventTarget {
    * Lists the type (schema) definitions for the API.
    */
   listTypes(): Promise<ApiNodeShapeListItem[]>;
-
   /**
    * 
    * @param id The domain id of the API type (schema).
    */
   getType(id: string): Promise<ApiShapeUnion>;
-
+  /**
+   * Reads types data in a bulk operation
+   * @param ids The ids to read
+   */
+  getTypes(ids: string[]): Promise<ApiShapeUnion[]>;
   /**
    * Creates a new type in the API.
    * @param init The Shape init options.
    */
   addType(init?: ShapeInit): Promise<ApiShapeUnion>;
-
   /**
    * Removes a type for a given domain id.
    * @param id The type domain id.
    * @returns True when the type has been found and removed.
    */
   deleteType(id: string): Promise<boolean>;
-
   /**
    * Updates a scalar property of a type.
    * @param id The domain id of the type.
@@ -537,14 +538,12 @@ export declare class AmfStoreProxy extends EventTarget {
    * @param value The new value to set.
    */
   updateTypeProperty(id: string, property: string, value: any): Promise<ApiShapeUnion>;
-
   /**
    * Reads the definition of a property of a NodeShape.
    * @param id The domain id of the property.
    * @throws An error when the type couldn't be find.
    */
   getPropertyShape(id: string): Promise<ApiPropertyShape>;
-
   /**
    * Creates a new property on a type.
    * @param id The id of the type to add the property to.

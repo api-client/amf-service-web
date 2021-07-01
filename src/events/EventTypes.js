@@ -137,6 +137,7 @@ export const EventTypes = {
   Type: {
     add: 'apistoretypeadd',
     get: 'apistoretypeget',
+    getBulk: 'apistoretypegetbulk',
     update: 'apistoretypeupdate',
     delete: 'apistoretypedelete',
     list: 'apistoretypelist',

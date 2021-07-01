@@ -110,6 +110,7 @@
     "apistoreserversstatedelete",
     "apistoreserversstateupdate",
     "apistoretypeadd",
+    "apistoretypeaddbulk",
     "apistoretypeaddproperty",
     "apistoretypedelete",
     "apistoretypedeleteproperty",

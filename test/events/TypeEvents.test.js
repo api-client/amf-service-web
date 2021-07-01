@@ -91,6 +91,36 @@ describe('StoreEvents', () => {
       });
     });
 
+    describe('getBulk()', () => {
+      const ids = ['amf://id'];
+
+      it('dispatches the event', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Type.getBulk, spy);
+        StoreEvents.Type.getBulk(et, ids);
+        assert.isTrue(spy.calledOnce);
+      });
+
+      it('the event has the "id" property', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Type.getBulk, spy);
+        StoreEvents.Type.getBulk(et, ids);
+        assert.deepEqual(spy.args[0][0].detail.ids, ids);
+      });
+
+      it('waits until resolved', async () => {
+        const et = await etFixture();
+        const data = /** @type any */ ({ test: true });
+        et.addEventListener(StoreEventTypes.Type.getBulk, (e) => {
+          e.detail.result = Promise.resolve(data);
+        });
+        const result = await StoreEvents.Type.getBulk(et, ids);
+        assert.equal(result, data);
+      });
+    });
+
     describe('update()', () => {
       const id = 'amf://id';
       const prop = 'name';

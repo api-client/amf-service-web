@@ -32,6 +32,12 @@ declare interface ITypeEvents {
    */
   get(target: EventTarget, id: string): Promise<ApiShapeUnion>;
   /**
+   * Reads a list of types (schemas) in a bulk operation.
+   * @param target The node on which to dispatch the event
+   * @param ids The list of ids to read.
+   */
+  getBulk(target: EventTarget, ids: string[]): Promise<ApiShapeUnion[]>;
+  /**
    * Updates a scalar property of a type (schema).
    * @param target The node on which to dispatch the event
    * @param id The domain id of the object.
