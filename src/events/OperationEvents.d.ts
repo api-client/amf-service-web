@@ -1,4 +1,4 @@
-import { ApiEndPoint, ApiOperation, ApiRequest, ApiResponse, OperationInit, OperationRequestInit, OperationResponseInit } from '../types.js';
+import { ApiEndPoint, ApiOperation, ApiOperationRecursive, ApiRequest, ApiResponse, OperationInit, OperationRequestInit, OperationResponseInit } from '../types.js';
 import { StoreEventDetailWithResult, ApiStoreCreateEventDetail } from './BaseEvents';
 
 declare interface ApiStoreOperationFindEventDetail<T>  extends StoreEventDetailWithResult<T> {
@@ -26,7 +26,7 @@ export declare class ApiStoreOperationReadEvent extends CustomEvent<ApiStoreOper
    * @param methodOrId Method name or the domain id of the operation to find
    * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
    */
-  constructor(methodOrId: string, pathOrId?: string);
+  constructor(type: string, methodOrId: string, pathOrId?: string);
 }
 
 /**
@@ -87,6 +87,13 @@ declare interface IOperationEvents {
    * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
    */
   get(target: EventTarget, methodOrId: string, pathOrId?: string): Promise<ApiOperation>;
+  /**
+   * Reads the operation model with all sub-models.
+   * @param target The node on which to dispatch the event
+   * @param methodOrId Method name or the domain id of the operation to find
+   * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
+   */
+  getRecursive(target: EventTarget, methodOrId: string, pathOrId?: string): Promise<ApiOperationRecursive>;
   /**
    * Updates a scalar property of the operation.
    * @param target The node on which to dispatch the event

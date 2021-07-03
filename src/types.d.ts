@@ -321,7 +321,7 @@ export interface ApiEndPoint extends ApiDomainProperty {
   security: string[];
 }
 
-export interface ApiOperation extends ApiDomainProperty {
+export interface ApiOperationBase extends ApiDomainProperty {
   method: string;
   name?: string;
   description?: string;
@@ -330,13 +330,27 @@ export interface ApiOperation extends ApiDomainProperty {
   schemes?: string[];
   accepts?: string[];
   contentType?: string[];
+  operationId?: string;
+}
+
+export interface ApiOperation extends ApiOperationBase {
   documentation?: string;
   request?: string;
-  operationId?: string;
   responses: string[];
   security: string[];
   callbacks: string[];
   servers: string[];
+  customDomainProperties: string[];
+}
+
+export interface ApiOperationRecursive extends ApiOperationBase {
+  documentation?: ApiDocumentation;
+  request?: ApiRequestRecursive;
+  responses: ApiResponseRecursive[];
+  security: ApiSecurityRequirementRecursive[];
+  callbacks: ApiCallback[];
+  servers: ApiServerRecursive[];
+  // this is todo
   customDomainProperties: string[];
 }
 
@@ -346,13 +360,20 @@ export interface ApiOperationListItem {
   name?: string;
 }
 
-export interface ApiServer extends ApiDomainProperty {
+export interface ApiServerBase extends ApiDomainProperty {
   url: string;
-  variables: string[];
   description?: string;
 }
 
-export interface ApiParameter extends ApiDomainProperty {
+export interface ApiServer extends ApiServerBase {
+  variables: string[];
+}
+
+export interface ApiServerRecursive extends ApiServerBase {
+  variables: ApiParameterRecursive[];
+}
+
+export interface ApiParameterBase extends ApiDomainProperty {
   name: string;
   description?: string;
   required?: boolean;
@@ -362,9 +383,18 @@ export interface ApiParameter extends ApiDomainProperty {
   explode?: boolean;
   allowReserved?: boolean;
   binding?: string;
+}
+
+export interface ApiParameter extends ApiParameterBase {
   schema?: string;
-  payloads?: string[];
-  examples?: string[];
+  payloads: string[];
+  examples: string[];
+}
+
+export interface ApiParameterRecursive extends ApiParameterBase {
+  schema?: ApiShapeUnion;
+  payloads: ApiPayloadRecursive[];
+  examples: ApiExample[];
 }
 
 export interface ApiExample extends ApiDomainProperty {
@@ -377,55 +407,107 @@ export interface ApiExample extends ApiDomainProperty {
   mediaType?: string;
 }
 
-export interface ApiPayload extends ApiDomainProperty {
+export interface ApiPayloadBase extends ApiDomainProperty {
   name?: string;
   mediaType?: string;
+}
+
+export interface ApiPayload extends ApiPayloadBase {
   schema?: string;
   examples: string[];
   encoding: string[];
 }
 
-export interface ApiResponse extends ApiDomainProperty {
+export interface ApiPayloadRecursive extends ApiPayloadBase {
+  schema?: ApiShapeUnion;
+  examples: ApiExample[];
+  encoding: ApiEncodingRecursive[];
+}
+
+export interface ApiResponseBase extends ApiDomainProperty {
   name?: string;
   description?: string;
   statusCode?: string;
+}
+
+export interface ApiResponse extends ApiResponseBase {
   headers: string[];
   payloads: string[];
   examples: string[];
   links: string[];
 }
 
-export interface ApiTemplatedLink extends ApiDomainProperty {
+export interface ApiResponseRecursive extends ApiResponseBase {
+  headers: ApiParameterRecursive[];
+  payloads: ApiPayloadRecursive[];
+  examples: ApiExample[];
+  links: ApiTemplatedLinkRecursive[];
+}
+
+export interface ApiTemplatedLinkBase extends ApiDomainProperty {
   name?: string;
   description?: string;
   template?: string;
   operationId?: string;
-  mapping?: string;
   requestBody?: string;
+}
+
+export interface ApiTemplatedLink extends ApiTemplatedLinkBase {
+  mapping?: string;
   server?: string;
 }
 
-export interface ApiSecurityRequirement extends ApiDomainProperty {
+export interface ApiTemplatedLinkRecursive extends ApiTemplatedLinkBase {
+  mapping?: ApiIriTemplateMapping;
+  server?: ApiServerRecursive;
+}
+
+export interface ApiIriTemplateMapping extends ApiDomainProperty {
+  templateVariable?: string;
+  linkExpression?: string;
+}
+
+export interface ApiSecurityRequirementBase extends ApiDomainProperty {
   name?: string;
+}
+export interface ApiSecurityRequirement extends ApiSecurityRequirementBase {
   schemes: ApiParametrizedSecurityScheme[];
 }
-
-export interface ApiParametrizedSecurityScheme extends ApiDomainProperty {
-  name?: string;
-  scheme?: ApiSecurityScheme;
-  settings?: ApiSecuritySettingsUnion;
+export interface ApiSecurityRequirementRecursive extends ApiSecurityRequirementBase {
+  schemes: ApiParametrizedSecuritySchemeRecursive[];
 }
 
-export interface ApiSecurityScheme extends ApiDomainProperty {
+export interface ApiParametrizedSecuritySchemeBase extends ApiDomainProperty {
+  name?: string;
+  settings?: ApiSecuritySettingsUnion;
+}
+export interface ApiParametrizedSecurityScheme extends ApiParametrizedSecuritySchemeBase {
+  scheme?: ApiSecurityScheme;
+}
+export interface ApiParametrizedSecuritySchemeRecursive extends ApiParametrizedSecuritySchemeBase {
+  scheme?: ApiSecuritySchemeRecursive;
+}
+
+export interface ApiSecuritySchemeBase extends ApiDomainProperty {
   name?: string;
   type?: string;
   displayName?: string;
   description?: string;
+  settings?: ApiSecuritySettingsUnion;
+}
+
+export interface ApiSecurityScheme extends ApiSecuritySchemeBase {
   headers: string[];
   queryParameters: string[];
   responses: string[];
-  settings?: ApiSecuritySettingsUnion;
   queryString?: string;
+}
+
+export interface ApiSecuritySchemeRecursive extends ApiSecuritySchemeBase {
+  headers: ApiParameterRecursive[];
+  queryParameters: ApiParameterRecursive[];
+  responses: ApiResponseRecursive[];
+  queryString?: ApiShapeUnion;
 }
 
 export interface ApiSecuritySettings extends ApiDomainProperty {
@@ -473,15 +555,33 @@ export interface ApiSecurityScope {
   description?: string;
 }
 
-export interface ApiRequest extends ApiDomainProperty {
+export interface ApiRequestBase extends ApiDomainProperty {
   description?: string;
   required?: boolean;
+}
+
+export interface ApiRequest extends ApiRequestBase {
   queryParameters: string[];
   headers: string[];
   payloads: string[];
   queryString?: string;
   uriParameters: string[];
   cookieParameters: string[];
+}
+
+export interface ApiRequestRecursive extends ApiRequestBase {
+  queryParameters: ApiParameterRecursive[];
+  headers: ApiParameterRecursive[];
+  uriParameters: ApiParameterRecursive[];
+  cookieParameters: ApiParameterRecursive[];
+  queryString?: ApiShapeUnion;
+  payloads: ApiPayloadRecursive[];
+}
+
+export interface ApiCallback extends ApiDomainProperty {
+  name?: string;
+  expression?: string;
+  endpoint?: string;
 }
 
 /**
@@ -724,4 +824,20 @@ export interface PropertyShapeInit {
   minCount?: number;
   maxCount?: number;
   range?: ShapeInit;
+}
+
+export interface ApiEncodingBase extends ApiDomainProperty {
+  propertyName?: string;
+  contentType?: string;
+  style?: string;
+  explode?: boolean;
+  allowReserved?: boolean;
+}
+
+export interface ApiEncoding extends ApiEncodingBase {
+  headers: string[];
+}
+
+export interface ApiEncodingRecursive extends ApiEncodingBase {
+  headers: ApiParameterRecursive[];
 }

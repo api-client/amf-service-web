@@ -89,6 +89,7 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('./types').ApiSecuritySettingsUnion} ApiSecuritySettingsUnion */
 /** @typedef {import('./types').ApiPropertyShape} ApiPropertyShape */
 /** @typedef {import('./types').PropertyShapeInit} PropertyShapeInit */
+/** @typedef {import('./types').ApiOperationRecursive} ApiOperationRecursive */
 
 export class AmfService {
   /**
@@ -456,6 +457,20 @@ export class AmfService {
       throw new Error(`No operation ${methodOrId} in the graph`);
     }
     return ApiSerializer.operation(op);
+  }
+
+  /**
+   * Reads the operation model with all sub-models.
+   * @param {string} methodOrId Method name or the domain id of the operation to find
+   * @param {string=} pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
+   * @returns {Promise<ApiOperationRecursive>}
+   */
+  async getOperationRecursive(methodOrId, pathOrId) {
+    const op = this.findOperation(methodOrId, pathOrId);
+    if (!op) {
+      throw new Error(`No operation ${methodOrId} in the graph`);
+    }
+    return ApiSerializer.operationRecursive(op);
   }
 
   /**

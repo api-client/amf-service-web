@@ -133,6 +133,7 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistoreopget'],
+      ['getRecursive', 'apistoreopgetrecursive'],
       ['update', 'apistoreopupdate'],
       ['addRequest', 'apistoreopaddrequest'],
       ['removeRequest', 'apistoreopremoverequest'],

@@ -41,19 +41,42 @@ import { ns } from './Namespace.js';
 /** @typedef {import('amf-client-js').model.domain.Scope} Scope */
 /** @typedef {import('amf-client-js').model.domain.CustomDomainProperty} CustomDomainProperty */
 /** @typedef {import('amf-client-js').model.domain.DomainExtension} DomainExtension */
+/** @typedef {import('amf-client-js').model.domain.Encoding} Encoding */
+/** @typedef {import('amf-client-js').model.domain.IriTemplateMapping} IriTemplateMapping */
+/** @typedef {import('amf-client-js').model.domain.Callback} Callback */
 /** @typedef {import('./types').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
+/** @typedef {import('./types').ApiParametrizedSecuritySchemeBase} ApiParametrizedSecuritySchemeBase */
+/** @typedef {import('./types').ApiParametrizedSecuritySchemeRecursive} ApiParametrizedSecuritySchemeRecursive */
 /** @typedef {import('./types').ApiRequest} ApiRequest */
+/** @typedef {import('./types').ApiRequestBase} ApiRequestBase */
+/** @typedef {import('./types').ApiRequestRecursive} ApiRequestRecursive */
 /** @typedef {import('./types').ApiSecurityScheme} ApiSecurityScheme */
+/** @typedef {import('./types').ApiSecuritySchemeBase} ApiSecuritySchemeBase */
+/** @typedef {import('./types').ApiSecuritySchemeRecursive} ApiSecuritySchemeRecursive */
 /** @typedef {import('./types').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('./types').ApiSecurityRequirementBase} ApiSecurityRequirementBase */
+/** @typedef {import('./types').ApiSecurityRequirementRecursive} ApiSecurityRequirementRecursive */
 /** @typedef {import('./types').ApiTemplatedLink} ApiTemplatedLink */
+/** @typedef {import('./types').ApiTemplatedLinkBase} ApiTemplatedLinkBase */
+/** @typedef {import('./types').ApiTemplatedLinkRecursive} ApiTemplatedLinkRecursive */
 /** @typedef {import('./types').ApiResponse} ApiResponse */
+/** @typedef {import('./types').ApiResponseBase} ApiResponseBase */
+/** @typedef {import('./types').ApiResponseRecursive} ApiResponseRecursive */
 /** @typedef {import('./types').ApiPayload} ApiPayload */
+/** @typedef {import('./types').ApiPayloadRecursive} ApiPayloadRecursive */
+/** @typedef {import('./types').ApiPayloadBase} ApiPayloadBase */
 /** @typedef {import('./types').ApiExample} ApiExample */
+/** @typedef {import('./types').ApiParameterBase} ApiParameterBase */
 /** @typedef {import('./types').ApiParameter} ApiParameter */
+/** @typedef {import('./types').ApiParameterRecursive} ApiParameterRecursive */
 /** @typedef {import('./types').ApiOperation} ApiOperation */
+/** @typedef {import('./types').ApiOperationBase} ApiOperationBase */
+/** @typedef {import('./types').ApiOperationRecursive} ApiOperationRecursive */
 /** @typedef {import('./types').ApiEndPoint} ApiEndPoint */
 /** @typedef {import('./types').ApiEndPointListItem} ApiEndPointListItem */
 /** @typedef {import('./types').ApiServer} ApiServer */
+/** @typedef {import('./types').ApiServerBase} ApiServerBase */
+/** @typedef {import('./types').ApiServerRecursive} ApiServerRecursive */
 /** @typedef {import('./types').ApiDocumentation} ApiDocumentation */
 /** @typedef {import('./types').ApiNodeShapeListItem} ApiNodeShapeListItem */
 /** @typedef {import('./types').ApiSecuritySchemeListItem} ApiSecuritySchemeListItem */
@@ -89,6 +112,12 @@ import { ns } from './Namespace.js';
 /** @typedef {import('./types').ApiCustomDomainProperty} ApiCustomDomainProperty */
 /** @typedef {import('./types').ApiDomainExtension} ApiDomainExtension */
 /** @typedef {import('./types').ApiCustomDomainPropertyListItem} ApiCustomDomainPropertyListItem */
+/** @typedef {import('./types').ApiEncodingBase} ApiEncodingBase */
+/** @typedef {import('./types').ApiEncoding} ApiEncoding */
+/** @typedef {import('./types').ApiEncodingRecursive} ApiEncodingRecursive */
+/** @typedef {import('./types').ApiIriTemplateMapping} ApiIriTemplateMapping */
+/** @typedef {import('./types').ApiCallback} ApiCallback */
+
 
 export class ApiSerializer {
   /**
@@ -186,6 +215,19 @@ export class ApiSerializer {
   }
 
   /**
+   * @param {ParametrizedSecurityScheme} object The ParametrizedSecurityScheme to serialize.
+   * @returns {ApiParametrizedSecuritySchemeRecursive} Serialized ParametrizedSecurityScheme
+   */
+  static parametrizedSecuritySchemeRecursive(object) {
+    const { scheme } = object;
+    const result = /** @type ApiParametrizedSecuritySchemeRecursive */ (/** @type ApiParametrizedSecuritySchemeBase */ (ApiSerializer.parametrizedSecurityScheme(object)));
+    if (scheme) {
+      result.scheme = ApiSerializer.securitySchemeRecursive(scheme);
+    }
+    return result;
+  }
+
+  /**
    * @param {SecurityScheme} object The SecurityScheme to serialize.
    * @returns {ApiSecurityScheme} Serialized SecurityScheme
    */
@@ -230,6 +272,28 @@ export class ApiSerializer {
   }
 
   /**
+   * @param {SecurityScheme} object The SecurityScheme to serialize.
+   * @returns {ApiSecuritySchemeRecursive} Serialized SecurityScheme
+   */
+  static securitySchemeRecursive(object) {
+    const { headers, queryParameters, responses, queryString } = object;
+    const result = /** @type ApiSecuritySchemeRecursive */ (/** @type ApiSecuritySchemeBase */ (ApiSerializer.securityScheme(object)));
+    if (queryString) {
+      result.queryString = ApiSerializer.unknownShape(queryString);
+    }
+    if (Array.isArray(headers) && headers.length) {
+      result.headers = headers.map(p => ApiSerializer.parameterRecursive(p));
+    }
+    if (Array.isArray(queryParameters) && queryParameters.length) {
+      result.queryParameters = queryParameters.map(p => ApiSerializer.parameterRecursive(p));
+    }
+    if (Array.isArray(responses) && responses.length) {
+      result.responses = responses.map(p => ApiSerializer.responseRecursive(p));
+    }
+    return result;
+  }
+
+  /**
    * @param {SecurityRequirement} object The SecurityRequirement to serialize.
    * @returns {ApiSecurityRequirement} Serialized SecurityRequirement
    */
@@ -245,7 +309,20 @@ export class ApiSerializer {
       result.name = name.value();
     }
     if (Array.isArray(schemes) && schemes.length) {
-      result.schemes = schemes.map((p) => ApiSerializer.parametrizedSecurityScheme(p));
+      result.schemes = schemes.map(p => ApiSerializer.parametrizedSecurityScheme(p));
+    }
+    return result;
+  }
+
+  /**
+   * @param {SecurityRequirement} object The SecurityRequirement to serialize.
+   * @returns {ApiSecurityRequirementRecursive} Serialized SecurityRequirement
+   */
+  static securityRequirementRecursive(object) {
+    const { schemes } = object;
+    const result = /** @type ApiSecurityRequirementRecursive */ (/** @type ApiSecurityRequirementBase */ (ApiSerializer.securityRequirement(object)));
+    if (Array.isArray(schemes) && schemes.length) {
+      result.schemes = schemes.map(p => ApiSerializer.parametrizedSecuritySchemeRecursive(p));
     }
     return result;
   }
@@ -510,6 +587,34 @@ export class ApiSerializer {
   }
 
   /**
+   * @param {Request} object The API request to serialize.
+   * @returns {ApiRequestRecursive} Serialized API request
+   */
+  static requestRecursive(object) {
+    const { queryString, headers, queryParameters, payloads, uriParameters, cookieParameters } = object;
+    const result = /** @type ApiRequestRecursive */ (/** @type ApiRequestBase */ (ApiSerializer.request(object)));
+    if (queryString) {
+      result.queryString = ApiSerializer.unknownShape(queryString);
+    }
+    if (Array.isArray(headers) && headers.length) {
+      result.headers = headers.map(p => ApiSerializer.parameterRecursive(p));
+    }
+    if (Array.isArray(queryParameters) && queryParameters.length) {
+      result.queryParameters = queryParameters.map(p => ApiSerializer.parameterRecursive(p));
+    }
+    if (Array.isArray(payloads) && payloads.length) {
+      result.payloads = payloads.map(p => ApiSerializer.payloadRecursive(p));
+    }
+    if (Array.isArray(uriParameters) && uriParameters.length) {
+      result.uriParameters = uriParameters.map(p => ApiSerializer.parameterRecursive(p));
+    }
+    if (Array.isArray(cookieParameters) && cookieParameters.length) {
+      result.cookieParameters = cookieParameters.map(p => ApiSerializer.parameterRecursive(p));
+    }
+    return result;
+  }
+
+  /**
    * @param {TemplatedLink} object The TemplatedLink to serialize.
    * @returns {ApiTemplatedLink} Serialized TemplatedLink
    */
@@ -540,6 +645,42 @@ export class ApiSerializer {
     }
     if (mapping) {
       result.mapping = mapping.id;
+    }
+    return result;
+  }
+
+  /**
+   * @param {TemplatedLink} object The TemplatedLink to serialize.
+   * @returns {ApiTemplatedLinkRecursive} Serialized TemplatedLink
+   */
+  static templatedLinkRecursive(object) {
+    const { server, mapping } = object;
+    const result = /** @type ApiTemplatedLinkRecursive */ (/** @type ApiTemplatedLinkBase */(ApiSerializer.templatedLink(object)));
+    if (server) {
+      result.server = ApiSerializer.serverRecursive(server);
+    }
+    if (mapping) {
+      result.mapping = ApiSerializer.iriTemplateMapping(mapping);
+    }
+    return result;
+  }
+
+  /**
+   * @param {IriTemplateMapping} object 
+   * @returns {ApiIriTemplateMapping}
+   */
+  static iriTemplateMapping(object) {
+    const { id, templateVariable, linkExpression } = object;
+    const types = object.graph().types();
+    const result = /** @type ApiIriTemplateMapping */ ({
+      id,
+      types,
+    });
+    if (!templateVariable.isNullOrEmpty) {
+      result.templateVariable = templateVariable.value();
+    }
+    if (!linkExpression.isNullOrEmpty) {
+      result.linkExpression = linkExpression.value();
     }
     return result;
   }
@@ -584,6 +725,28 @@ export class ApiSerializer {
   }
 
   /**
+   * @param {Response} object The Response to serialize.
+   * @returns {ApiResponseRecursive} Serialized Response
+   */
+  static responseRecursive(object) {
+    const { headers, payloads, examples, links, } = object;
+    const result = /** @type ApiResponseRecursive */ (/** @type ApiResponseBase */ (ApiSerializer.response(object)));
+    if (Array.isArray(headers) && headers.length) {
+      result.headers = headers.map(p => ApiSerializer.parameterRecursive(p));
+    }
+    if (Array.isArray(payloads) && payloads.length) {
+      result.payloads = payloads.map(p => ApiSerializer.payloadRecursive(p));
+    }
+    if (Array.isArray(examples) && examples.length) {
+      result.examples = examples.map(p => ApiSerializer.example(p));
+    }
+    if (Array.isArray(links) && links.length) {
+      result.links = links.map(p => ApiSerializer.templatedLinkRecursive(p));
+    }
+    return result;
+  }
+
+  /**
    * @param {Payload} object The Payload to serialize.
    * @returns {ApiPayload} Serialized Payload
    */
@@ -610,6 +773,72 @@ export class ApiSerializer {
     }
     if (Array.isArray(encoding) && encoding.length) {
       result.encoding = encoding.map((p) => p.id);
+    }
+    return result;
+  }
+
+  /**
+   * @param {Payload} object The Payload to serialize.
+   * @returns {ApiPayloadRecursive} Serialized Payload
+   */
+  static payloadRecursive(object) {
+    const { examples, encoding, schema } = object;
+    const result = /** @type ApiPayloadRecursive */ (/** @type ApiPayloadBase */ (ApiSerializer.payload(object)));
+    if (schema) {
+      result.schema = ApiSerializer.unknownShape(schema);
+    }
+    if (Array.isArray(examples) && examples.length) {
+      result.examples = examples.map(p => ApiSerializer.example(p));
+    }
+    if (Array.isArray(encoding) && encoding.length) {
+      result.encoding = encoding.map(p => ApiSerializer.encodingRecursive(p));
+    }
+    return result;
+  }
+
+  /**
+   * @param {Encoding} object 
+   * @returns {ApiEncoding}
+   */
+  static encoding(object) {
+    const { id, propertyName, contentType, style, explode, allowReserved, headers } = object;
+    const types = object.graph().types();
+    const result = /** @type ApiEncoding */ ({
+      id,
+      types,
+      headers: [],
+    });
+    if (!propertyName.isNullOrEmpty) {
+      result.propertyName = propertyName.value();
+    }
+    if (!contentType.isNullOrEmpty) {
+      result.contentType = contentType.value();
+    }
+    if (!style.isNullOrEmpty) {
+      result.contentType = style.value();
+    }
+    if (!explode.isNull) {
+      result.explode = explode.value();
+    }
+    if (!allowReserved.isNull) {
+      result.allowReserved = allowReserved.value();
+    }
+    if (Array.isArray(headers) && headers.length) {
+      result.headers = headers.map(h => h.id);
+    }
+    return result;
+  }
+
+  /**
+   * @param {Encoding} object 
+   * @returns {ApiEncodingRecursive}
+   */
+  static encodingRecursive(object) {
+    const result = /** @type ApiEncodingRecursive */ (/** @type ApiEncodingBase */ (ApiSerializer.encoding(object)));
+    if (Array.isArray(object.headers) && object.headers.length) {
+      result.headers = object.headers.map(i => ApiSerializer.parameterRecursive(i));
+    } else {
+      result.headers = [];
     }
     return result;
   }
@@ -698,6 +927,29 @@ export class ApiSerializer {
     }
     return result;
   }
+
+  /**
+   * @param {Parameter} object The Parameter to serialize.
+   * @returns {ApiParameterRecursive} Serialized Parameter
+   */
+  static parameterRecursive(object) {
+    const { schema, payloads, examples } = object;
+    const result = /** @type ApiParameterRecursive */ (/** @type ApiParameterBase */ (ApiSerializer.parameter(object)));
+    if (schema) {
+      result.schema = ApiSerializer.unknownShape(schema);
+    }
+    if (Array.isArray(payloads) && payloads.length) {
+      result.payloads = payloads.map(p => ApiSerializer.payloadRecursive(p));
+    } else {
+      result.payloads = [];
+    }
+    if (Array.isArray(examples) && examples.length) {
+      result.examples = examples.map(e => ApiSerializer.example(e));
+    } else {
+      result.examples = [];
+    }
+    return result;
+  }
   
   /**
    * @param {Operation} object The Operation to serialize.
@@ -766,6 +1018,65 @@ export class ApiSerializer {
     }
     if (Array.isArray(customDomainProperties)) {
       result.customDomainProperties = customDomainProperties.map((c) => c.id);
+    }
+    return result;
+  }
+
+  /**
+   * @param {Operation} object The Operation to serialize.
+   * @returns {ApiOperationRecursive} Serialized Operation
+   */
+  static operationRecursive(object) {
+    const { callbacks, responses, servers, security, request, documentation, } = object;
+    const result = /** @type ApiOperationRecursive */ (/** @type ApiOperationBase */ (ApiSerializer.operation(object)));
+    if (request) {
+      result.request = ApiSerializer.requestRecursive(request);
+    }
+    if (documentation) {
+      result.documentation = ApiSerializer.documentation(documentation);
+    }
+    if (Array.isArray(responses)) {
+      result.responses = responses.map(r => ApiSerializer.responseRecursive(r));
+    } else {
+      result.responses = [];
+    }
+    if (Array.isArray(callbacks)) {
+      result.callbacks = callbacks.map(c => ApiSerializer.callback(c));
+    } else {
+      result.callbacks = [];
+    }
+    if (Array.isArray(servers)) {
+      result.servers = servers.map(s => ApiSerializer.serverRecursive(s));
+    } else {
+      result.servers = [];
+    }
+    if (Array.isArray(security)) {
+      result.security = security.map(s => ApiSerializer.securityRequirementRecursive(s));
+    } else {
+      result.security = [];
+    }
+    return result;
+  }
+
+  /**
+   * @param {Callback} object
+   * @returns {ApiCallback}
+   */
+  static callback(object) {
+    const types = object.graph().types();
+    const { id, name, expression, endpoint, } = object;
+    const result = /** @type ApiCallback */ ({
+      id,
+      types,
+    });
+    if (!name.isNullOrEmpty) {
+      result.name = name.value();
+    }
+    if (!expression.isNullOrEmpty) {
+      result.expression = expression.value();
+    }
+    if (endpoint) {
+      result.endpoint = endpoint.id;
     }
     return result;
   }
@@ -888,6 +1199,19 @@ export class ApiSerializer {
     }
     if (Array.isArray(variables) && variables.length) {
       result.variables = variables.map((i) => i.id);
+    }
+    return result;
+  }
+  
+  /**
+   * @param {Server} object The Server to serialize.
+   * @returns {ApiServerRecursive} Serialized Server
+   */
+  static serverRecursive(object) {
+    const { variables } = object;
+    const result = /** @type ApiServerRecursive */ (/** @type ApiServerBase */ (ApiSerializer.server(object)));
+    if (Array.isArray(variables) && variables.length) {
+      result.variables = variables.map(i => ApiSerializer.parameterRecursive(i));
     }
     return result;
   }

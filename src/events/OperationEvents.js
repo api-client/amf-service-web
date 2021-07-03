@@ -8,17 +8,19 @@ import { ApiStoreContextEvent, ApiStoreUpdateScalarEvent, ApiStoreDeleteEvent } 
 /** @typedef {import('../types').ApiRequest} ApiRequest */
 /** @typedef {import('../types').OperationResponseInit} OperationResponseInit */
 /** @typedef {import('../types').ApiResponse} ApiResponse */
+/** @typedef {import('../types').ApiOperationRecursive} ApiOperationRecursive */
 
 /**
  * An event to be used to read an operation from the store.
  */
 export class ApiStoreOperationReadEvent extends ApiStoreContextEvent {
   /**
+   * @param {string} type
    * @param {string} methodOrId Method name or the domain id of the operation to find
    * @param {string=} pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
    */
-  constructor(methodOrId, pathOrId) {
-    super(EventTypes.Operation.get, { methodOrId, pathOrId });
+  constructor(type, methodOrId, pathOrId) {
+    super(type, { methodOrId, pathOrId });
   }
 }
 
@@ -72,7 +74,20 @@ export const OperationEvents = {
    * @returns {Promise<ApiOperation>}
    */
   get: async (target, methodOrId, pathOrId) => {
-    const e = new ApiStoreOperationReadEvent(methodOrId, pathOrId);
+    const e = new ApiStoreOperationReadEvent(EventTypes.Operation.get, methodOrId, pathOrId);
+    target.dispatchEvent(e);
+    return e.detail.result;
+  },
+  /**
+   * Reads the operation model with all sub-models.
+   * 
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string} methodOrId Method name or the domain id of the operation to find
+   * @param {string=} pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
+   * @returns {Promise<ApiOperationRecursive>}
+   */
+  getRecursive: async (target, methodOrId, pathOrId) => {
+    const e = new ApiStoreOperationReadEvent(EventTypes.Operation.getRecursive, methodOrId, pathOrId);
     target.dispatchEvent(e);
     return e.detail.result;
   },

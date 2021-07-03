@@ -1,5 +1,5 @@
 import { model } from 'amf-client-js';
-import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ShapeInit, ApiShapeUnion, ParameterInit, PayloadInit, ExampleInit, ApiSecurityOAuth2Flow, ApiSecurityScope, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit, ApiSecuritySettingsUnion, ApiPropertyShape, PropertyShapeInit } from './types';
+import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ShapeInit, ApiShapeUnion, ParameterInit, PayloadInit, ExampleInit, ApiSecurityOAuth2Flow, ApiSecurityScope, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit, ApiSecuritySettingsUnion, ApiPropertyShape, PropertyShapeInit, ApiOperationRecursive } from './types';
 
 export declare const workerValue: unique symbol;
 export declare const nextIdValue: unique symbol;
@@ -153,6 +153,12 @@ export declare class AmfStoreProxy extends EventTarget {
    * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
    */
   getOperation(methodOrId: string, pathOrId?: string): Promise<ApiOperation>;
+  /**
+   * Reads the operation model with all sub-models.
+   * @param methodOrId Method name or the domain id of the operation to find
+   * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
+   */
+  getOperationRecursive(methodOrId?: string, pathOrId?: string): Promise<ApiOperationRecursive>;
 
   /**
    * Lists all operations in an endpoint.

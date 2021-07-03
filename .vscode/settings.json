@@ -53,6 +53,7 @@
     "apistoreopdelete",
     "apistoreopget",
     "apistoreopgetparent",
+    "apistoreopgetrecursive",
     "apistoreopremoverequest",
     "apistoreopremoveresponse",
     "apistoreopstatecreate",

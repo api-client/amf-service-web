@@ -46,6 +46,7 @@ declare interface EndpointEvents {
 }
 declare interface OperationEvents {
   get: string;
+  getRecursive: string;
   update: string;
   addRequest: string;
   removeRequest: string;

@@ -50,6 +50,44 @@ describe('StoreEvents', () => {
       });
     });
 
+    describe('getRecursive()', () => {
+      const id = 'amf://id';
+
+      it('dispatches the event', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Operation.getRecursive, spy);
+        StoreEvents.Operation.getRecursive(et, id);
+        assert.isTrue(spy.calledOnce);
+      });
+
+      it('has the "methodOrId" property', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Operation.getRecursive, spy);
+        StoreEvents.Operation.getRecursive(et, id);
+        assert.equal(spy.args[0][0].detail.methodOrId, id);
+      });
+
+      it('has the "pathOrId" property', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Operation.getRecursive, spy);
+        StoreEvents.Operation.getRecursive(et, id, '/test');
+        assert.equal(spy.args[0][0].detail.pathOrId, '/test');
+      });
+
+      it('waits until resolved', async () => {
+        const et = await etFixture();
+        const data = { id: 'test' };
+        et.addEventListener(StoreEventTypes.Operation.getRecursive, (e) => {
+          e.detail.result = Promise.resolve(data);
+        });
+        const result = await StoreEvents.Operation.getRecursive(et, id);
+        assert.equal(result, data);
+      });
+    });
+
     describe('update()', () => {
       const id = 'amf://id';
       const prop = 'name';

@@ -66,6 +66,7 @@ export const updateDocumentationHandler = Symbol('updateDocumentationHandler');
 export const deleteDocumentationHandler = Symbol('deleteDocumentationHandler');
 export const addOperationHandler = Symbol('addOperationHandler');
 export const readOperationHandler = Symbol('readOperationHandler');
+export const readOperationRecursiveHandler = Symbol('readOperationRecursiveHandler');
 export const updateOperationHandler = Symbol('updateOperationHandler');
 export const deleteOperationHandler = Symbol('deleteOperationHandler');
 export const readOperationParentHandler = Symbol('readOperationParentHandler');
@@ -159,6 +160,7 @@ const mxFunction = base => {
       this[deleteTypeHandler] = this[deleteTypeHandler].bind(this);
       this[addOperationHandler] = this[addOperationHandler].bind(this);
       this[readOperationHandler] = this[readOperationHandler].bind(this);
+      this[readOperationRecursiveHandler] = this[readOperationRecursiveHandler].bind(this);
       this[updateOperationHandler] = this[updateOperationHandler].bind(this);
       this[deleteOperationHandler] = this[deleteOperationHandler].bind(this);
       this[readOperationParentHandler] = this[readOperationParentHandler].bind(this);
@@ -239,6 +241,7 @@ const mxFunction = base => {
       node.addEventListener(EventTypes.Endpoint.removeOperation, this[deleteOperationHandler]);
       // Operation related events
       node.addEventListener(EventTypes.Operation.get, this[readOperationHandler]);
+      node.addEventListener(EventTypes.Operation.getRecursive, this[readOperationRecursiveHandler]);
       node.addEventListener(EventTypes.Operation.update, this[updateOperationHandler]);
       node.addEventListener(EventTypes.Operation.addRequest, this[addRequestHandler]);
       node.addEventListener(EventTypes.Operation.removeRequest, this[removeRequestHandler]);
@@ -342,6 +345,7 @@ const mxFunction = base => {
       node.removeEventListener(EventTypes.Endpoint.removeOperation, this[deleteOperationHandler]);
       // Operation related events
       node.removeEventListener(EventTypes.Operation.get, this[readOperationHandler]);
+      node.removeEventListener(EventTypes.Operation.getRecursive, this[readOperationRecursiveHandler]);
       node.removeEventListener(EventTypes.Operation.update, this[updateOperationHandler]);
       node.removeEventListener(EventTypes.Operation.addRequest, this[addRequestHandler]);
       node.removeEventListener(EventTypes.Operation.removeRequest, this[removeRequestHandler]);
@@ -871,6 +875,18 @@ const mxFunction = base => {
       e.preventDefault();
       const { methodOrId, pathOrId } = e.detail;
       e.detail.result = this.getOperation(methodOrId, pathOrId);
+    }
+
+    /**
+     * @param {ApiStoreOperationReadEvent} e 
+     */
+    [readOperationRecursiveHandler](e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      const { methodOrId, pathOrId } = e.detail;
+      e.detail.result = this.getOperationRecursive(methodOrId, pathOrId);
     }
 
     /**

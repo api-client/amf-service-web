@@ -1,5 +1,5 @@
 import { model } from 'amf-client-js';
-import { ApiAnyShape, ApiArrayNode, ApiArrayShape, ApiCustomDomainProperty, ApiCustomDomainPropertyListItem, ApiDataArrangeShape, ApiDataNode, ApiDocumentation, ApiDomainExtension, ApiEndPoint, ApiEndPointListItem, ApiEndPointWithOperationsListItem, ApiExample, ApiFileShape, ApiNodeShape, ApiNodeShapeListItem, ApiObjectNode, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiPropertyShape, ApiRequest, ApiResponse, ApiScalarNode, ApiScalarShape, ApiSchemaShape, ApiSecurityApiKeySettings, ApiSecurityHttpSettings, ApiSecurityOAuth1Settings, ApiSecurityOAuth2Flow, ApiSecurityOAuth2Settings, ApiSecurityOpenIdConnectSettings, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiSecurityScope, ApiSecuritySettings, ApiSecuritySettingsUnion, ApiServer, ApiShape, ApiShapeUnion, ApiTemplatedLink, ApiTupleShape, ApiUnionShape, ApiXMLSerializer, SerializedApi } from "./types";
+import { ApiAnyShape, ApiArrayNode, ApiArrayShape, ApiCallback, ApiCustomDomainProperty, ApiCustomDomainPropertyListItem, ApiDataArrangeShape, ApiDataNode, ApiDocumentation, ApiDomainExtension, ApiEncoding, ApiEncodingRecursive, ApiEndPoint, ApiEndPointListItem, ApiEndPointWithOperationsListItem, ApiExample, ApiFileShape, ApiIriTemplateMapping, ApiNodeShape, ApiNodeShapeListItem, ApiObjectNode, ApiOperation, ApiOperationListItem, ApiOperationRecursive, ApiParameter, ApiParameterRecursive, ApiParametrizedSecurityScheme, ApiParametrizedSecuritySchemeRecursive, ApiPayload, ApiPayloadRecursive, ApiPropertyShape, ApiRequest, ApiRequestRecursive, ApiResponse, ApiResponseRecursive, ApiScalarNode, ApiScalarShape, ApiSchemaShape, ApiSecurityApiKeySettings, ApiSecurityHttpSettings, ApiSecurityOAuth1Settings, ApiSecurityOAuth2Flow, ApiSecurityOAuth2Settings, ApiSecurityOpenIdConnectSettings, ApiSecurityRequirement, ApiSecurityRequirementRecursive, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiSecuritySchemeRecursive, ApiSecurityScope, ApiSecuritySettings, ApiSecuritySettingsUnion, ApiServer, ApiServerRecursive, ApiShape, ApiShapeUnion, ApiTemplatedLink, ApiTemplatedLinkRecursive, ApiTupleShape, ApiUnionShape, ApiXMLSerializer, SerializedApi } from "./types";
 
 export declare class ApiSerializer {
   /**
@@ -18,13 +18,30 @@ export declare class ApiSerializer {
    * @param object The ParametrizedSecurityScheme to serialize.
    * @returns Serialized ParametrizedSecurityScheme
    */
+  static parametrizedSecuritySchemeRecursive(object: model.domain.ParametrizedSecurityScheme): ApiParametrizedSecuritySchemeRecursive;
+
+  /**
+   * @param object The ParametrizedSecurityScheme to serialize.
+   * @returns Serialized ParametrizedSecurityScheme
+   */
   static securityScheme(object: model.domain.SecurityScheme): ApiSecurityScheme;
+  /**
+   * @param object The ParametrizedSecurityScheme to serialize.
+   * @returns Serialized ParametrizedSecurityScheme
+   */
+  static securitySchemeRecursive(object: model.domain.SecurityScheme): ApiSecuritySchemeRecursive;
 
   /**
    * @param object The SecurityRequirement to serialize.
    * @returns Serialized SecurityRequirement
    */
   static securityRequirement(object: model.domain.SecurityRequirement): ApiSecurityRequirement;
+
+  /**
+   * @param object The SecurityRequirement to serialize.
+   * @returns Serialized SecurityRequirement
+   */
+  static securityRequirementRecursive(object: model.domain.SecurityRequirement): ApiSecurityRequirementRecursive;
 
   /**
    * @param object The SecurityScheme to serialize as a list item.
@@ -57,10 +74,22 @@ export declare class ApiSerializer {
   static request(object: model.domain.Request): ApiRequest;
 
   /**
+   * @param object The ParametrizedSecurityScheme to serialize.
+   * @returns Serialized ParametrizedSecurityScheme
+   */
+  static requestRecursive(object: model.domain.Request): ApiRequestRecursive;
+
+  /**
    * @param object The TemplatedLink to serialize.
    * @returns Serialized TemplatedLink
    */
   static templatedLink(object: model.domain.TemplatedLink): ApiTemplatedLink;
+  /**
+   * @param object The TemplatedLink to serialize.
+   * @returns Serialized TemplatedLink
+   */
+  static templatedLinkRecursive(object: model.domain.TemplatedLink): ApiTemplatedLinkRecursive;
+  static iriTemplateMapping(object: model.domain.IriTemplateMapping): ApiIriTemplateMapping;
 
   /**
    * @param object The Response to serialize.
@@ -69,11 +98,23 @@ export declare class ApiSerializer {
   static response(object: model.domain.Response): ApiResponse;
 
   /**
+   * @param object The Response to serialize.
+   * @returns Serialized Response
+   */
+  static responseRecursive(object: model.domain.Response): ApiResponseRecursive;
+
+  /**
    * @param object The Payload to serialize.
    * @returns Serialized Payload
    */
   static payload(object: model.domain.Payload): ApiPayload;
-
+  /**
+   * @param object The Payload to serialize.
+   * @returns Serialized Payload
+   */
+  static payloadRecursive(object: model.domain.Payload): ApiPayloadRecursive;
+  static encoding(object: model.domain.Encoding): ApiEncoding;
+  static encodingRecursive(object: model.domain.Encoding): ApiEncodingRecursive;
   /**
    * @param object The Example to serialize.
    * @returns Serialized Example
@@ -85,13 +126,23 @@ export declare class ApiSerializer {
    * @returns Serialized Parameter
    */
   static parameter(object: model.domain.Parameter): ApiParameter;
+  /**
+   * @param object The Parameter to serialize.
+   * @returns Serialized Parameter
+   */
+  static parameterRecursive(object: model.domain.Parameter): ApiParameterRecursive;
   
   /**
    * @param object The Operation to serialize.
    * @returns Serialized Operation
    */
   static operation(object: model.domain.Operation): ApiOperation;
-  
+  /**
+   * @param object The Operation to serialize.
+   * @returns Serialized Operation
+   */
+  static operationRecursive(object: model.domain.Operation): ApiOperationRecursive;
+  static callback(object: model.domain.Callback): ApiCallback;
   /**
    * @param object The EndPoint to serialize.
    * @returns Serialized EndPoint
@@ -121,6 +172,11 @@ export declare class ApiSerializer {
    * @returns Serialized Server
    */
   static server(object: model.domain.Server): ApiServer;
+  /**
+   * @param object The Server to serialize.
+   * @returns Serialized Server
+   */
+  static serverRecursive(object: model.domain.Server): ApiServerRecursive;
   
   /**
    * @param object The CreativeWork to serialize.

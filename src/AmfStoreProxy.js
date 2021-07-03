@@ -57,6 +57,7 @@
 /** @typedef {import('./types').ApiSecuritySettingsUnion} ApiSecuritySettingsUnion */
 /** @typedef {import('./types').ApiPropertyShape} ApiPropertyShape */
 /** @typedef {import('./types').PropertyShapeInit} PropertyShapeInit */
+/** @typedef {import('./types').ApiOperationRecursive} ApiOperationRecursive */
 
 export const workerValue = Symbol("workerValue");
 export const nextIdValue = Symbol("nextIdValue");
@@ -272,6 +273,16 @@ export class AmfStoreProxy {
    */
   async getOperation(methodOrId, pathOrId) {
     return this[sendMessage]('getOperation', methodOrId, pathOrId);
+  }
+
+  /**
+   * Reads the operation model with all sub-models.
+   * @param {string} methodOrId Method name or the domain id of the operation to find
+   * @param {string=} pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
+   * @returns {Promise<ApiOperationRecursive>}
+   */
+  async getOperationRecursive(methodOrId, pathOrId) {
+    return this[sendMessage]('getOperationRecursive', methodOrId, pathOrId);
   }
 
   /**

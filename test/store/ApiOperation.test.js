@@ -107,6 +107,112 @@ describe('AmfStoreService', () => {
     });
   });
 
+  describe('getOperationRecursive()', () => {
+    let id = /** @type string */ (null);
+    const path = '/test';
+
+    beforeEach(async () => {
+      await store.createWebApi();
+      const ep = await store.addEndpoint({ path });
+      const op = await store.addOperation(ep.id, { 
+        method: 'post',
+        accepts: ['application/json'],
+        contentType: ['application/xml'],
+        deprecated: true,
+        description: 'test op description',
+        name: 'test name',
+        schemes: ['HTTPS'],
+        summary: 'op summary',
+      });
+      const request = await store.addRequest(op.id, {
+        description: 'test request',
+        headers: ['h1', 'h2'],
+        queryParameters: ['q1', 'q2'],
+        cookieParameters: ['c1', 'c2'],
+        payloads: ['application/json'],
+      });
+      await store.addPayloadExample(request.payloads[0], {
+        name: 'payload example',
+        description: 'test request payload',
+        value: 'test'
+      });
+      const response = await store.addResponse(op.id, {
+        name: 'success',
+        headers: ['h1', 'h2'],
+        statusCode: '200',
+        payloads: ['application/json'],
+      });
+      await store.addPayloadExample(response.payloads[0], {
+        name: 'payload example 2',
+        description: 'test response payload',
+        value: 'test'
+      });
+      id = op.id;
+    });
+
+    it('returns an object', async () => {
+      const result = await store.getOperationRecursive(id);
+      assert.typeOf(result, 'object');
+    });
+
+    it('has the responses recursive', async () => {
+      const result = await store.getOperationRecursive(id);
+      const { responses } = result;
+      assert.typeOf(responses, 'array', 'responses is an array');
+      assert.lengthOf(responses, 1, 'has single response');
+      const [response] = responses;
+      assert.typeOf(response, 'object', 'response is an object');
+      const { headers, payloads, name } = response;
+      assert.equal(name, 'success', 'has the response definition');
+      assert.typeOf(headers, 'array', 'headers is an array');
+      assert.lengthOf(headers, 2, 'has all headers');
+      const [header] = headers;
+      assert.typeOf(header, 'object', 'header is an object');
+      assert.typeOf(payloads, 'array', 'payloads is an array');
+      assert.lengthOf(payloads, 1, 'has payloads header');
+      const [payload] = payloads;
+      assert.typeOf(payload, 'object', 'payload is an object');
+      const [pEx] = payload.examples;
+      assert.typeOf(pEx, 'object', 'payload has an example');
+    });
+
+    it('has the request recursive', async () => {
+      const result = await store.getOperationRecursive(id);
+      const { request } = result;
+      assert.typeOf(request, 'object', 'request is an object');
+      const { headers, payloads, queryParameters, cookieParameters,  } = request;
+      
+      assert.typeOf(headers, 'array', 'headers is an array');
+      assert.lengthOf(headers, 2, 'has all headers');
+      const [header] = headers;
+      assert.typeOf(header, 'object', 'header is an object');
+      
+      assert.typeOf(payloads, 'array', 'payloads is an array');
+      assert.lengthOf(payloads, 1, 'has payloads header');
+      const [payload] = payloads;
+      assert.typeOf(payload, 'object', 'payload is an object');
+
+      const [pEx] = payload.examples;
+      assert.typeOf(pEx, 'object', 'payload has an example');
+
+      assert.typeOf(queryParameters, 'array', 'queryParameters is an array');
+      assert.lengthOf(queryParameters, 2, 'has all queryParameters');
+      const [qp] = queryParameters;
+      assert.typeOf(qp, 'object', 'query parameter is an object');
+
+      assert.typeOf(cookieParameters, 'array', 'cookieParameters is an array');
+      assert.lengthOf(cookieParameters, 2, 'has all cookieParameters');
+      const [cp] = cookieParameters;
+      assert.typeOf(cp, 'object', 'cookie parameter is an object');
+    });
+
+    it('can be read via the event', async () => {
+      const result = await StoreEvents.Operation.getRecursive(window, id);
+      const { request } = result;
+      assert.typeOf(request, 'object', 'has the recursive values')
+    });
+  });
+
   describe('getOperationParent()', () => {
     let id = /** @type string */ (null);
     let epId = /** @type string */ (null);
