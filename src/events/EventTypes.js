@@ -44,7 +44,9 @@ export const EventTypes = {
   },
   Parameter: {
     get: 'apistoreparamget',
+    getRecursive: 'apistoreparamgetrecursive',
     getBulk: 'apistoreparamgetbulk',
+    getBulkRecursive: 'apistoreparamgetbulkrecursive',
     update: 'apistoreparamupdate',
     addExample: 'apistoreparamupdateaddexample',
     removeExample: 'apistoreparamupdateremoveexample',

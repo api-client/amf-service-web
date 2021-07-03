@@ -1146,7 +1146,7 @@ describe('AmfStoreService', () => {
 
     it('creates the property from the event', async () => {
       const created = await StoreEvents.Type.addProperty(window, typeId, { ...initBase });
-      const stored = await store.getPropertyShape(created.id);
+      const stored = await StoreEvents.Type.getProperty(window, created.id);
       assert.deepEqual(stored, created);
     });
 

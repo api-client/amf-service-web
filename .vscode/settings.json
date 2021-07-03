@@ -62,6 +62,8 @@
     "apistoreopupdate",
     "apistoreparamget",
     "apistoreparamgetbulk",
+    "apistoreparamgetbulkrecursive",
+    "apistoreparamgetrecursive",
     "apistoreparamstatecreate",
     "apistoreparamstatedelete",
     "apistoreparamstateupdate",

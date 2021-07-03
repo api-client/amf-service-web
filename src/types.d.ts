@@ -30,6 +30,7 @@ export interface WorkerResponse {
    * Error message.
    */
   message?: string;
+  stack?: string;
 }
 
 export declare interface AmfWorkerStoreInit {

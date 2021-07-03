@@ -208,6 +208,12 @@ describe('AmfStoreService', () => {
       assert.lengthOf(result.parameters, 1, 'has the parameters');
       assert.lengthOf(result.operations, 3, 'has the operations');
     });
+
+    it('reads endpoint from the event', async () => {
+      const result = await StoreEvents.Endpoint.get(demoEt, '/people/{personId}');
+      assert.typeOf(result, 'object');
+      assert.equal(result.path, '/people/{personId}');
+    });
   });
 
   describe('updateEndpointProperty()', () => {
@@ -239,6 +245,12 @@ describe('AmfStoreService', () => {
 
     it('updates the path', async () => {
       await store.updateEndpointProperty(id, 'path', '/updated-path');
+      const endpoint = await store.getEndpoint(id);
+      assert.equal(endpoint.path, '/updated-path');
+    });
+
+    it('updates the endpoint via the event', async () => {
+      await StoreEvents.Endpoint.update(demoEt, id, 'path', '/updated-path')
       const endpoint = await store.getEndpoint(id);
       assert.equal(endpoint.path, '/updated-path');
     });
@@ -319,6 +331,33 @@ describe('AmfStoreService', () => {
       const result = await StoreEvents.Endpoint.addOperation(demoEt, id, { method: 'get' });
       const stored = await store.getOperation(result.id);
       assert.deepEqual(stored, result);
+    });
+  });
+
+  describe('listOperations()', () => {
+    let id = /** @type string */ (null);
+    const path = '/test';
+
+    beforeEach(async () => {
+      await store.createWebApi();
+      const ep = await store.addEndpoint({ path });
+      id = ep.id;
+      await store.addOperation(id, { method: 'get' });
+      await store.addOperation(id, { method: 'post' });
+    });
+
+    it('adds the operation', async () => {
+      const operations = await store.listOperations(id);
+      assert.typeOf(operations, 'array', 'returns endpoint operations');
+      assert.lengthOf(operations, 2, 'has all operations');
+      assert.equal(operations[0].method, 'get', 'has the operation');
+    });
+
+    it('lists operations via the event', async () => {
+      const operations = await StoreEvents.Endpoint.listOperations(demoEt, id);
+      assert.typeOf(operations, 'array', 'returns endpoint operations');
+      assert.lengthOf(operations, 2, 'has all operations');
+      assert.equal(operations[0].method, 'get', 'has the operation');
     });
   });
 

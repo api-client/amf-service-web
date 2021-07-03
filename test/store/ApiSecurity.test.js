@@ -10,9 +10,10 @@ describe('AmfStoreService', () => {
   describe('Reading data', () => {
     let demoStore = /** @type AmfStoreService */ (null);
     let oasStore = /** @type AmfStoreService */ (null);
+    const demoEt = document.createElement('span');
 
     before(async () => {
-      demoStore = new AmfStoreService();
+      demoStore = new AmfStoreService(demoEt);
       oasStore = new AmfStoreService();
       await demoStore.init();
       await oasStore.init();
@@ -80,6 +81,13 @@ describe('AmfStoreService', () => {
         assert.typeOf(schema.flows, 'array', 'has the flows property');
         assert.typeOf(schema.authorizationGrants, 'array', 'has the authorizationGrants property');
       });
+
+      it('reads the security via the event', async () => {
+        const id = await getSecuritySchemeId('oauth_2_0');
+        const result = await StoreEvents.Security.get(demoEt, id);
+        assert.equal(result.name, 'oauth_2_0', 'has the name property');
+        assert.equal(result.type, 'OAuth 2.0', 'has the type property');
+      });
     });
 
     describe('getSecurityRequirement()', () => {
@@ -87,6 +95,17 @@ describe('AmfStoreService', () => {
         const op = await demoStore.getOperation('post', '/messages');
         const [id] = op.security;
         const result = await demoStore.getSecurityRequirement(id);
+        assert.typeOf(result.schemes, 'array', 'has the schemes property');
+        assert.lengthOf(result.schemes, 1, 'has a single scheme');
+        const [scheme] = result.schemes;
+        // if this fails just check what is the name of the generated security for this operation.
+        assert.equal(scheme.name, 'basic', 'has the scheme details');
+      });
+
+      it('reads the security requirement via the event', async () => {
+        const op = await demoStore.getOperation('post', '/messages');
+        const [id] = op.security;
+        const result = await StoreEvents.Security.getRequirement(demoEt, id);
         assert.typeOf(result.schemes, 'array', 'has the schemes property');
         assert.lengthOf(result.schemes, 1, 'has a single scheme');
         const [scheme] = result.schemes;

@@ -11,7 +11,7 @@ describe('AmfStoreService', () => {
   /**
    * @return {Promise<HTMLDivElement>}
    */
-   async function etFixture() {
+  async function etFixture() {
     return fixture(html`<div></div>`);
   }
 
@@ -118,9 +118,12 @@ describe('AmfStoreService', () => {
 
   describe('init()', () => {
     let store = /** @type AmfStoreService */ (null);
+    /** @type EventTarget */
+    let et;
 
-    before(() => {
-      store = new AmfStoreService();
+    before(async () => {
+      et = await etFixture();
+      store = new AmfStoreService(et);
     });
 
     after(() => {
@@ -128,15 +131,26 @@ describe('AmfStoreService', () => {
     });
 
     it('initializes the store', async () => {
-      await store.init();
+      const result = store.init();
+      assert.typeOf(result, 'promise');
+      await result;
+    });
+
+    it('initializes the store with the event', async () => {
+      const result = StoreEvents.Store.init(et);
+      assert.typeOf(result, 'promise');
+      await result;
     });
   });
 
   describe('loadGraph()', () => {
     let store = /** @type AmfStoreService */ (null);
+    /** @type EventTarget */
+    let et;
 
     before(async () => {
-      store = new AmfStoreService();
+      et = await etFixture();
+      store = new AmfStoreService(et);
       await store.init();
     });
 
@@ -158,13 +172,23 @@ describe('AmfStoreService', () => {
       const model = await AmfLoader.loadApi('streetlights.json');
       await store.loadGraph(model);
     });
+
+    it('initializes the store via the event', async () => {
+      const model = await AmfLoader.loadApi('streetlights.json');
+      const result = StoreEvents.Store.loadGraph(et, model);
+      assert.typeOf(result, 'promise');
+      await result;
+    });
   });
 
   describe('createWebApi()', () => {
     let store = /** @type AmfStoreService */ (null);
+    /** @type EventTarget */
+    let et;
 
     before(async () => {
-      store = new AmfStoreService();
+      et = await etFixture();
+      store = new AmfStoreService(et);
       await store.init();
     });
 
@@ -247,6 +271,14 @@ describe('AmfStoreService', () => {
       const api = await store.getApi();
       assert.deepEqual(api.contentType, ['application/amf-test']);
     });
+
+    it('creates the web api via the event', async () => {
+      await StoreEvents.Api.createWebApi(et, {
+        name: 'test-api'
+      });
+      const api = await store.getApi();
+      assert.equal(api.name, 'test-api');
+    });
   });
 
   describe('getApi()', () => {
@@ -254,15 +286,19 @@ describe('AmfStoreService', () => {
     let oasStore = /** @type AmfStoreService */ (null);
     let demoApi;
     let oasApi;
+    /** @type EventTarget */
+    let et;
 
     before(async () => {
+      et = await etFixture();
       demoApi = await AmfLoader.loadApi();
-      demoStore = new AmfStoreService();
+      demoStore = new AmfStoreService(et);
       await demoStore.init();
       await demoStore.loadGraph(demoApi);
 
       oasApi = await AmfLoader.loadApi('oas-3-api.json');
-      oasStore = new AmfStoreService();
+      // this has intentionally different event target set so only one store listens on `et`
+      oasStore = new AmfStoreService(document.body);
       await oasStore.init();
       await oasStore.loadGraph(oasApi);
     });
@@ -353,6 +389,11 @@ describe('AmfStoreService', () => {
       const api = await oasStore.getApi();
       assert.typeOf(api.license, 'string', 'has the property');
       assert.include(api.license, 'amf://id', 'has the value');
+    });
+
+    it('reads the API via the event', async () => {
+      const api = await StoreEvents.Api.get(et);
+      assert.equal(api.name, 'API body demo');
     });
   });
 

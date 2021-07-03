@@ -58,6 +58,7 @@
 /** @typedef {import('./types').ApiPropertyShape} ApiPropertyShape */
 /** @typedef {import('./types').PropertyShapeInit} PropertyShapeInit */
 /** @typedef {import('./types').ApiOperationRecursive} ApiOperationRecursive */
+/** @typedef {import('./types').ApiParameterRecursive} ApiParameterRecursive */
 
 export const workerValue = Symbol("workerValue");
 export const nextIdValue = Symbol("nextIdValue");
@@ -685,12 +686,30 @@ export class AmfStoreProxy {
   }
 
   /**
+   * Reads the info about a parameter and returns the full schema.
+   * @param {string} id The domain id of the parameter
+   * @returns {Promise<ApiParameterRecursive>}
+   */
+  async getParameterRecursive(id) {
+    return this[sendMessage]('getParameterRecursive', id);
+  }
+
+  /**
    * Reads the list of Parameters in a single call.
    * @param {string[]} ids
    * @returns {Promise<ApiParameter[]>}
    */
   async getParameters(ids) {
     return this[sendMessage]('getParameters', ids);
+  }
+
+  /**
+   * Reads the list of Parameters in a single call and returns the full schema.
+   * @param {string[]} ids
+   * @returns {Promise<ApiParameterRecursive[]>}
+   */
+  async getParametersRecursive(ids) {
+    return this[sendMessage]('getParametersRecursive', ids);
   }
 
   /**
@@ -964,7 +983,7 @@ export class AmfStoreProxy {
    * @param {WorkerResponse} data
    */
   [processResponse](data) {
-    const { id, result, error, message } = data;
+    const { id, result, error, message, stack } = data;
     if (!this[queueValue].has(id)) {
       // eslint-disable-next-line no-console
       console.warn(`WorkerProxy: no promise for ${id}`);
@@ -973,7 +992,11 @@ export class AmfStoreProxy {
     const promise = this[queueValue].get(id);
     this[queueValue].delete(id);
     if (error) {
-      promise.rejecter(new Error(message));
+      const e = new Error(message);
+      if (stack) {
+        e.stack = stack;
+      }
+      promise.rejecter(e);
     } else {
       promise.resolver(result);
     }

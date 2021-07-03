@@ -81,6 +81,7 @@ class AmfWorker {
     } catch (e) {
       response.error = true;
       response.message = e.message;
+      response.stack = e.stack;
       
       // eslint-disable-next-line no-console
       console.error(e);

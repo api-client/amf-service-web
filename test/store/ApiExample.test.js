@@ -70,6 +70,11 @@ describe('AmfStoreService', () => {
         const example = await store.getExample(id);
         assert.isTrue(example.strict);
       });
+
+      it('reads the example via the event', async () => {
+        const example = await StoreEvents.Example.get(window, id);
+        assert.equal(example.name, init.name);
+      });
     });
 
     describe('getExamples()', () => {

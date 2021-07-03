@@ -30,6 +30,45 @@ describe('AmfStoreService', () => {
         const [type] = param.types;
         assert.equal(type, ns.aml.vocabularies.apiContract.Parameter);
       });
+
+      it('reads the parameter via the event', async () => {
+        const param = await StoreEvents.Parameter.get(window, id);
+        assert.typeOf(param, 'object', 'is the object');
+        const [type] = param.types;
+        assert.equal(type, ns.aml.vocabularies.apiContract.Parameter);
+      });
+    });
+
+    describe('getParameterRecursive()', () => {
+      let id = /** @type string */ (null);
+
+      beforeEach(async () => {
+        await store.createWebApi();
+        const ep = await store.addEndpoint({ path: '/test' });
+        const op = await store.addOperation(ep.id, { method: 'get' });
+        const request = await store.addRequest(op.id, { queryParameters: ['test'] });
+        [id] = request.queryParameters;
+        await store.addParameterExample(id, {
+          name: 'an example',
+          value: 'test example',
+        });
+      });
+
+      it('reads a parameter from the store', async () => {
+        const param = await store.getParameterRecursive(id);
+        assert.typeOf(param, 'object', 'is the object');
+        const [example] = param.examples;
+        assert.typeOf(example, 'object', 'example is an object');
+        assert.equal(example.value, 'test example', 'has example properties');
+      });
+
+      it('reads a parameter via the event', async () => {
+        const param = await StoreEvents.Parameter.getRecursive(window, id);
+        assert.typeOf(param, 'object', 'is the object');
+        const [example] = param.examples;
+        assert.typeOf(example, 'object', 'example is an object');
+        assert.equal(example.value, 'test example', 'has example properties');
+      });
     });
 
     describe('getParameters()', () => {
@@ -64,6 +103,49 @@ describe('AmfStoreService', () => {
         const result = await StoreEvents.Parameter.getBulk(window, ids);
         assert.typeOf(result, 'array', 'result is an array');
         assert.lengthOf(result, 3, 'has all results');
+      });
+    });
+
+    describe('getParametersRecursive()', () => {
+      let ids = /** @type string[] */ (null);
+
+      beforeEach(async () => {
+        await store.createWebApi();
+        const ep = await store.addEndpoint({ path: '/test' });
+        const op = await store.addOperation(ep.id, { method: 'get' });
+        const request = await store.addRequest(op.id, { queryParameters: ['t1', 't2', 't3'] });
+        ids = request.queryParameters;
+        await store.addParameterExample(ids[0], {
+          name: 'an example',
+          value: 'test example',
+        });
+      });
+
+      it('reads all parameters from the store recursive', async () => {
+        const result = await store.getParametersRecursive(ids);
+        assert.typeOf(result, 'array', 'result is an array');
+        assert.lengthOf(result, 3, 'has all results');
+        const [example] = result[0].examples;
+        assert.typeOf(example, 'object', 'example is an object');
+        assert.equal(example.value, 'test example', 'has example properties');
+      });
+
+      it('inserts undefined when no parameter', async () => {
+        const result = await store.getParametersRecursive([ids[0], 'tUnknown', ids[2]]);
+        assert.typeOf(result, 'array', 'result is an array');
+        assert.lengthOf(result, 3, 'has all results');
+        assert.ok(result[0], 'has first result');
+        assert.isUndefined(result[1], 'has no missing result');
+        assert.ok(result[2], 'has third result');
+      });
+
+      it('can query bulk with the event', async () => {
+        const result = await StoreEvents.Parameter.getBulkRecursive(window, ids);
+        assert.typeOf(result, 'array', 'result is an array');
+        assert.lengthOf(result, 3, 'has all results');
+        const [example] = result[0].examples;
+        assert.typeOf(example, 'object', 'example is an object');
+        assert.equal(example.value, 'test example', 'has example properties');
       });
     });
 

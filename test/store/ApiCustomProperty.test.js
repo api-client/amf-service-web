@@ -72,6 +72,13 @@ describe('AmfStoreService', () => {
       assert.typeOf(detail.domainType, 'string', 'has the domainType');
       assert.typeOf(detail.item, 'object', 'has the item');
     });
+
+    it('adds the property via the event', async () => {
+      const result = await StoreEvents.CustomProperty.add(window, {
+        name: 'test name'
+      });
+      assert.equal(result.name, 'test name');
+    });
   });
 
   describe('getCustomDomainProperty()', () => {
@@ -98,6 +105,15 @@ describe('AmfStoreService', () => {
       }
       assert.equal(msg, 'No CustomDomainProperty for none');
     });
+
+    it('reads via the event', async () => {
+      const list  = await store.listCustomDomainProperties();
+      const result = await StoreEvents.CustomProperty.get(window, list[3].id);
+      assert.equal(result.name, 'unusedInTheApi', 'has the name');
+      assert.typeOf(result.schema, 'object', 'has the schema');
+      assert.typeOf(result.schema.id, 'string', 'schema is an object');
+      assert.include(result.types, ns.aml.vocabularies.document.DomainProperty, 'has the types');
+    });
   });
 
   describe('deleteCustomDomainProperty()', () => {
@@ -121,6 +137,13 @@ describe('AmfStoreService', () => {
       const { detail } = e;
       assert.equal(detail.graphId, id, 'has the graphId');
       assert.equal(detail.domainType, ns.aml.vocabularies.document.DomainProperty, 'has the graphType');
+    });
+
+    it('deletes the property via the event', async () => {
+      const listBefore  = await store.listCustomDomainProperties();
+      await StoreEvents.CustomProperty.delete(window, listBefore[0].id);
+      const listAfter  = await store.listCustomDomainProperties();
+      assert.notStrictEqual(listBefore.length, listAfter.length);
     });
   });
 
@@ -153,6 +176,14 @@ describe('AmfStoreService', () => {
       const updated  = await store.getCustomDomainProperty(id);
       assert.equal(updated.description, 'updated description');
     });
+
+    it('updates the property via the event', async () => {
+      const list  = await store.listCustomDomainProperties();
+      const { id } = list[0];
+      await StoreEvents.CustomProperty.update(window, id, 'description', 'updated description');
+      const updated  = await store.getCustomDomainProperty(id);
+      assert.equal(updated.description, 'updated description');
+    });
   });
 
   describe('getDomainExtension()', () => {
@@ -165,6 +196,18 @@ describe('AmfStoreService', () => {
       const op  = await store.getOperation('get', '/test-parameters/{feature}');
       const [id] = op.customDomainProperties;
       const result = await store.getDomainExtension(id);
+      assert.typeOf(result.name, 'string', 'has the name');
+      assert.typeOf(result.definedBy, 'object', 'has the definedBy');
+      assert.typeOf(result.definedBy.id, 'string', 'definedBy is an object');
+      assert.typeOf(result.extension, 'object', 'has the extension');
+      assert.typeOf(result.extension.id, 'string', 'extension is an object');
+      assert.include(result.types, ns.aml.vocabularies.apiContract.DomainExtension, 'has the types');
+    });
+
+    it('reads the extension data via the event', async () => {
+      const op  = await store.getOperation('get', '/test-parameters/{feature}');
+      const [id] = op.customDomainProperties;
+      const result = await StoreEvents.CustomProperty.getExtension(window, id);
       assert.typeOf(result.name, 'string', 'has the name');
       assert.typeOf(result.definedBy, 'object', 'has the definedBy');
       assert.typeOf(result.definedBy.id, 'string', 'definedBy is an object');

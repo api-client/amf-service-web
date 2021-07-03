@@ -13,7 +13,8 @@ describe('AmfStoreService', () => {
   before(async () => {
     demoStore = new AmfStoreService(demoEt);
     await demoStore.init();
-    oasStore = new AmfStoreService(demoEt);
+    // event target is set intentionally
+    oasStore = new AmfStoreService(document.body);
     await oasStore.init();
   });
 
@@ -147,6 +148,11 @@ describe('AmfStoreService', () => {
       const srv = await oasStore.getServer(ids[3]);
       assert.typeOf(srv.variables, 'array', 'is the array');
       assert.lengthOf(srv.variables, 3, 'has all variables');
+    });
+
+    it('reads the server via the event', async () => {
+      const srv = await StoreEvents.Server.get(document.body, ids[1]);
+      assert.equal(srv.description, 'Staging server');
     });
   });
 });

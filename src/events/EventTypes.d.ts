@@ -57,7 +57,9 @@ declare interface OperationEvents {
 }
 declare interface ParameterEvents {
   get: string;
+  getRecursive: string;
   getBulk: string;
+  getBulkRecursive: string;
   update: string;
   addExample: string;
   removeExample: string;

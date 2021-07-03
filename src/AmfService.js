@@ -90,6 +90,7 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('./types').ApiPropertyShape} ApiPropertyShape */
 /** @typedef {import('./types').PropertyShapeInit} PropertyShapeInit */
 /** @typedef {import('./types').ApiOperationRecursive} ApiOperationRecursive */
+/** @typedef {import('./types').ApiParameterRecursive} ApiParameterRecursive */
 
 export class AmfService {
   /**
@@ -1239,6 +1240,19 @@ export class AmfService {
   }
 
   /**
+   * Reads the info about a parameter and returns the full schema.
+   * @param {string} id The domain id of the parameter
+   * @returns {Promise<ApiParameterRecursive>}
+   */
+  async getParameterRecursive(id) {
+    const param = /** @type Parameter */ (this.graph.findById(id));
+    if (!param) {
+      throw new Error(`No Parameter for ${id}`);
+    }
+    return ApiSerializer.parameterRecursive(param);
+  }
+
+  /**
    * Reads the list of Parameters in a single call.
    * @param {string[]} ids
    * @returns {Promise<ApiParameter[]>}
@@ -1250,6 +1264,25 @@ export class AmfService {
       const param = /** @type Parameter */ (this.graph.findById(id));
       if (param) {
         result.push(ApiSerializer.parameter(param));
+      } else {
+        result.push(undefined);
+      }
+    });
+    return result;
+  }
+
+  /**
+   * Reads the list of Parameters in a single call and returns the full schema.
+   * @param {string[]} ids
+   * @returns {Promise<ApiParameterRecursive[]>}
+   */
+  async getParametersRecursive(ids) {
+    /** @type ApiParameterRecursive[] */
+    const result = [];
+    ids.forEach((id) => {
+      const param = /** @type Parameter */ (this.graph.findById(id));
+      if (param) {
+        result.push(ApiSerializer.parameterRecursive(param));
       } else {
         result.push(undefined);
       }

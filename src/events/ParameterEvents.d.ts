@@ -1,4 +1,4 @@
-import { ApiParameter, ExampleInit, ApiExample } from '../types';
+import { ApiParameter, ExampleInit, ApiExample, ApiParameterRecursive } from '../types';
 
 declare interface IParameterEvents {
   /**
@@ -8,11 +8,23 @@ declare interface IParameterEvents {
    */
   get(target: EventTarget, id: string): Promise<ApiParameter>;
   /**
+   * Reads a Parameter from the store with the full schema.
+   * @param target The node on which to dispatch the event
+   * @param id The id of the Parameter to read.
+   */
+  getRecursive(target: EventTarget, id: string): Promise<ApiParameterRecursive>;
+  /**
    * Reads a list of Parameters in a bulk operation.
    * @param target The node on which to dispatch the event
    * @param ids The list of ids to read.
    */
   getBulk(target: EventTarget, ids: string[]): Promise<ApiParameter[]>;
+  /**
+   * Reads a list of Parameters in a bulk operation with the full schema.
+   * @param target The node on which to dispatch the event
+   * @param ids The list of ids to read.
+   */
+  getBulkRecursive(target: EventTarget, ids: string[]): Promise<ApiParameterRecursive[]>;
   /**
    * Updates a scalar property of a Parameter.
    * @param target The node on which to dispatch the event

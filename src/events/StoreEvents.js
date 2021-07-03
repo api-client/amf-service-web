@@ -54,7 +54,7 @@ export const StoreEvents = {
    * @param {EventTarget} target The node on which to dispatch the event
    * @returns {Promise<void>} Resolved when the store is loaded.
    */
-  init: async (target) => {
+  init: (target) => {
     const e = new CustomEvent(EventTypes.Store.init, {
       bubbles: true,
       composed: true,
@@ -64,7 +64,7 @@ export const StoreEvents = {
       }
     });
     target.dispatchEvent(e);
-    await e.detail.result;
+    return e.detail.result;
   },
 
   /**

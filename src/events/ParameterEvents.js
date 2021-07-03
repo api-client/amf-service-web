@@ -4,6 +4,7 @@ import { ApiStoreReadEvent, ApiStoreUpdateScalarEvent, ApiStoreDeleteEvent, ApiS
 
 /** @typedef {import('../types').ParameterInit} ParameterInit */
 /** @typedef {import('../types').ApiParameter} ApiParameter */
+/** @typedef {import('../types').ApiParameterRecursive} ApiParameterRecursive */
 /** @typedef {import('../types').ExampleInit} ExampleInit */
 /** @typedef {import('../types').ApiExample} ApiExample */
 
@@ -20,6 +21,17 @@ export const ParameterEvents = {
     return e.detail.result;
   },
   /**
+   * Reads a Parameter from the store with the full schema.
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string} id The id of the parameter to read.
+   * @returns {Promise<ApiParameterRecursive>}
+   */
+  getRecursive: async (target, id) => {
+    const e = new ApiStoreReadEvent(EventTypes.Parameter.getRecursive, id);
+    target.dispatchEvent(e);
+    return e.detail.result;
+  },
+  /**
    * Reads a list of Parameters in a bulk operation.
    * @param {EventTarget} target The node on which to dispatch the event
    * @param {string[]} ids The list of ids to read.
@@ -27,6 +39,17 @@ export const ParameterEvents = {
    */
   getBulk: async (target, ids) => {
     const e = new ApiStoreReadBulkEvent(EventTypes.Parameter.getBulk, ids);
+    target.dispatchEvent(e);
+    return e.detail.result;
+  },
+  /**
+   * Reads a list of Parameters in a bulk operation with the full schema.
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string[]} ids The list of ids to read.
+   * @returns {Promise<ApiParameterRecursive[]>}
+   */
+  getBulkRecursive: async (target, ids) => {
+    const e = new ApiStoreReadBulkEvent(EventTypes.Parameter.getBulkRecursive, ids);
     target.dispatchEvent(e);
     return e.detail.result;
   },
