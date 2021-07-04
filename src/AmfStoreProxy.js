@@ -59,6 +59,9 @@
 /** @typedef {import('./types').PropertyShapeInit} PropertyShapeInit */
 /** @typedef {import('./types').ApiOperationRecursive} ApiOperationRecursive */
 /** @typedef {import('./types').ApiParameterRecursive} ApiParameterRecursive */
+/** @typedef {import('./types').ApiPayloadRecursive} ApiPayloadRecursive */
+/** @typedef {import('./types').ApiRequestRecursive} ApiRequestRecursive */
+/** @typedef {import('./types').ApiResponseRecursive} ApiResponseRecursive */
 
 export const workerValue = Symbol("workerValue");
 export const nextIdValue = Symbol("nextIdValue");
@@ -345,12 +348,30 @@ export class AmfStoreProxy {
   }
 
   /**
+   * Reads the response data from the graph and returns the full serialized model.
+   * @param {string} id The domain id of the response.
+   * @returns {Promise<ApiResponseRecursive>}
+   */
+  async getResponseRecursive(id) {
+    return this[sendMessage]('getResponseRecursive', id);
+  }
+
+  /**
    * Reads Response data in a bulk operation
    * @param {string[]} ids The ids to read
    * @returns {Promise<ApiResponse[]>}
    */
   async getResponses(ids) {
     return this[sendMessage]('getResponses', ids);
+  }
+
+  /**
+   * Reads Response data in a bulk operation and returns the full serialized model.
+   * @param {string[]} ids The ids to read
+   * @returns {Promise<ApiResponseRecursive[]>}
+   */
+  async getResponsesRecursive(ids) {
+    return this[sendMessage]('getResponsesRecursive', ids);
   }
 
   /**
@@ -452,12 +473,30 @@ export class AmfStoreProxy {
   }
 
   /**
+   * Reads Payload data from the graph and returns the full serialized model.
+   * @param {string} id The domain id of the payload
+   * @returns {Promise<ApiPayloadRecursive>}
+   */
+  async getPayloadRecursive(id) {
+    return this[sendMessage]('getPayloadRecursive', id);
+  }
+
+  /**
    * Reads Payload data in a bulk operation
    * @param {string[]} ids The ids to read
    * @returns {Promise<ApiPayload[]>}
    */
   async getPayloads(ids) {
     return this[sendMessage]('getPayloads', ids);
+  }
+
+  /**
+   * Reads Payload data in a bulk operation and returns the full serialized model.
+   * @param {string[]} ids The ids to read
+   * @returns {Promise<ApiPayloadRecursive[]>}
+   */
+  async getPayloadsRecursive(ids) {
+    return this[sendMessage]('getPayloadsRecursive', ids);
   }
 
   /**
@@ -565,6 +604,15 @@ export class AmfStoreProxy {
    */
   async getRequest(id) {
     return this[sendMessage]('getRequest', id);
+  }
+
+  /**
+   * Reads the Request object from the graph and returns the full serialized model.
+   * @param {string} id The domain id of the Request
+   * @returns {Promise<ApiRequestRecursive>}
+   */
+  async getRequestRecursive(id) {
+    return this[sendMessage]('getRequestRecursive', id);
   }
 
   /**

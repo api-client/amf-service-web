@@ -304,7 +304,9 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistorepayloadget'],
+      ['getRecursive', 'apistorepayloadgetrecursive'],
       ['getBulk', 'apistorepayloadgetbulk'],
+      ['getBulkRecursive', 'apistorepayloadgetbulkrecursive'],
       ['update', 'apistorepayloadupdate'],
       ['addExample', 'apistorepayloadaddexample'],
       ['removeExample', 'apistorepayloadremoveexample'],
@@ -360,6 +362,7 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistorerequestget'],
+      ['getRecursive', 'apistorerequestgetrecursive'],
       ['update', 'apistorerequestupdate'],
       ['addPayload', 'apistorerequestaddpayload'],
       ['removePayload', 'apistorerequestremovepayload'],
@@ -421,7 +424,9 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistoreresponseget'],
+      ['getRecursive', 'apistoreresponsegetrecursive'],
       ['getBulk', 'apistoreresponsegetbulk'],
+      ['getBulkRecursive', 'apistoreresponsegetbulkrecursive'],
       ['update', 'apistoreresponseupdate'],
       ['addHeader', 'apistoreresponseaddheader'],
       ['removeHeader', 'apistoreresponseremoveheader'],

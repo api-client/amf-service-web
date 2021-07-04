@@ -1,5 +1,5 @@
 import AMF from 'amf-client-js';
-import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ApiShapeUnion, ShapeInit, ParameterInit, PayloadInit, ExampleInit, ApiSecurityScope, ApiSecurityOAuth2Flow, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit, ApiSecuritySettingsUnion, ApiPropertyShape, PropertyShapeInit, ApiOperationRecursive, ApiParameterRecursive } from './types';
+import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ApiShapeUnion, ShapeInit, ParameterInit, PayloadInit, ExampleInit, ApiSecurityScope, ApiSecurityOAuth2Flow, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit, ApiSecuritySettingsUnion, ApiPropertyShape, PropertyShapeInit, ApiOperationRecursive, ApiParameterRecursive, ApiResponseRecursive, ApiPayloadRecursive, ApiRequestRecursive } from './types';
 
 
 export declare class AmfService {
@@ -192,12 +192,23 @@ export declare class AmfService {
    * @param id The domain id of the response.
    */
   getResponse(id: string): Promise<ApiResponse>;
+  /**
+   * Reads the response data from the graph and returns the full serialized model.
+   * @param id The domain id of the response.
+   */
+  getResponseRecursive(id: string): Promise<ApiResponseRecursive>;
 
   /**
    * Reads Response data in a bulk operation
    * @param ids The ids to read
    */
   getResponses(ids: string[]): Promise<ApiResponse[]>;
+
+  /**
+   * Reads Response data in a bulk operation and returns the full serialized model.
+   * @param ids The ids to read
+   */
+  getResponsesRecursive(ids: string[]): Promise<ApiResponseRecursive[]>;
 
   /**
    * Adds a header to the response.
@@ -270,12 +281,23 @@ export declare class AmfService {
    * @param id The domain id of the payload
    */
   getPayload(id: string): Promise<ApiPayload>;
+  /**
+   * Reads Payload data from the graph and returns the full serialized model.
+   * @param id The domain id of the payload
+   */
+  getPayloadRecursive(id: string): Promise<ApiPayloadRecursive>;
 
   /**
    * Reads Payload data in a bulk operation
    * @param ids The ids to read
    */
   getPayloads(ids: string[]): Promise<ApiPayload[]>;
+
+  /**
+   * Reads Payload data in a bulk operation and returns the full serialized model.
+   * @param ids The ids to read
+   */
+  getPayloadsRecursive(ids: string[]): Promise<ApiPayloadRecursive[]>;
 
   /**
    * Adds an example to a Payload
@@ -354,6 +376,12 @@ export declare class AmfService {
    * @param id The domain id of the Request
    */
   getRequest(id: string): Promise<ApiRequest>;
+
+  /**
+   * Reads the Request object from the graph and returns the full serialized model.
+   * @param id The domain id of the Request
+   */
+  getRequestRecursive(id: string): Promise<ApiRequestRecursive>;
 
   /**
    * @param operationId The operation domain id

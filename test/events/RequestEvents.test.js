@@ -41,6 +41,36 @@ describe('StoreEvents', () => {
       });
     });
 
+    describe('getRecursive()', () => {
+      const id = 'amf://id';
+
+      it('dispatches the event', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Request.getRecursive, spy);
+        StoreEvents.Request.getRecursive(et, id);
+        assert.isTrue(spy.calledOnce);
+      });
+
+      it('the event has the "id" property', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Request.getRecursive, spy);
+        StoreEvents.Request.getRecursive(et, id);
+        assert.deepEqual(spy.args[0][0].detail.id, id);
+      });
+
+      it('waits until resolved', async () => {
+        const et = await etFixture();
+        const data = /** @type any */ ({ test: true });
+        et.addEventListener(StoreEventTypes.Request.getRecursive, (e) => {
+          e.detail.result = Promise.resolve(data);
+        });
+        const result = await StoreEvents.Request.getRecursive(et, id);
+        assert.equal(result, data);
+      });
+    });
+
     describe('update()', () => {
       const id = 'amf://id';
       const prop = 'name';

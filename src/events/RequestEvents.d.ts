@@ -1,4 +1,4 @@
-import { ApiParameter, ApiPayload, ApiRequest, ApiResponse, ParameterInit, PayloadInit } from '../types';
+import { ApiParameter, ApiPayload, ApiRequest, ApiRequestRecursive, ApiResponse, ParameterInit, PayloadInit } from '../types';
 import { ApiStoreCreateEventDetail } from './BaseEvents';
 
 /**
@@ -37,6 +37,12 @@ declare interface IRequestEvents {
    * @param id The id of the request to read.
    */
   get(target: EventTarget, id: string): Promise<ApiRequest>;
+  /**
+   * Reads a Request from the store and returns the full (recursive) model.
+   * @param target The node on which to dispatch the event
+   * @param id The id of the request to read.
+   */
+  getRecursive(target: EventTarget, id: string): Promise<ApiRequestRecursive>;
   /**
    * Updates a scalar property of a Request.
    * @param target The node on which to dispatch the event

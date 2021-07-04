@@ -1,4 +1,4 @@
-import { ApiParameter, ApiPayload, ApiResponse, ParameterInit, PayloadInit } from '../types';
+import { ApiParameter, ApiPayload, ApiResponse, ApiResponseRecursive, ParameterInit, PayloadInit } from '../types';
 
 declare interface IResponseEvents {
   /**
@@ -8,11 +8,23 @@ declare interface IResponseEvents {
    */
   get(target: EventTarget, id: string): Promise<ApiResponse>;
   /**
+   * Reads a Response from the store and returns the full (recursive) model.
+   * @param target The node on which to dispatch the event
+   * @param id The id of the Response to read.
+   */
+  getRecursive(target: EventTarget, id: string): Promise<ApiResponseRecursive>;
+  /**
    * Reads a list of Response in a bulk operation.
    * @param target The node on which to dispatch the event
    * @param ids The list of ids to read.
    */
   getBulk(target: EventTarget, ids: string[]): Promise<ApiResponse[]>;
+  /**
+   * Reads a list of Response in a bulk operation and returns the full (recursive) model.
+   * @param target The node on which to dispatch the event
+   * @param ids The list of ids to read.
+   */
+  getBulkRecursive(target: EventTarget, ids: string[]): Promise<ApiResponseRecursive[]>;
   /**
    * Updates a scalar property of a Response.
    * @param target The node on which to dispatch the event

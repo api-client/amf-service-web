@@ -3,6 +3,7 @@ import { EventTypes } from './EventTypes.js';
 import { ApiStoreReadEvent, ApiStoreUpdateScalarEvent, ApiStoreDeleteEvent, ApiStoreCreateExampleEvent, ApiStoreReadBulkEvent } from './BaseEvents.js';
 
 /** @typedef {import('../types').ApiPayload} ApiPayload */
+/** @typedef {import('../types').ApiPayloadRecursive} ApiPayloadRecursive */
 /** @typedef {import('../types').ExampleInit} ExampleInit */
 /** @typedef {import('../types').ApiExample} ApiExample */
 
@@ -19,6 +20,17 @@ export const PayloadEvents = {
     return e.detail.result;
   },
   /**
+   * Reads a Payload from the store and returns the full (recursive) model.
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string} id The id of the Payload to read.
+   * @returns {Promise<ApiPayloadRecursive>}
+   */
+  getRecursive: async (target, id) => {
+    const e = new ApiStoreReadEvent(EventTypes.Payload.getRecursive, id);
+    target.dispatchEvent(e);
+    return e.detail.result;
+  },
+  /**
    * Reads a list of Payloads in a bulk operation.
    * @param {EventTarget} target The node on which to dispatch the event
    * @param {string[]} ids The list of ids to read.
@@ -26,6 +38,17 @@ export const PayloadEvents = {
    */
   getBulk: async (target, ids) => {
     const e = new ApiStoreReadBulkEvent(EventTypes.Payload.getBulk, ids);
+    target.dispatchEvent(e);
+    return e.detail.result;
+  },
+  /**
+   * Reads a list of Payloads in a bulk operation and returns the full (recursive) model.
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string[]} ids The list of ids to read.
+   * @returns {Promise<ApiPayloadRecursive[]>}
+   */
+  getBulkRecursive: async (target, ids) => {
+    const e = new ApiStoreReadBulkEvent(EventTypes.Payload.getBulkRecursive, ids);
     target.dispatchEvent(e);
     return e.detail.result;
   },

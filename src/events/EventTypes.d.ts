@@ -73,7 +73,9 @@ declare interface ExampleEvents {
 }
 declare interface PayloadEvents {
   get: string;
+  getRecursive: string;
   getBulk: string;
+  getBulkRecursive: string;
   update: string;
   addExample: string;
   removeExample: string;
@@ -81,6 +83,7 @@ declare interface PayloadEvents {
 }
 declare interface RequestEvents {
   get: string;
+  getRecursive: string;
   update: string;
   addPayload: string;
   removePayload: string;
@@ -94,7 +97,9 @@ declare interface RequestEvents {
 }
 declare interface ResponseEvents {
   get: string;
+  getRecursive: string;
   getBulk: string;
+  getBulkRecursive: string;
   update: string;
   addHeader: string;
   removeHeader: string;

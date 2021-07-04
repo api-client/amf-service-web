@@ -3,6 +3,7 @@ import { EventTypes } from './EventTypes.js';
 import { ApiStoreReadEvent, ApiStoreUpdateScalarEvent, ApiStoreDeleteEvent, ApiStoreCreateHeaderEvent, ApiStoreCreatePayloadEvent, ApiStoreContextEvent } from './BaseEvents.js';
 
 /** @typedef {import('../types').ApiRequest} ApiRequest */
+/** @typedef {import('../types').ApiRequestRecursive} ApiRequestRecursive */
 /** @typedef {import('../types').ParameterInit} ParameterInit */
 /** @typedef {import('../types').ApiParameter} ApiParameter */
 /** @typedef {import('../types').PayloadInit} PayloadInit */
@@ -43,6 +44,17 @@ export const RequestEvents = {
    */
   get: async (target, id) => {
     const e = new ApiStoreReadEvent(EventTypes.Request.get, id);
+    target.dispatchEvent(e);
+    return e.detail.result;
+  },
+  /**
+   * Reads a Request from the store and returns the full (recursive) model.
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string} id The id of the request to read.
+   * @returns {Promise<ApiRequestRecursive>}
+   */
+  getRecursive: async (target, id) => {
+    const e = new ApiStoreReadEvent(EventTypes.Request.getRecursive, id);
     target.dispatchEvent(e);
     return e.detail.result;
   },

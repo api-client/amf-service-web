@@ -41,6 +41,36 @@ describe('StoreEvents', () => {
       });
     });
 
+    describe('getRecursive()', () => {
+      const id = 'amf://id';
+
+      it('dispatches the event', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Response.getRecursive, spy);
+        StoreEvents.Response.getRecursive(et, id);
+        assert.isTrue(spy.calledOnce);
+      });
+
+      it('the event has the "id" property', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Response.getRecursive, spy);
+        StoreEvents.Response.getRecursive(et, id);
+        assert.deepEqual(spy.args[0][0].detail.id, id);
+      });
+
+      it('waits until resolved', async () => {
+        const et = await etFixture();
+        const data = /** @type any */ ({ test: true });
+        et.addEventListener(StoreEventTypes.Response.getRecursive, (e) => {
+          e.detail.result = Promise.resolve(data);
+        });
+        const result = await StoreEvents.Response.getRecursive(et, id);
+        assert.equal(result, data);
+      });
+    });
+
     describe('getBulk()', () => {
       const ids = ['amf://id'];
 
@@ -67,6 +97,36 @@ describe('StoreEvents', () => {
           e.detail.result = Promise.resolve(data);
         });
         const result = await StoreEvents.Response.getBulk(et, ids);
+        assert.equal(result, data);
+      });
+    });
+
+    describe('getBulkRecursive()', () => {
+      const ids = ['amf://id'];
+
+      it('dispatches the event', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Response.getBulkRecursive, spy);
+        StoreEvents.Response.getBulkRecursive(et, ids);
+        assert.isTrue(spy.calledOnce);
+      });
+
+      it('the event has the "id" property', async () => {
+        const et = await etFixture();
+        const spy = sinon.spy();
+        et.addEventListener(StoreEventTypes.Response.getBulkRecursive, spy);
+        StoreEvents.Response.getBulkRecursive(et, ids);
+        assert.deepEqual(spy.args[0][0].detail.ids, ids);
+      });
+
+      it('waits until resolved', async () => {
+        const et = await etFixture();
+        const data = /** @type any */ ({ test: true });
+        et.addEventListener(StoreEventTypes.Response.getBulkRecursive, (e) => {
+          e.detail.result = Promise.resolve(data);
+        });
+        const result = await StoreEvents.Response.getBulkRecursive(et, ids);
         assert.equal(result, data);
       });
     });

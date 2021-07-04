@@ -1,4 +1,4 @@
-import { ApiPayload, ExampleInit, ApiExample } from '../types';
+import { ApiPayload, ExampleInit, ApiExample, ApiPayloadRecursive } from '../types';
 
 declare interface IPayloadEvents {
   /**
@@ -8,11 +8,23 @@ declare interface IPayloadEvents {
    */
   get(target: EventTarget, id: string): Promise<ApiPayload>;
   /**
+   * Reads a Payload from the store and returns the full (recursive) model.
+   * @param target The node on which to dispatch the event
+   * @param id The id of the Payload to read.
+   */
+  getRecursive(target: EventTarget, id: string): Promise<ApiPayloadRecursive>;
+  /**
    * Reads a list of Payloads in a bulk operation.
    * @param target The node on which to dispatch the event
    * @param ids The list of ids to read.
    */
   getBulk(target: EventTarget, ids: string[]): Promise<ApiPayload[]>;
+  /**
+   * Reads a list of Payloads in a bulk operation and returns the full (recursive) model.
+   * @param target The node on which to dispatch the event
+   * @param ids The list of ids to read.
+   */
+  getBulkRecursive(target: EventTarget, ids: string[]): Promise<ApiPayloadRecursive[]>;
   /**
    * Updates a scalar property of a ApiPayload.
    * @param target The node on which to dispatch the event

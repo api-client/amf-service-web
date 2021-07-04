@@ -91,6 +91,9 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('./types').PropertyShapeInit} PropertyShapeInit */
 /** @typedef {import('./types').ApiOperationRecursive} ApiOperationRecursive */
 /** @typedef {import('./types').ApiParameterRecursive} ApiParameterRecursive */
+/** @typedef {import('./types').ApiPayloadRecursive} ApiPayloadRecursive */
+/** @typedef {import('./types').ApiRequestRecursive} ApiRequestRecursive */
+/** @typedef {import('./types').ApiResponseRecursive} ApiResponseRecursive */
 
 export class AmfService {
   /**
@@ -605,6 +608,19 @@ export class AmfService {
   }
 
   /**
+   * Reads the response data from the graph and returns the full serialized model.
+   * @param {string} id The domain id of the response.
+   * @returns {Promise<ApiResponseRecursive>}
+   */
+  async getResponseRecursive(id) {
+    const response = /** @type Response */ (this.graph.findById(id));
+    if (!response) {
+      throw new Error(`No Response for ${id}`);
+    }
+    return ApiSerializer.responseRecursive(response);
+  }
+
+  /**
    * Reads Response data in a bulk operation
    * @param {string[]} ids The ids to read
    * @returns {Promise<ApiResponse[]>}
@@ -616,6 +632,25 @@ export class AmfService {
       const param = /** @type Response */ (this.graph.findById(id));
       if (param) {
         result.push(ApiSerializer.response(param));
+      } else {
+        result.push(undefined);
+      }
+    });
+    return result;
+  }
+
+  /**
+   * Reads Response data in a bulk operation and returns the full serialized model.
+   * @param {string[]} ids The ids to read
+   * @returns {Promise<ApiResponseRecursive[]>}
+   */
+  async getResponsesRecursive(ids) {
+    /** @type ApiResponseRecursive[] */
+    const result = [];
+    ids.forEach((id) => {
+      const param = /** @type Response */ (this.graph.findById(id));
+      if (param) {
+        result.push(ApiSerializer.responseRecursive(param));
       } else {
         result.push(undefined);
       }
@@ -793,6 +828,19 @@ export class AmfService {
   }
 
   /**
+   * Reads Payload data from the graph and returns the full serialized model.
+   * @param {string} id The domain id of the payload
+   * @returns {Promise<ApiPayloadRecursive>}
+   */
+  async getPayloadRecursive(id) {
+    const payload = /** @type Payload */ (this.graph.findById(id));
+    if (!payload) {
+      throw new Error(`No Payload for ${id}`);
+    }
+    return ApiSerializer.payloadRecursive(payload);
+  }
+
+  /**
    * Reads Payload data in a bulk operation
    * @param {string[]} ids The ids to read
    * @returns {Promise<ApiPayload[]>}
@@ -804,6 +852,25 @@ export class AmfService {
       const param = /** @type Payload */ (this.graph.findById(id));
       if (param) {
         result.push(ApiSerializer.payload(param));
+      } else {
+        result.push(undefined);
+      }
+    });
+    return result;
+  }
+
+  /**
+   * Reads Payload data in a bulk operation and returns the full serialized model.
+   * @param {string[]} ids The ids to read
+   * @returns {Promise<ApiPayloadRecursive[]>}
+   */
+  async getPayloadsRecursive(ids) {
+    /** @type ApiPayloadRecursive[] */
+    const result = [];
+    ids.forEach((id) => {
+      const param = /** @type Payload */ (this.graph.findById(id));
+      if (param) {
+        result.push(ApiSerializer.payloadRecursive(param));
       } else {
         result.push(undefined);
       }
@@ -988,6 +1055,19 @@ export class AmfService {
   }
 
   /**
+   * Reads the Request object from the graph and returns the full serialized model.
+   * @param {string} id The domain id of the Request
+   * @returns {Promise<ApiRequestRecursive>}
+   */
+  async getRequestRecursive(id) {
+    const object = /** @type Request */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No Request for ${id}`);
+    }
+    return ApiSerializer.requestRecursive(object);
+  }
+
+  /**
    * @param {string} operationId The operation domain id
    * @param {OperationRequestInit=} init The request init options. Optional.
    * @returns {Promise<ApiRequest>} The domain id of the created request
@@ -1034,7 +1114,7 @@ export class AmfService {
     if (!request) {
       throw new Error(`No request for given id ${requestId}`);
     }
-    const param = request.withHeader(init.name);
+    const param = request.withHeader(init.name).withBinding('header');
     this.fillParameter(param, init);
     return ApiSerializer.parameter(param);
   }
@@ -1066,7 +1146,7 @@ export class AmfService {
     if (!request) {
       throw new Error(`No request for given id ${requestId}`);
     }
-    const param = request.withQueryParameter(init.name);
+    const param = request.withQueryParameter(init.name).withBinding('query');
     this.fillParameter(param, init);
     return ApiSerializer.parameter(param);
   }
@@ -1098,7 +1178,7 @@ export class AmfService {
     if (!request) {
       throw new Error(`No request for given id ${requestId}`);
     }
-    const param = request.withCookieParameter(init.name);
+    const param = request.withCookieParameter(init.name).withBinding('cookie');
     this.fillParameter(param, init);
     return ApiSerializer.parameter(param);
   }
@@ -1163,9 +1243,6 @@ export class AmfService {
       throw new Error(`No operation for ${operationId}`);
     }
     operation.graph().remove(ns.aml.vocabularies.apiContract.expects);
-    // operation.withRequest();
-    // const remaining = operation.requests.filter((r) => r.id !== requestId);
-    // operation.withRequest(null);
   }
 
   /**
