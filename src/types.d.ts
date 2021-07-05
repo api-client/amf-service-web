@@ -133,7 +133,8 @@ export declare interface ProxyErrorResponse {
 export type RAMLVendors = 'RAML 0.8' | 'RAML 1.0';
 export type OASVendors = 'OAS 2.0' | 'OAS 3.0';
 export type AmfVendors = 'AMF Graph' | 'JSON Schema';
-export type ParserVendors = RAMLVendors | OASVendors | AmfVendors;
+export type AsyncVendors = 'ASYNC 2.0';
+export type ParserVendors = RAMLVendors | OASVendors | AmfVendors | AsyncVendors;
 export type ParserMediaTypes = 'application/json' | 'application/ld+json' | 'application/yaml' | 'application/raml';
 
 
@@ -454,12 +455,12 @@ export interface ApiTemplatedLinkBase extends ApiDomainProperty {
 }
 
 export interface ApiTemplatedLink extends ApiTemplatedLinkBase {
-  mapping?: string;
+  mapping?: string[];
   server?: string;
 }
 
 export interface ApiTemplatedLinkRecursive extends ApiTemplatedLinkBase {
-  mapping?: ApiIriTemplateMapping;
+  mapping?: ApiIriTemplateMapping[];
   server?: ApiServerRecursive;
 }
 
@@ -791,7 +792,7 @@ export interface ApiArrayShape extends ApiDataArrangeShape {
 
 export interface ApiTupleShape extends ApiDataArrangeShape {
   items: ApiShapeUnion[];
-  additionalItems?: boolean;
+  additionalItems?: string;
 }
 
 export interface ApiDataNode extends ApiDomainProperty {

@@ -9,38 +9,41 @@ import { ApiSerializer } from './ApiSerializer.js';
 // Example https://github.com/aml-org/amf-examples/blob/snapshot/src/test/java/co/acme/model/WebApiBuilder.java
 
 /** @typedef {import('amf-client-js')} AMF */
-/** @typedef {import('amf-client-js').model.document.Document} Document */
-/** @typedef {import('amf-client-js').model.domain.DomainElement} DomainElement */
-/** @typedef {import('amf-client-js').model.domain.WebApi} WebApi */
-/** @typedef {import('amf-client-js').model.domain.EndPoint} EndPoint */
-/** @typedef {import('amf-client-js').model.domain.Operation} Operation */
-/** @typedef {import('amf-client-js').model.domain.Request} Request */
-/** @typedef {import('amf-client-js').model.domain.Server} Server */
-/** @typedef {import('amf-client-js').model.domain.Parameter} Parameter */
-/** @typedef {import('amf-client-js').model.domain.Example} Example */
-/** @typedef {import('amf-client-js').model.domain.Payload} Payload */
-/** @typedef {import('amf-client-js').model.domain.Response} Response */
-/** @typedef {import('amf-client-js').model.domain.TemplatedLink} TemplatedLink */
-/** @typedef {import('amf-client-js').model.domain.SecurityRequirement} SecurityRequirement */
-/** @typedef {import('amf-client-js').model.domain.ParametrizedSecurityScheme} ParametrizedSecurityScheme */
-/** @typedef {import('amf-client-js').model.domain.SecurityScheme} SecurityScheme */
-/** @typedef {import('amf-client-js').model.domain.CustomDomainProperty} CustomDomainProperty */
-/** @typedef {import('amf-client-js').model.domain.NodeShape} NodeShape */
-/** @typedef {import('amf-client-js').model.domain.CreativeWork} CreativeWork */
-/** @typedef {import('amf-client-js').model.domain.ScalarShape} ScalarShape */
-/** @typedef {import('amf-client-js').model.domain.Shape} Shape */
-/** @typedef {import('amf-client-js').model.domain.AnyShape} AnyShape */
-/** @typedef {import('amf-client-js').model.domain.UnionShape} UnionShape */
-/** @typedef {import('amf-client-js').model.domain.FileShape} FileShape */
-/** @typedef {import('amf-client-js').model.domain.SchemaShape} SchemaShape */
-/** @typedef {import('amf-client-js').model.domain.TupleShape} TupleShape */
-/** @typedef {import('amf-client-js').model.domain.OAuth2Flow} OAuth2Flow */
-/** @typedef {import('amf-client-js').model.domain.Scope} Scope */
-/** @typedef {import('amf-client-js').model.domain.DomainExtension} DomainExtension */
-/** @typedef {import('amf-client-js').model.domain.Settings} Settings */
-/** @typedef {import('amf-client-js').model.domain.PropertyShape} PropertyShape */
-/** @typedef {import('amf-client-js').model.document.BaseUnitWithDeclaresModel} BaseUnitWithDeclaresModel */
-/** @typedef {import('amf-client-js').render.Renderer} Renderer */
+/** @typedef {import('amf-client-js').Document} Document */
+/** @typedef {import('amf-client-js').AMFClient} AMFClient */
+/** @typedef {import('amf-client-js').AMFConfiguration} AMFConfiguration */
+/** @typedef {import('amf-client-js').amf.core.client.platform.model.domain.DomainElement} DomainElement */
+/** @typedef {import('amf-client-js').WebApi} WebApi */
+/** @typedef {import('amf-client-js').EndPoint} EndPoint */
+/** @typedef {import('amf-client-js').Operation} Operation */
+/** @typedef {import('amf-client-js').Request} Request */
+/** @typedef {import('amf-client-js').Server} Server */
+/** @typedef {import('amf-client-js').Parameter} Parameter */
+/** @typedef {import('amf-client-js').Example} Example */
+/** @typedef {import('amf-client-js').Payload} Payload */
+/** @typedef {import('amf-client-js').Response} Response */
+/** @typedef {import('amf-client-js').TemplatedLink} TemplatedLink */
+/** @typedef {import('amf-client-js').SecurityRequirement} SecurityRequirement */
+/** @typedef {import('amf-client-js').ParametrizedSecurityScheme} ParametrizedSecurityScheme */
+/** @typedef {import('amf-client-js').SecurityScheme} SecurityScheme */
+/** @typedef {import('amf-client-js').CustomDomainProperty} CustomDomainProperty */
+/** @typedef {import('amf-client-js').NodeShape} NodeShape */
+/** @typedef {import('amf-client-js').CreativeWork} CreativeWork */
+/** @typedef {import('amf-client-js').ScalarShape} ScalarShape */
+/** @typedef {import('amf-client-js').amf.core.client.platform.model.domain.Shape} Shape */
+/** @typedef {import('amf-client-js').AnyShape} AnyShape */
+/** @typedef {import('amf-client-js').UnionShape} UnionShape */
+/** @typedef {import('amf-client-js').FileShape} FileShape */
+/** @typedef {import('amf-client-js').SchemaShape} SchemaShape */
+/** @typedef {import('amf-client-js').TupleShape} TupleShape */
+/** @typedef {import('amf-client-js').OAuth2Flow} OAuth2Flow */
+/** @typedef {import('amf-client-js').Scope} Scope */
+/** @typedef {import('amf-client-js').DomainExtension} DomainExtension */
+/** @typedef {import('amf-client-js').Settings} Settings */
+/** @typedef {import('amf-client-js').PropertyShape} PropertyShape */
+/** @typedef {import('amf-client-js').amf.core.client.platform.model.document.DeclaresModel} BaseUnitWithDeclaresModel */
+/** @typedef {import('amf-client-js').amf.core.client.platform.model.document.BaseUnit} BaseUnit */
+/** @typedef {import('amf-client-js').Dialect} Dialect */
 /** @typedef {import('./types').ApiInit} ApiInit */
 /** @typedef {import('./types').EndPointInit} EndPointInit */
 /** @typedef {import('./types').OperationInit} OperationInit */
@@ -121,27 +124,59 @@ export class AmfService {
    * @param {string} main The name of the main API file.
    */
   async loadApi(contents, vendor, mediaType, main) {
-    const loader = new ApiProjectResourceLoader(contents);
-    // @ts-ignore
-    const srvFileLoader = new this.amf.JsServerFileResourceLoader();
-    const env = new this.amf.client.environment.Environment()
-    .addClientLoader(srvFileLoader)
-    .addClientLoader(loader);
-    const parser = this.amf.Core.parser(vendor, mediaType, env);
     const entryPoint = contents.find((item) => item.path === main);
     if (!entryPoint) {
       throw new Error('Unable to find the API entry point');
     }
-    this.graph = /** @type Document */ (await parser.parseStringAsync(entryPoint.contents));
+    /** @type AMFConfiguration */
+    let configuration;
+    switch (vendor) {
+      case 'OAS 2.0': configuration = this.amf.OASConfiguration.OAS20(); break;
+      case 'OAS 3.0': configuration = this.amf.OASConfiguration.OAS30(); break;
+      case 'RAML 1.0': configuration = this.amf.RAMLConfiguration.RAML10(); break;
+      case 'RAML 0.8': configuration = this.amf.RAMLConfiguration.RAML08(); break;
+      case 'ASYNC 2.0': configuration = this.amf.AsyncAPIConfiguration.Async20(); break;
+      default: throw new Error(`Unable to recognize API type: ${vendor}`);
+      // default: client = this.amf.AMFGraphConfiguration.predefined().createClient();
+    }
+
+    const customResourceLoader = this.amf.ResourceLoaderFactory.create(
+      new ApiProjectResourceLoader(contents, this.amf)
+    );
+    const client = configuration.withResourceLoader(customResourceLoader).createClient();
+    const result = await client.parseContent(entryPoint.contents);
+    
+    if (!result.conforms) {
+      // eslint-disable-next-line no-console
+      console.log(result.toString());
+    }
+    
+    this.graph = /** @type Document */ (result.baseUnit);
   }
 
   /**
    * Loads existing API model into to graph as Document.
    * @param {string} model
+   * @param {ParserVendors} vendor The parser type to use to parse the contents.
    */
-  async loadGraph(model) {
-    const parser = this.amf.Core.parser('AMF Graph', 'application/ld+json');
-    this.graph = /** @type Document */ (await parser.parseStringAsync(model));
+  async loadGraph(model, vendor) {
+    /** @type AMFClient */
+    let client;
+    switch (vendor) {
+      case 'OAS 2.0': client = this.amf.OASConfiguration.OAS20().createClient(); break;
+      case 'OAS 3.0': client = this.amf.OASConfiguration.OAS30().createClient(); break;
+      case 'RAML 1.0': client = this.amf.RAMLConfiguration.RAML10().createClient(); break;
+      case 'RAML 0.8': client = this.amf.RAMLConfiguration.RAML08().createClient(); break;
+      case 'ASYNC 2.0': client = this.amf.AsyncAPIConfiguration.Async20().createClient(); break;
+      default: throw new Error(`Unable to recognize API type: ${vendor}`);
+      // default: client = this.amf.AMFGraphConfiguration.predefined().createClient();
+    }
+    const result = await client.parseContent(model);
+    if (!result.conforms) {
+      // eslint-disable-next-line no-console
+      console.log(result.toString());
+    }
+    this.graph = /** @type Document */ (result.baseUnit);
   }
 
   /**
@@ -151,10 +186,7 @@ export class AmfService {
    */
   async createWebApi(init) {
     const opts = init || {};
-    const doc = new this.amf.model.document.Document().withId('amf://document');
-    this.graph = doc;
-    const wa = new this.amf.model.domain.WebApi();
-    doc.withEncodes(wa);
+    const wa = new this.amf.WebApi();
     if (opts.name) {
       wa.withName(opts.name);
     }
@@ -176,6 +208,9 @@ export class AmfService {
     if (Array.isArray(opts.contentType) && opts.contentType.length) {
       wa.withContentType(opts.contentType);
     }
+    const doc = new this.amf.Document().withId('amf://document');
+    doc.withEncodes(wa);
+    this.graph = doc;
     return wa.id;
   }
 
@@ -192,11 +227,15 @@ export class AmfService {
    * @returns {Promise<string>} RAML value for the API.
    */
   async generateRaml() {
-    const generator = /** @type Renderer */ (this.amf.Core.generator('RAML 1.0', 'application/yaml'));
-    // @ts-ignore
-    const opts = this.amf.render.RenderOptions().withSourceMaps.withCompactUris;
-    // @ts-ignore
-    return generator.generateString(this.graph, opts);
+    const client = this.amf.WebAPIConfiguration.WebAPI().createClient();
+    const transformResult = client.transformCompatibility(
+      this.graph,
+      this.amf.ProvidedMediaType.Raml10
+    );
+    // if (transformResult.conforms) {
+    //   console.log(transformResult.results);
+    // }
+    return client.render(transformResult.baseUnit, this.amf.Vendor.RAML10.mediaType);
   }
 
   /**
@@ -204,11 +243,15 @@ export class AmfService {
    * @returns {Promise<string>} JSON+ld value of the API.
    */
   async generateGraph() {
-    const generator = /** @type Renderer */ (this.amf.Core.generator('AMF Graph', 'application/ld+json'));
-    // @ts-ignore
-    const opts = this.amf.render.RenderOptions().withSourceMaps.withCompactUris;
-    // @ts-ignore
-    return generator.generateString(this.graph, opts);
+    const client = this.amf.WebAPIConfiguration.WebAPI().createClient();
+    const transformResult = client.transformCompatibility(
+      this.graph,
+      this.amf.ProvidedMediaType.AMF
+    );
+    // if (transformResult.conforms) {
+    //   console.log(transformResult.results);
+    // }
+    return client.render(transformResult.baseUnit, this.amf.Vendor.AMF.mediaType);
   }
 
   /**
@@ -970,7 +1013,7 @@ export class AmfService {
   async addCustomDomainProperty(init) {
     const options = init || {};
     const { description, name, displayName } = options;
-    const domainElement = new this.amf.model.domain.CustomDomainProperty();
+    const domainElement = new this.amf.CustomDomainProperty();
     if (name) {
       domainElement.withName(name);
     }
@@ -1542,7 +1585,7 @@ export class AmfService {
       const item = ApiSerializer.nodeShapeListItem(type);
       result.push(item);
     });
-    const refs = /** @type BaseUnitWithDeclaresModel[] */ (this.graph.references());
+    const refs = /** @type Dialect[] */ (this.graph.references());
     refs.forEach((ref) => {
       const { declares } = ref;
       if (!declares || !declares.length) {
@@ -1602,23 +1645,23 @@ export class AmfService {
     const { type, description, name, displayName, readOnly, writeOnly } = options;
     let domainElement = /** @type Shape */ (null);
     if (type === ns.aml.vocabularies.shapes.ScalarShape) {
-      domainElement = new this.amf.model.domain.ScalarShape();
+      domainElement = new this.amf.ScalarShape();
     } else if (type === ns.w3.shacl.NodeShape) {
-      domainElement = new this.amf.model.domain.NodeShape();
+      domainElement = new this.amf.NodeShape();
     } else if (type === ns.aml.vocabularies.shapes.UnionShape) {
-      domainElement = new this.amf.model.domain.UnionShape();
+      domainElement = new this.amf.UnionShape();
     } else if (type === ns.aml.vocabularies.shapes.FileShape) {
-      domainElement = new this.amf.model.domain.FileShape();
+      domainElement = new this.amf.FileShape();
     } else if (type === ns.aml.vocabularies.shapes.SchemaShape) {
-      domainElement = new this.amf.model.domain.SchemaShape();
+      domainElement = new this.amf.SchemaShape();
     } else if (type === ns.aml.vocabularies.shapes.ArrayShape) {
-      domainElement = new this.amf.model.domain.ArrayShape();
+      domainElement = new this.amf.ArrayShape();
     } else if (type === ns.aml.vocabularies.shapes.MatrixShape) {
-      domainElement = new this.amf.model.domain.MatrixShape();
+      domainElement = new this.amf.MatrixShape();
     } else if (type === ns.aml.vocabularies.shapes.TupleShape) {
-      domainElement = new this.amf.model.domain.TupleShape();
+      domainElement = new this.amf.TupleShape();
     } else {
-      domainElement = new this.amf.model.domain.AnyShape();
+      domainElement = new this.amf.AnyShape();
     }
     if (name) {
       domainElement.withName(name);
@@ -1814,7 +1857,7 @@ export class AmfService {
       return;
     }
     switch (property) {
-      case 'additionalItems': shape.withAdditionalItems(value); break;
+      // case 'additionalItems': shape.withAdditionalItems(value); break;
       default: throw new Error(`Unsupported patch property of TupleShape: ${property}`);
     }
   }
@@ -2084,7 +2127,7 @@ export class AmfService {
       this.graph.withDeclares(copy);
       return true;
     }
-    const refs = /** @type BaseUnitWithDeclaresModel[] */ (this.graph.references());
+    const refs = /** @type Dialect[] */ (this.graph.references());
     for (let i = 0, len = refs.length; i < len; i++) {
       const ref = refs[i];
       const { declares } = ref;

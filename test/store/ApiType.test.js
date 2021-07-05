@@ -2,7 +2,7 @@ import { assert, oneEvent } from '@open-wc/testing';
 import { AmfLoader } from '../helpers/AmfLoader.js';
 import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.index.js';
 
-/** @typedef {import('amf-client-js').model.domain.PropertyShape} PropertyShape */
+/** @typedef {import('amf-client-js').PropertyShape} PropertyShape */
 /** @typedef {import('../../').ApiEndPointListItem} ApiEndPointListItem */
 /** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
 /** @typedef {import('../..').ApiScalarShape} ApiScalarShape */
@@ -26,7 +26,7 @@ describe('AmfStoreService', () => {
   describe('listTypes()', () => {
     before(async () => {
       const demoApi = await AmfLoader.loadApi();
-      await store.loadGraph(demoApi);
+      await store.loadGraph(demoApi, 'RAML 1.0');
     });
 
     it('reads list of types', async () => {
@@ -918,12 +918,12 @@ describe('AmfStoreService', () => {
       });
 
       // This seems not to be working in AMF.
-      it.skip('updates the additionalItems', async () => {
-        const result = /** @type ApiTupleShape */ (await store.updateTypeProperty(id, 'additionalItems', true));
-        assert.equal(result.additionalItems, true, 'result has the updated value');
-        const stored = /** @type ApiTupleShape */ (await store.getType(id));
-        assert.equal(stored.additionalItems, true, 'updated value is stored in the graph');
-      });
+      // it.skip('updates the additionalItems', async () => {
+      //   const result = /** @type ApiTupleShape */ (await store.updateTypeProperty(id, 'additionalItems', true));
+      //   assert.equal(result.additionalItems, true, 'result has the updated value');
+      //   const stored = /** @type ApiTupleShape */ (await store.getType(id));
+      //   assert.equal(stored.additionalItems, true, 'updated value is stored in the graph');
+      // });
 
       it('throws for an unknown property', async () => {
         let thrown = false;

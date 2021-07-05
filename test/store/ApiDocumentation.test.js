@@ -19,7 +19,7 @@ describe('AmfStoreService', () => {
   describe('listDocumentations()', () => {
     before(async () => {
       const demoApi = await AmfLoader.loadApi();
-      await store.loadGraph(demoApi);
+      await store.loadGraph(demoApi, 'RAML 1.0');
     });
 
     it('reads list of types', async () => {

@@ -3,6 +3,7 @@ import { StoreEventDetailVoid } from './BaseEvents.js';
 
 declare interface ApiStoreLoadGraphEventDetail extends StoreEventDetailVoid {
   model: string;
+  vendor: ParserVendors;
 }
 
 declare interface ApiStoreLoadApiEventDetail extends StoreEventDetailVoid {
@@ -18,8 +19,9 @@ declare interface ApiStoreLoadApiEventDetail extends StoreEventDetailVoid {
 export class ApiStoreLoadGraphEvent extends CustomEvent<ApiStoreLoadGraphEventDetail> {
   /**
    * @param model The model to load.
+   * @param vendor The vendor of the API.
    */
-  constructor(model: string);
+  constructor(model: string, vendor: ParserVendors);
 }
 
 /**
@@ -45,9 +47,10 @@ declare interface IStoreEvents {
   /**
    * @param target The node on which to dispatch the event
    * @param model The model to load.
+   * @param vendor The vendor of the API.
    * @returns Resolved when the model is loaded.
    */
-  loadGraph(target: EventTarget, model: string): Promise<void>;
+  loadGraph(target: EventTarget, model: string, vendor: ParserVendors): Promise<void>;
   /**
    * Import API project into the graph store.
    * 

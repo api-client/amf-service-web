@@ -14,7 +14,7 @@ describe('EndpointsTree', () => {
       demoApi = await AmfLoader.loadApi();
       demoStore = new AmfStoreService();
       await demoStore.init();
-      await demoStore.loadGraph(demoApi);
+      await demoStore.loadGraph(demoApi, 'RAML 1.0');
 
       const endpoints = await demoStore.listEndpointsWithOperations();
       const sorted = ApiSorting.sortEndpointsByPath(endpoints);
@@ -76,7 +76,7 @@ describe('EndpointsTree', () => {
       oasApi = await AmfLoader.loadApi('oas-3-api.json');
       oasStore = new AmfStoreService();
       await oasStore.init();
-      await oasStore.loadGraph(oasApi);
+      await oasStore.loadGraph(oasApi, 'OAS 3.0');
 
       const endpoints = await oasStore.listEndpointsWithOperations();
       const sorted = ApiSorting.sortEndpointsByPath(endpoints);
@@ -115,7 +115,7 @@ describe('EndpointsTree', () => {
       api = await AmfLoader.loadApi('streetlights.json');
       store = new AmfStoreService();
       await store.init();
-      await store.loadGraph(api);
+      await store.loadGraph(api, 'ASYNC 2.0');
 
       const endpoints = await store.listEndpointsWithOperations();
       const sorted = ApiSorting.sortEndpointsByPath(endpoints);

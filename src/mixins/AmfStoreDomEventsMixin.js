@@ -13,7 +13,7 @@ export const eventHandler = Symbol('eventHandler');
  */
 const eventsMap = {
   [EventTypes.Store.init]: { target: 'init', },
-  [EventTypes.Store.loadGraph]: { args: ['model'], target: 'loadGraph', },
+  [EventTypes.Store.loadGraph]: { args: ['model', 'vendor'], target: 'loadGraph', },
   [EventTypes.Store.loadApi]: { args: ['contents', 'vendor', 'mediaType', 'main'], target: 'loadApi' },
   [EventTypes.Store.hasApi]: { target: 'hasApi' },
   [EventTypes.Api.createWebApi]: { args: ['init'], target: 'createWebApi', eventProperties: true, },

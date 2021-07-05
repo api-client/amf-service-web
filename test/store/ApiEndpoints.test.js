@@ -21,7 +21,7 @@ describe('AmfStoreService', () => {
   describe('Listing', () => {
     before(async () => {
       const demoApi = await AmfLoader.loadApi();
-      await store.loadGraph(demoApi);
+      await store.loadGraph(demoApi, 'RAML 1.0');
     });
 
     describe('listEndpoints()', () => {
@@ -38,7 +38,6 @@ describe('AmfStoreService', () => {
       it('has the id', async () => {
         const [endpoint] = endpoints;
         assert.typeOf(endpoint.id, 'string');
-        assert.include(endpoint.id, 'amf://');
       });
   
       it('has the path', async () => {
@@ -73,7 +72,6 @@ describe('AmfStoreService', () => {
       it('has the id', async () => {
         const [endpoint] = endpoints;
         assert.typeOf(endpoint.id, 'string');
-        assert.include(endpoint.id, 'amf://');
       });
   
       it('has the path', async () => {
@@ -182,7 +180,7 @@ describe('AmfStoreService', () => {
   describe('getEndpoint()', () => {
     before(async () => {
       const demoApi = await AmfLoader.loadApi();
-      await store.loadGraph(demoApi);
+      await store.loadGraph(demoApi, 'RAML 1.0');
     });
 
     it('reads endpoint by path', async () => {

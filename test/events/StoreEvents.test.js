@@ -34,7 +34,7 @@ describe('StoreEvents', () => {
         const et = await etFixture();
         const spy = sinon.spy();
         et.addEventListener(StoreEventTypes.Store.loadGraph, spy);
-        StoreEvents.Store.loadGraph(et, '');
+        StoreEvents.Store.loadGraph(et, '', 'RAML 1.0');
         assert.isTrue(spy.calledOnce);
       });
 
@@ -43,7 +43,7 @@ describe('StoreEvents', () => {
         const spy = sinon.spy();
         et.addEventListener(StoreEventTypes.Store.loadGraph, spy);
         const model = 'MODEL';
-        StoreEvents.Store.loadGraph(et, model);
+        StoreEvents.Store.loadGraph(et, model, 'RAML 1.0');
         assert.equal(spy.args[0][0].detail.model, model);
       });
     });

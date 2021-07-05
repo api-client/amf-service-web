@@ -57,14 +57,6 @@ class AmfWorker {
     initialized = true;
     await import(amfLocation);
     // @ts-ignore
-    amf.plugins.document.WebApi.register();
-    // @ts-ignore
-    amf.plugins.document.Vocabularies.register();
-    // @ts-ignore
-    amf.plugins.features.AMFValidation.register();
-    // @ts-ignore
-    await amf.Core.init();
-    // @ts-ignore
     this.service = new AmfService(amf);
   }
 

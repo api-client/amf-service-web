@@ -19,10 +19,10 @@ describe('AmfStoreService', () => {
       await oasStore.init();
       
       const demoApi = await AmfLoader.loadApi();
-      await demoStore.loadGraph(demoApi);
+      await demoStore.loadGraph(demoApi, 'RAML 1.0');
 
       const oasApi = await AmfLoader.loadApi('oas-3-api.json');
-      await oasStore.loadGraph(oasApi);
+      await oasStore.loadGraph(oasApi, 'OAS 3.0');
     });
 
     after(() => {
@@ -39,6 +39,7 @@ describe('AmfStoreService', () => {
   
       it('has the security definition', async () => {
         const result  = await demoStore.listSecurity();
+        console.log(result);
         const [sec] = result;
         assert.typeOf(sec.id, 'string', 'has the id');
         assert.equal(sec.type, 'OAuth 2.0', 'has the type');

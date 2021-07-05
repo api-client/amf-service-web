@@ -1,16 +1,16 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 
-/** @typedef {import('amf-client-js').model.domain.EndPoint} EndPoint */
-/** @typedef {import('amf-client-js').model.domain.Operation} Operation */
-/** @typedef {import('amf-client-js').model.domain.Parameter} Parameter */
-/** @typedef {import('amf-client-js').model.domain.Request} Request */
-/** @typedef {import('amf-client-js').model.domain.Response} Response */
-/** @typedef {import('amf-client-js').model.domain.CreativeWork} CreativeWork */
-/** @typedef {import('amf-client-js').model.domain.Payload} Payload */
-/** @typedef {import('amf-client-js').model.domain.Example} Example */
-/** @typedef {import('amf-client-js').model.domain.CustomDomainProperty} CustomDomainProperty */
-/** @typedef {import('amf-client-js').model.domain.PropertyShape} PropertyShape */
+/** @typedef {import('amf-client-js').EndPoint} EndPoint */
+/** @typedef {import('amf-client-js').Operation} Operation */
+/** @typedef {import('amf-client-js').Parameter} Parameter */
+/** @typedef {import('amf-client-js').Request} Request */
+/** @typedef {import('amf-client-js').Response} Response */
+/** @typedef {import('amf-client-js').CreativeWork} CreativeWork */
+/** @typedef {import('amf-client-js').Payload} Payload */
+/** @typedef {import('amf-client-js').Example} Example */
+/** @typedef {import('amf-client-js').CustomDomainProperty} CustomDomainProperty */
+/** @typedef {import('amf-client-js').PropertyShape} PropertyShape */
 /** @typedef {import('./types').WorkerResponse} WorkerResponse */
 /** @typedef {import('./types').WorkerQueueItem} WorkerQueueItem */
 /** @typedef {import('./types').ApiInit} ApiInit */
@@ -136,10 +136,11 @@ export class AmfStoreProxy {
 
   /**
    * @param {string} model
+   * @param {ParserVendors} vendor The parser type to use to parse the contents.
    * @returns {Promise<void>}
    */
-  loadGraph(model) {
-    return this[sendMessage]('loadGraph', model);
+  loadGraph(model, vendor) {
+    return this[sendMessage]('loadGraph', model, vendor);
   }
 
   /**

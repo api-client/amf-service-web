@@ -16,7 +16,7 @@ describe('AmfStoreService', () => {
   describe('listCustomDomainProperties()', () => {
     before(async () => {
       const demoApi = await AmfLoader.loadApi();
-      await store.loadGraph(demoApi);
+      await store.loadGraph(demoApi, 'RAML 1.0');
     });
 
     it('reads list of properties', async () => {
@@ -84,7 +84,7 @@ describe('AmfStoreService', () => {
   describe('getCustomDomainProperty()', () => {
     before(async () => {
       const demoApi = await AmfLoader.loadApi();
-      await store.loadGraph(demoApi);
+      await store.loadGraph(demoApi, 'RAML 1.0');
     });
 
     it('reads a property', async () => {
@@ -119,7 +119,7 @@ describe('AmfStoreService', () => {
   describe('deleteCustomDomainProperty()', () => {
     before(async () => {
       const demoApi = await AmfLoader.loadApi();
-      await store.loadGraph(demoApi);
+      await store.loadGraph(demoApi, 'RAML 1.0');
     });
 
     it('removes an item from the declares', async () => {
@@ -150,7 +150,7 @@ describe('AmfStoreService', () => {
   describe('updateCustomDomainProperty()', () => {
     before(async () => {
       const demoApi = await AmfLoader.loadApi();
-      await store.loadGraph(demoApi);
+      await store.loadGraph(demoApi, 'RAML 1.0');
     });
 
     it('updates the name', async () => {
@@ -189,7 +189,7 @@ describe('AmfStoreService', () => {
   describe('getDomainExtension()', () => {
     before(async () => {
       const demoApi = await AmfLoader.loadApi();
-      await store.loadGraph(demoApi);
+      await store.loadGraph(demoApi, 'RAML 1.0');
     });
 
     it('reads the extension data', async () => {
