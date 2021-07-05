@@ -62,6 +62,9 @@
 /** @typedef {import('./types').ApiPayloadRecursive} ApiPayloadRecursive */
 /** @typedef {import('./types').ApiRequestRecursive} ApiRequestRecursive */
 /** @typedef {import('./types').ApiResponseRecursive} ApiResponseRecursive */
+/** @typedef {import('./types').ApiSecurityRequirementRecursive} ApiSecurityRequirementRecursive */
+/** @typedef {import('./types').ApiParametrizedSecuritySchemeRecursive} ApiParametrizedSecuritySchemeRecursive */
+/** @typedef {import('./types').ApiSecuritySchemeRecursive} ApiSecuritySchemeRecursive */
 
 export const workerValue = Symbol("workerValue");
 export const nextIdValue = Symbol("nextIdValue");
@@ -952,6 +955,15 @@ export class AmfStoreProxy {
   }
 
   /**
+   * Reads the SecurityRequirement object from the graph.
+   * @param {string} id The domain id of the SecurityRequirement
+   * @returns {Promise<ApiSecurityRequirementRecursive>}
+   */
+  async getSecurityRequirementRecursive(id) {
+    return this[sendMessage]('getSecurityRequirementRecursive', id);
+  }
+
+  /**
    * Reads the ParametrizedSecurityScheme object from the graph.
    * @param {string} id The domain id of the ParametrizedSecurityScheme
    * @returns {Promise<ApiParametrizedSecurityScheme>}
@@ -961,12 +973,30 @@ export class AmfStoreProxy {
   }
 
   /**
+   * Reads the ParametrizedSecurityScheme object from the graph.
+   * @param {string} id The domain id of the ParametrizedSecurityScheme
+   * @returns {Promise<ApiParametrizedSecuritySchemeRecursive>}
+   */
+  async getParametrizedSecuritySchemeRecursive(id) {
+    return this[sendMessage]('getParametrizedSecuritySchemeRecursive', id);
+  }
+
+  /**
    * Reads the SecurityScheme object from the graph.
    * @param {string} id The domain id of the SecurityScheme
    * @returns {Promise<ApiSecurityScheme>}
    */
   async getSecurityScheme(id) {
     return this[sendMessage]('getSecurityScheme', id);
+  }
+
+  /**
+   * Reads the SecurityScheme object from the graph.
+   * @param {string} id The domain id of the SecurityScheme
+   * @returns {Promise<ApiSecuritySchemeRecursive>}
+   */
+  async getSecuritySchemeRecursive(id) {
+    return this[sendMessage]('getSecuritySchemeRecursive', id);
   }
 
   /**

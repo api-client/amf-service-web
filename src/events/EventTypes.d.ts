@@ -117,7 +117,9 @@ declare interface DocumentationEvents {
 }
 declare interface SecurityEvents {
   get: string;
+  getRecursive: string;
   getRequirement: string;
+  getRequirementRecursive: string;
   getSettings: string;
   list: string;
 }

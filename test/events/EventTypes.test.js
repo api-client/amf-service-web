@@ -539,6 +539,11 @@ describe('StoreEventTypes', () => {
     });
 
     [
+      ['get', 'apistoresecurityget'],
+      ['getRecursive', 'apistoresecuritygetrecursive'],
+      ['getRequirement', 'apistoresecuritygetrequirement'],
+      ['getRequirementRecursive', 'apistoresecuritygetrequirementrecursive'],
+      ['getSettings', 'apistoresecuritygetsettings'],
       ['list', 'apistoresecuritylist'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {

@@ -128,7 +128,9 @@ export const EventTypes = {
   },
   Security: {
     get: 'apistoresecurityget',
+    getRecursive: 'apistoresecuritygetrecursive',
     getRequirement: 'apistoresecuritygetrequirement',
+    getRequirementRecursive: 'apistoresecuritygetrequirementrecursive',
     getSettings: 'apistoresecuritygetsettings',
     list: 'apistoresecuritylist',
   },

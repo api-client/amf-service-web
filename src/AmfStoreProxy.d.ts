@@ -1,5 +1,5 @@
 import { model } from 'amf-client-js';
-import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ShapeInit, ApiShapeUnion, ParameterInit, PayloadInit, ExampleInit, ApiSecurityOAuth2Flow, ApiSecurityScope, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit, ApiSecuritySettingsUnion, ApiPropertyShape, PropertyShapeInit, ApiOperationRecursive, ApiParameterRecursive, ApiRequestRecursive, ApiPayloadRecursive, ApiResponseRecursive } from './types';
+import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ShapeInit, ApiShapeUnion, ParameterInit, PayloadInit, ExampleInit, ApiSecurityOAuth2Flow, ApiSecurityScope, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit, ApiSecuritySettingsUnion, ApiPropertyShape, PropertyShapeInit, ApiOperationRecursive, ApiParameterRecursive, ApiRequestRecursive, ApiPayloadRecursive, ApiResponseRecursive, ApiParametrizedSecuritySchemeRecursive, ApiSecurityRequirementRecursive, ApiSecuritySchemeRecursive } from './types';
 
 export declare const workerValue: unique symbol;
 export declare const nextIdValue: unique symbol;
@@ -383,7 +383,7 @@ export declare class AmfStoreProxy extends EventTarget {
    * @param id The domain id of the Request
    */
   getRequest(id: string): Promise<ApiRequest>;
-  
+
   /**
    * Reads the Request object from the graph and returns the full serialized model.
    * @param id The domain id of the Request
@@ -622,18 +622,33 @@ export declare class AmfStoreProxy extends EventTarget {
    * @param id The domain id of the SecurityRequirement
    */
   getSecurityRequirement(id: string): Promise<ApiSecurityRequirement>;
+  /**
+   * Reads the SecurityRequirement object from the graph.
+   * @param id The domain id of the SecurityRequirement
+   */
+  getSecurityRequirementRecursive(id: string): Promise<ApiSecurityRequirementRecursive>;
 
   /**
    * Reads the ParametrizedSecurityScheme object from the graph.
    * @param id The domain id of the ParametrizedSecurityScheme
    */
   getParametrizedSecurityScheme(id: string): Promise<ApiParametrizedSecurityScheme>;
+  /**
+   * Reads the ParametrizedSecurityScheme object from the graph.
+   * @param id The domain id of the ParametrizedSecurityScheme
+   */
+  getParametrizedSecuritySchemeRecursive(id: string): Promise<ApiParametrizedSecuritySchemeRecursive>;
 
   /**
    * Reads the SecurityScheme object from the graph.
    * @param id The domain id of the SecurityScheme
    */
   getSecurityScheme(id: string): Promise<ApiSecurityScheme>;
+  /**
+   * Reads the SecurityScheme object from the graph.
+   * @param id The domain id of the SecurityScheme
+   */
+  getSecuritySchemeRecursive(id: string): Promise<ApiSecuritySchemeRecursive>;
 
   /**
    * @param id The domain id of the security settings.

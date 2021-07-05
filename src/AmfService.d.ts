@@ -1,5 +1,5 @@
 import AMF from 'amf-client-js';
-import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ApiShapeUnion, ShapeInit, ParameterInit, PayloadInit, ExampleInit, ApiSecurityScope, ApiSecurityOAuth2Flow, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit, ApiSecuritySettingsUnion, ApiPropertyShape, PropertyShapeInit, ApiOperationRecursive, ApiParameterRecursive, ApiResponseRecursive, ApiPayloadRecursive, ApiRequestRecursive } from './types';
+import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ApiShapeUnion, ShapeInit, ParameterInit, PayloadInit, ExampleInit, ApiSecurityScope, ApiSecurityOAuth2Flow, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit, ApiSecuritySettingsUnion, ApiPropertyShape, PropertyShapeInit, ApiOperationRecursive, ApiParameterRecursive, ApiResponseRecursive, ApiPayloadRecursive, ApiRequestRecursive, ApiSecurityRequirementRecursive, ApiParametrizedSecuritySchemeRecursive, ApiSecuritySchemeRecursive } from './types';
 
 
 export declare class AmfService {
@@ -682,18 +682,33 @@ export declare class AmfService {
    * @param id The domain id of the SecurityRequirement
    */
   getSecurityRequirement(id: string): Promise<ApiSecurityRequirement>;
+  /**
+   * Reads the SecurityRequirement object from the graph.
+   * @param id The domain id of the SecurityRequirement
+   */
+  getSecurityRequirementRecursive(id: string): Promise<ApiSecurityRequirementRecursive>;
 
   /**
    * Reads the ParametrizedSecurityScheme object from the graph.
    * @param id The domain id of the ParametrizedSecurityScheme
    */
   getParametrizedSecurityScheme(id: string): Promise<ApiParametrizedSecurityScheme>;
+  /**
+   * Reads the ParametrizedSecurityScheme object from the graph.
+   * @param id The domain id of the ParametrizedSecurityScheme
+   */
+  getParametrizedSecuritySchemeRecursive(id: string): Promise<ApiParametrizedSecuritySchemeRecursive>;
 
   /**
    * Reads the SecurityScheme object from the graph.
    * @param id The domain id of the SecurityScheme
    */
   getSecurityScheme(id: string): Promise<ApiSecurityScheme>;
+  /**
+   * Reads the SecurityScheme object from the graph.
+   * @param id The domain id of the SecurityScheme
+   */
+  getSecuritySchemeRecursive(id: string): Promise<ApiSecuritySchemeRecursive>;
 
   /**
    * @param id The domain id of the security settings.

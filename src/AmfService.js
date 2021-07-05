@@ -94,6 +94,9 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('./types').ApiPayloadRecursive} ApiPayloadRecursive */
 /** @typedef {import('./types').ApiRequestRecursive} ApiRequestRecursive */
 /** @typedef {import('./types').ApiResponseRecursive} ApiResponseRecursive */
+/** @typedef {import('./types').ApiSecurityRequirementRecursive} ApiSecurityRequirementRecursive */
+/** @typedef {import('./types').ApiParametrizedSecuritySchemeRecursive} ApiParametrizedSecuritySchemeRecursive */
+/** @typedef {import('./types').ApiSecuritySchemeRecursive} ApiSecuritySchemeRecursive */
 
 export class AmfService {
   /**
@@ -1965,6 +1968,19 @@ export class AmfService {
   }
 
   /**
+   * Reads the SecurityRequirement object from the graph.
+   * @param {string} id The domain id of the SecurityRequirement
+   * @returns {Promise<ApiSecurityRequirementRecursive>}
+   */
+  async getSecurityRequirementRecursive(id) {
+    const object = /** @type SecurityRequirement */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No SecurityRequirement for ${id}`);
+    }
+    return ApiSerializer.securityRequirementRecursive(object);
+  }
+
+  /**
    * Reads the ParametrizedSecurityScheme object from the graph.
    * @param {string} id The domain id of the ParametrizedSecurityScheme
    * @returns {Promise<ApiParametrizedSecurityScheme>}
@@ -1979,6 +1995,19 @@ export class AmfService {
   }
 
   /**
+   * Reads the ParametrizedSecurityScheme object from the graph.
+   * @param {string} id The domain id of the ParametrizedSecurityScheme
+   * @returns {Promise<ApiParametrizedSecuritySchemeRecursive>}
+   */
+  async getParametrizedSecuritySchemeRecursive(id) {
+    const object = /** @type ParametrizedSecurityScheme */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No ParametrizedSecurityScheme for ${id}`);
+    }
+    return ApiSerializer.parametrizedSecuritySchemeRecursive(object);
+  }
+
+  /**
    * Reads the SecurityScheme object from the graph.
    * @param {string} id The domain id of the SecurityScheme
    * @returns {Promise<ApiSecurityScheme>}
@@ -1989,6 +2018,19 @@ export class AmfService {
       throw new Error(`No SecurityScheme for ${id}`);
     }
     return ApiSerializer.securityScheme(object);
+  }
+
+  /**
+   * Reads the SecurityScheme object from the graph.
+   * @param {string} id The domain id of the SecurityScheme
+   * @returns {Promise<ApiSecuritySchemeRecursive>}
+   */
+  async getSecuritySchemeRecursive(id) {
+    const object = /** @type SecurityScheme */ (this.graph.findById(id));
+    if (!object) {
+      throw new Error(`No SecurityScheme for ${id}`);
+    }
+    return ApiSerializer.securitySchemeRecursive(object);
   }
 
   /**
