@@ -144,7 +144,7 @@ export class AmfService {
       new ApiProjectResourceLoader(contents, this.amf)
     );
     const client = configuration.withResourceLoader(customResourceLoader).createClient();
-    const result = await client.parseContent(entryPoint.contents);
+    const result = await client.parseContent(entryPoint.contents, mediaType);
     
     if (!result.conforms) {
       // eslint-disable-next-line no-console
@@ -1985,15 +1985,28 @@ export class AmfService {
    */
   async listSecurity() {
     const result = /** @type ApiSecuritySchemeListItem[] */ ([]);
-    this.graph.declares.forEach((obj) => {
-      const types = obj.graph().types();
-      if (!types.includes(ns.aml.vocabularies.security.SecurityScheme)) {
+    const list = /** @type SecurityScheme[] */ (this.graph.findByType(ns.aml.vocabularies.security.SecurityScheme));
+    const processed = [];
+    list.forEach((item) => {
+      let target = item;
+      if (item.isLink) {
+        target = /** @type SecurityScheme */ (item.linkTarget);
+      }
+      if (processed.includes(target.id)) {
         return;
       }
-      const type = /** @type SecurityScheme */ (obj);
-      const item = ApiSerializer.securitySchemeListItem(type);
-      result.push(item);
+      processed.push(target.id);
+      result.push(ApiSerializer.securitySchemeListItem(item));
     });
+    // this.graph.declares.forEach((obj) => {
+    //   const types = obj.graph().types();
+    //   if (!types.includes(ns.aml.vocabularies.security.SecurityScheme)) {
+    //     return;
+    //   }
+    //   const type = /** @type SecurityScheme */ (obj);
+    //   const item = ApiSerializer.securitySchemeListItem(type);
+    //   result.push(item);
+    // });
     return result;
   }
 

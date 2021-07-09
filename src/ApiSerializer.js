@@ -232,8 +232,12 @@ export class ApiSerializer {
    * @returns {ApiSecurityScheme} Serialized SecurityScheme
    */
   static securityScheme(object) {
-    const { id, headers, queryParameters, responses, name, type, displayName, description, settings, queryString } = object;
-    const types = object.graph().types();
+    let target = object;
+    if (target.isLink) {
+      target = /** @type SecurityScheme */ (object.linkTarget);
+    }
+    const { id, headers, queryParameters, responses, name, type, displayName, description, settings, queryString } = target;
+    const types = target.graph().types();
     const result = /** @type ApiSecurityScheme */ ({
       id,
       types,
@@ -243,12 +247,16 @@ export class ApiSerializer {
     });
     if (name.isNullOrEmpty === false) {
       result.name = name.value();
-    }
-    if (type.isNullOrEmpty === false) {
-      result.type = type.value();
+    } else if (object.name.isNullOrEmpty === false) {
+      result.name = object.name.value();
     }
     if (displayName.isNullOrEmpty === false) {
       result.displayName = displayName.value();
+    } else if (object.displayName.isNullOrEmpty === false) {
+      result.displayName = object.displayName.value();
+    }
+    if (type.isNullOrEmpty === false) {
+      result.type = type.value();
     }
     if (description.isNullOrEmpty === false) {
       result.description = description.value();
@@ -276,8 +284,12 @@ export class ApiSerializer {
    * @returns {ApiSecuritySchemeRecursive} Serialized SecurityScheme
    */
   static securitySchemeRecursive(object) {
-    const { headers, queryParameters, responses, queryString } = object;
-    const result = /** @type ApiSecuritySchemeRecursive */ (/** @type ApiSecuritySchemeBase */ (ApiSerializer.securityScheme(object)));
+    let target = object;
+    if (target.isLink) {
+      target = /** @type SecurityScheme */ (object.linkTarget);
+    }
+    const { headers, queryParameters, responses, queryString } = target;
+    const result = /** @type ApiSecuritySchemeRecursive */ (/** @type ApiSecuritySchemeBase */ (ApiSerializer.securityScheme(target)));
     if (queryString) {
       result.queryString = ApiSerializer.unknownShape(queryString);
     }
@@ -332,8 +344,12 @@ export class ApiSerializer {
    * @returns {ApiSecuritySchemeListItem} Serialized SecurityScheme
    */
   static securitySchemeListItem(object) {
-    const { id, name, type, displayName } = object;
-    const types = object.graph().types();
+    let target = object;
+    if (target.isLink) {
+      target = /** @type SecurityScheme */ (object.linkTarget);
+    }
+    const { id, name, type, displayName } = target;
+    const types = target.graph().types();
     const result = /** @type ApiSecuritySchemeListItem */ ({
       id,
       types,
@@ -341,9 +357,13 @@ export class ApiSerializer {
     });
     if (name.isNullOrEmpty === false) {
       result.name = name.value();
+    } else if (object.name.isNullOrEmpty === false) {
+      result.name = object.name.value();
     }
     if (displayName.isNullOrEmpty === false) {
       result.displayName = displayName.value();
+    } else if (object.displayName.isNullOrEmpty === false) {
+      result.displayName = object.displayName.value();
     }
     return result;
   }
@@ -550,8 +570,12 @@ export class ApiSerializer {
    * @returns {ApiRequest} Serialized API request
    */
   static request(object) {
-    const { id, required, description, queryString, headers, queryParameters, payloads, uriParameters, cookieParameters } = object;
-    const types = object.graph().types();
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Request */ (object.linkTarget);
+    }
+    const { id, required, description, queryString, headers, queryParameters, payloads, uriParameters, cookieParameters } = target;
+    const types = target.graph().types();
     const result = /** @type ApiRequest */ ({
       id,
       types,
@@ -591,8 +615,12 @@ export class ApiSerializer {
    * @returns {ApiRequestRecursive} Serialized API request
    */
   static requestRecursive(object) {
-    const { queryString, headers, queryParameters, payloads, uriParameters, cookieParameters } = object;
-    const result = /** @type ApiRequestRecursive */ (/** @type ApiRequestBase */ (ApiSerializer.request(object)));
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Request */ (object.linkTarget);
+    }
+    const { queryString, headers, queryParameters, payloads, uriParameters, cookieParameters } = target;
+    const result = /** @type ApiRequestRecursive */ (/** @type ApiRequestBase */ (ApiSerializer.request(target)));
     if (queryString) {
       result.queryString = ApiSerializer.unknownShape(queryString);
     }
@@ -690,8 +718,12 @@ export class ApiSerializer {
    * @returns {ApiResponse} Serialized Response
    */
   static response(object) {
-    const { id, headers, payloads, examples, links, name, description, statusCode } = object;
-    const types = object.graph().types();
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Response */ (object.linkTarget);
+    }
+    const { id, headers, payloads, examples, links, name, description, statusCode } = target;
+    const types = target.graph().types();
     const result = /** @type ApiResponse */ ({
       id,
       types,
@@ -729,8 +761,12 @@ export class ApiSerializer {
    * @returns {ApiResponseRecursive} Serialized Response
    */
   static responseRecursive(object) {
-    const { headers, payloads, examples, links, } = object;
-    const result = /** @type ApiResponseRecursive */ (/** @type ApiResponseBase */ (ApiSerializer.response(object)));
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Response */ (object.linkTarget);
+    }
+    const { headers, payloads, examples, links, } = target;
+    const result = /** @type ApiResponseRecursive */ (/** @type ApiResponseBase */ (ApiSerializer.response(target)));
     if (Array.isArray(headers) && headers.length) {
       result.headers = headers.map(p => ApiSerializer.parameterRecursive(p));
     }
@@ -844,8 +880,12 @@ export class ApiSerializer {
    * @returns {ApiExample} Serialized Example
    */
   static example(object) {
-    const { id, strict, name, displayName, description, value, mediaType, structuredValue } = object;
-    const types = object.graph().types();
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Example */ (object.linkTarget);
+    }
+    const { id, strict, name, displayName, description, value, mediaType, structuredValue } = target;
+    const types = target.graph().types();
     const result = /** @type ApiExample */ ({
       id,
       types,
@@ -942,11 +982,15 @@ export class ApiSerializer {
    * @returns {ApiOperation} Serialized Operation
    */
   static operation(object) {
-    const types = object.graph().types();
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Operation */ (object.linkTarget);
+    }
+    const types = target.graph().types();
     const { 
       id, method, deprecated, callbacks, responses, servers, security, customDomainProperties,
       name, description, summary, request, documentation, accepts, schemes, contentType,
-    } = object;
+    } = target;
     const result = /** @type ApiOperation */ ({
       id,
       types,
@@ -971,9 +1015,9 @@ export class ApiSerializer {
       result.summary = summary.value();
     }
     // @ts-ignore
-    if (object.operationId.isNullOrEmpty === false) {
+    if (target.operationId.isNullOrEmpty === false) {
       // @ts-ignore
-      result.operationId = object.operationId.value();
+      result.operationId = target.operationId.value();
     }
     if (request) {
       result.request = request.id;
@@ -1013,8 +1057,12 @@ export class ApiSerializer {
    * @returns {ApiOperationRecursive} Serialized Operation
    */
   static operationRecursive(object) {
-    const { callbacks, responses, servers, security, request, documentation, } = object;
-    const result = /** @type ApiOperationRecursive */ (/** @type ApiOperationBase */ (ApiSerializer.operation(object)));
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Operation */ (object.linkTarget);
+    }
+    const { callbacks, responses, servers, security, request, documentation, } = target;
+    const result = /** @type ApiOperationRecursive */ (/** @type ApiOperationBase */ (ApiSerializer.operation(target)));
     if (request) {
       result.request = ApiSerializer.requestRecursive(request);
     }
@@ -1156,7 +1204,11 @@ export class ApiSerializer {
    * @returns {ApiOperationListItem} Serialized Operation as a list item.
    */
   static operationListItem(object) {
-    const { id, method, name } = object;
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Operation */ (object.linkTarget);
+    }
+    const { id, method, name } = target;
     const item = /** @type ApiOperationListItem */ ({
       id,
       method: method.value(),
@@ -1230,7 +1282,11 @@ export class ApiSerializer {
    * @returns {ApiNodeShapeListItem} Serialized NodeShape
    */
   static nodeShapeListItem(object) {
-    const { id, name, displayName } = object;
+    let target = object;
+    if (target.isLink) {
+      target = /** @type NodeShape */ (object.linkTarget);
+    }
+    const { id, name, displayName } = target;
     const result = /** @type ApiNodeShapeListItem */ ({
       id,
     });
@@ -1361,11 +1417,15 @@ export class ApiSerializer {
    * @returns {ApiShape}
    */
   static shape(object) {
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Shape */ (object.linkTarget);
+    }
     const { 
       id, name, displayName, defaultValue, defaultValueStr, deprecated, description,
       values, inherits, or, and, xone, not, readOnly, writeOnly,
-    } = object;
-    const types = object.graph().types();
+    } = target;
+    const types = target.graph().types();
     const result = /** @type ApiShape */ ({
       id,
       types,
@@ -1419,8 +1479,12 @@ export class ApiSerializer {
    * @returns {ApiAnyShape}
    */
   static anyShape(object) {
-    const { documentation, xmlSerialization, examples } = object;
-    const result = /** @type ApiAnyShape */ (ApiSerializer.shape(object));
+    let target = object;
+    if (target.isLink) {
+      target = /** @type AnyShape */ (object.linkTarget);
+    }
+    const { documentation, xmlSerialization, examples } = target;
+    const result = /** @type ApiAnyShape */ (ApiSerializer.shape(target));
     if (Array.isArray(examples) && examples.length) {
       result.examples = examples.map((item) => ApiSerializer.example(item));
     } else {
@@ -1509,8 +1573,12 @@ export class ApiSerializer {
    * @returns {ApiUnionShape}
    */
   static unionShape(object) {
-    const { anyOf } = object;
-    const result = /** @type ApiUnionShape */ (ApiSerializer.anyShape(object));
+    let target = object;
+    if (target.isLink) {
+      target = /** @type UnionShape */ (object.linkTarget);
+    }
+    const { anyOf } = target;
+    const result = /** @type ApiUnionShape */ (ApiSerializer.anyShape(target));
     if (Array.isArray(anyOf) && anyOf.length) {
       result.anyOf = anyOf.map((shape) => ApiSerializer.unknownShape(shape));
     } else {
@@ -1574,8 +1642,12 @@ export class ApiSerializer {
    * @returns {ApiDataArrangeShape}
    */
   static dataArrangeShape(object) {
-    const result = /** @type ApiDataArrangeShape */ (ApiSerializer.anyShape(object));
-    const { minItems, maxItems, uniqueItems } = object;
+    let target = object;
+    if (target.isLink) {
+      target = /** @type DataArrangeShape */ (object.linkTarget);
+    }
+    const result = /** @type ApiDataArrangeShape */ (ApiSerializer.anyShape(target));
+    const { minItems, maxItems, uniqueItems } = target;
     if (minItems.value) {
       result.minItems = minItems.value();
     }
@@ -1711,7 +1783,11 @@ export class ApiSerializer {
    * @returns {ApiCustomDomainPropertyListItem}
    */
   static domainPropertyListItem(object) {
-    const { id, name, displayName } = object;
+    let target = object;
+    if (target.isLink) {
+      target = /** @type CustomDomainProperty */ (object.linkTarget);
+    }
+    const { id, name, displayName } = target;
     const result = /** @type ApiSecuritySchemeListItem */ ({
       id,
     });

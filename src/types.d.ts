@@ -135,7 +135,14 @@ export type OASVendors = 'OAS 2.0' | 'OAS 3.0';
 export type AmfVendors = 'AMF Graph' | 'JSON Schema';
 export type AsyncVendors = 'ASYNC 2.0';
 export type ParserVendors = RAMLVendors | OASVendors | AmfVendors | AsyncVendors;
-export type ParserMediaTypes = 'application/json' | 'application/ld+json' | 'application/yaml' | 'application/raml';
+
+export type RAMLMediaTypes = 'application/raml08+yaml' | 'application/raml10+yaml';
+export type OASMediaTypes = 'application/oas20' | 'application/oas20+yaml' | 'application/oas20+json' | 'application/openapi30' | 'application/openapi30+yaml' | 'application/openapi30+json';
+export type AsyncMediaTypes = 'application/asyncapi20' | 'application/asyncapi20+yaml' | 'application/asyncapi20+json';
+export type AmfMediaTypes = 'application/amf-payload' | 'application/amf-payload+yaml' | 'application/amf-payload+json';
+export type GraphMediaTypes = 'application/graph' | 'application/schema+json';
+
+export type ParserMediaTypes = RAMLMediaTypes | OASMediaTypes | AsyncMediaTypes | AmfMediaTypes | GraphMediaTypes;
 
 
 export declare interface ContentFile {

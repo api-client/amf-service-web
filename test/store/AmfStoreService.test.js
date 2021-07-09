@@ -442,7 +442,7 @@ types:
           path: 'types/api-types.raml',
         },
       ];
-      await store.loadApi(files, 'RAML 1.0', 'application/raml', 'api.raml');
+      await store.loadApi(files, 'RAML 1.0', 'application/raml10+yaml', 'api.raml');
       const project = await store.getApi();
       assert.lengthOf(project.endPoints, 1, 'has the API')
     });
@@ -480,7 +480,7 @@ paths:
           path: 'api.yaml',
         },
       ];
-      await store.loadApi(files, 'OAS 3.0', 'application/yaml', 'api.yaml');
+      await store.loadApi(files, 'OAS 3.0', 'application/openapi30+yaml', 'api.yaml');
       const project = await store.getApi();
       assert.lengthOf(project.endPoints, 1, 'has the API')
     });
@@ -504,7 +504,7 @@ version: v1
           path: 'api.yaml',
         },
       ];
-      await StoreEvents.Store.loadApi(et, files, 'api.yaml', 'RAML 1.0', 'application/yaml');
+      await StoreEvents.Store.loadApi(et, files, 'api.yaml', 'RAML 1.0', 'application/raml10+yaml');
       const project = await store.getApi();
       assert.lengthOf(project.endPoints, 1, 'has the API')
     });
