@@ -24,16 +24,16 @@ import { ns } from './Namespace.js';
 /** @typedef {import('amf-client-js').NodeShape} NodeShape */
 /** @typedef {import('amf-client-js').WebApi} WebApi */
 /** @typedef {import('amf-client-js').PropertyShape} PropertyShape */
-/** @typedef {import('amf-client-js').amf.core.client.platform.model.domain.Shape} Shape */
+/** @typedef {import('amf-client-js').Shape} Shape */
 /** @typedef {import('amf-client-js').AnyShape} AnyShape */
 /** @typedef {import('amf-client-js').ScalarShape} ScalarShape */
 /** @typedef {import('amf-client-js').UnionShape} UnionShape */
 /** @typedef {import('amf-client-js').FileShape} FileShape */
 /** @typedef {import('amf-client-js').SchemaShape} SchemaShape */
-/** @typedef {import('amf-client-js').amf.shapes.client.platform.model.domain.DataArrangeShape} DataArrangeShape */
+/** @typedef {import('amf-client-js').DataArrangeShape} DataArrangeShape */
 /** @typedef {import('amf-client-js').ArrayShape} ArrayShape */
 /** @typedef {import('amf-client-js').TupleShape} TupleShape */
-/** @typedef {import('amf-client-js').amf.core.client.platform.model.domain.DataNode} DataNode */
+/** @typedef {import('amf-client-js').DataNode} DataNode */
 /** @typedef {import('amf-client-js').ScalarNode} ScalarNode */
 /** @typedef {import('amf-client-js').ObjectNode} ObjectNode */
 /** @typedef {import('amf-client-js').ArrayNode} ArrayNode */
@@ -1404,8 +1404,12 @@ export class ApiSerializer {
     if (patternName.isNullOrEmpty === false) {
       result.patternName = patternName.value();
     }
-    result.minCount = minCount.value();
-    result.maxCount = maxCount.value();
+    if (minCount.nonNull === true && minCount.value) {
+      result.minCount = minCount.value();
+    }
+    if (maxCount.nonNull === true && maxCount.value) {
+      result.maxCount = maxCount.value();
+    }
     if (range && range.id) {
       result.range = ApiSerializer.unknownShape(range);
     }
@@ -1447,9 +1451,15 @@ export class ApiSerializer {
     if (defaultValueStr.isNullOrEmpty === false) {
       result.defaultValueStr = defaultValueStr.value();
     }
-    result.deprecated = deprecated.value();
-    result.readOnly = readOnly.value();
-    result.writeOnly = writeOnly.value();
+    if (deprecated.nonNull === true && deprecated.value) {
+      result.deprecated = deprecated.value();
+    }
+    if (readOnly.nonNull === true && readOnly.value) {
+      result.readOnly = readOnly.value();
+    }
+    if (writeOnly.nonNull === true && writeOnly.value) {
+      result.writeOnly = writeOnly.value();
+    }
     if (defaultValue && defaultValue.id) {
       result.defaultValue = defaultValue.id;
     }
@@ -1541,25 +1551,25 @@ export class ApiSerializer {
     if (dataType.isNullOrEmpty === false) {
       result.dataType = dataType.value();
     }
-    if (minLength.value) {
+    if (minLength.nonNull === true && minLength.value) {
       result.minLength = minLength.value();
     }
-    if (maxLength.value) {
+    if (maxLength.nonNull === true && maxLength.value) {
       result.maxLength = maxLength.value();
     }
-    if (minimum.value) {
+    if (minimum.nonNull === true && minimum.value) {
       result.minimum = minimum.value();
     }
-    if (maximum.value) {
+    if (maximum.nonNull === true && maximum.value) {
       result.maximum = maximum.value();
     }
-    if (exclusiveMaximum.value) {
+    if (exclusiveMaximum.isNull === false && exclusiveMaximum.value) {
       result.exclusiveMaximum = exclusiveMaximum.value();
     }
-    if (exclusiveMinimum.value) {
+    if (exclusiveMinimum.isNull === false && exclusiveMinimum.value) {
       result.exclusiveMinimum = exclusiveMinimum.value();
     }
-    if (multipleOf.value) {
+    if (multipleOf.isNull === false && multipleOf.value) {
       result.multipleOf = multipleOf.value();
     }
     if (format.isNullOrEmpty === false) {
@@ -1604,13 +1614,27 @@ export class ApiSerializer {
     if (Array.isArray(fileTypes) && fileTypes.length) {
       result.fileTypes = fileTypes.map((item) => item.value());
     }
-    result.minLength = minLength.value();
-    result.maxLength = maxLength.value();
-    result.minimum = minimum.value();
-    result.maximum = maximum.value();
-    result.exclusiveMaximum = exclusiveMaximum.value();
-    result.exclusiveMinimum = exclusiveMinimum.value();
-    result.multipleOf = multipleOf.value();
+    if (minLength.nonNull === true && minLength.value) {
+      result.minLength = minLength.value();
+    }
+    if (maxLength.nonNull === true && maxLength.value) {
+      result.maxLength = maxLength.value();
+    }
+    if (minimum.nonNull === true && minimum.value) {
+      result.minimum = minimum.value();
+    }
+    if (maximum.nonNull === true && maximum.value) {
+      result.maximum = maximum.value();
+    }
+    if (exclusiveMaximum.nonNull === true && exclusiveMaximum.value) {
+      result.exclusiveMaximum = exclusiveMaximum.value();
+    }
+    if (exclusiveMinimum.nonNull === true && exclusiveMinimum.value) {
+      result.exclusiveMinimum = exclusiveMinimum.value();
+    }
+    if (multipleOf.nonNull === true && multipleOf.value) {
+      result.multipleOf = multipleOf.value();
+    }
     if (format.isNullOrEmpty === false) {
       result.format = format.value();
     }
@@ -1648,13 +1672,13 @@ export class ApiSerializer {
     }
     const result = /** @type ApiDataArrangeShape */ (ApiSerializer.anyShape(target));
     const { minItems, maxItems, uniqueItems } = target;
-    if (minItems.value) {
+    if (minItems.nonNull === true && minItems.value) {
       result.minItems = minItems.value();
     }
-    if (maxItems.value) {
+    if (maxItems.nonNull === true && maxItems.value) {
       result.maxItems = maxItems.value();
     }
-    if (uniqueItems.value) {
+    if (uniqueItems.nonNull === true && uniqueItems.value) {
       result.uniqueItems = uniqueItems.value();
     }
     return result;

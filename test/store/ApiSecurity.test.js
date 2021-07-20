@@ -122,11 +122,11 @@ describe('AmfStoreService', () => {
 
     describe('getSecurityRequirement()', () => {
       it('reads the security definition on an operation', async () => {
-        const ep = await demoStore.getEndpoint('/messages');
-        const [id] = ep.security;
+        // const ep = await demoStore.getEndpoint('/messages');
+        // const [id] = ep.security;
         // console.log(ep.security);
-        // const op = await demoStore.getOperation('post', '/messages');
-        // const [id] = op.security;
+        const op = await demoStore.getOperation('post', '/messages');
+        const [id] = op.security;
         const result = await demoStore.getSecurityRequirement(id);
         assert.typeOf(result.schemes, 'array', 'has the schemes property');
         assert.lengthOf(result.schemes, 1, 'has a single scheme');
@@ -136,10 +136,10 @@ describe('AmfStoreService', () => {
       });
 
       it('reads the security requirement via the event', async () => {
-        const ep = await demoStore.getEndpoint('/messages');
-        const [id] = ep.security;
-        // const op = await demoStore.getOperation('post', '/messages');
-        // const [id] = op.security;
+        // const ep = await demoStore.getEndpoint('/messages');
+        // const [id] = ep.security;
+        const op = await demoStore.getOperation('post', '/messages');
+        const [id] = op.security;
         const result = await StoreEvents.Security.getRequirement(demoEt, id);
         assert.typeOf(result.schemes, 'array', 'has the schemes property');
         assert.lengthOf(result.schemes, 1, 'has a single scheme');
@@ -151,10 +151,10 @@ describe('AmfStoreService', () => {
 
     describe('getSecurityRequirementRecursive()', () => {
       it('reads the security definition on an operation', async () => {
-        const ep = await demoStore.getEndpoint('/messages');
-        const [id] = ep.security;
-        // const op = await demoStore.getOperation('post', '/messages');
-        // const [id] = op.security;
+        // const ep = await demoStore.getEndpoint('/messages');
+        // const [id] = ep.security;
+        const op = await demoStore.getOperation('post', '/messages');
+        const [id] = op.security;
         const result = await demoStore.getSecurityRequirementRecursive(id);
         assert.typeOf(result.schemes, 'array', 'has the schemes property');
         assert.lengthOf(result.schemes, 1, 'has a single scheme');
@@ -164,10 +164,10 @@ describe('AmfStoreService', () => {
       });
 
       it('reads the security requirement via the event', async () => {
-        const ep = await demoStore.getEndpoint('/messages');
-        const [id] = ep.security;
-        // const op = await demoStore.getOperation('post', '/messages');
-        // const [id] = op.security;
+        // const ep = await demoStore.getEndpoint('/messages');
+        // const [id] = ep.security;
+        const op = await demoStore.getOperation('post', '/messages');
+        const [id] = op.security;
         const result = await StoreEvents.Security.getRequirementRecursive(demoEt, id);
         assert.typeOf(result.schemes, 'array', 'has the schemes property');
         assert.lengthOf(result.schemes, 1, 'has a single scheme');
@@ -177,16 +177,31 @@ describe('AmfStoreService', () => {
       });
     });
 
-    // describe('getSecuritySettings()', () => {
-    //   it('reads the security definition on an operation', async () => {
-    //     const op = await oasStore.getOperation('get', '/securityCombo');
-    //     const requirement = await demoStore.getSecurityRequirement(op.security[0]);
-    //     console.log('requirement', requirement);
-    //     const settingsId = requirement.schemes[0].settings.id;
+    describe('getSecuritySettings()', () => {
+      it.skip('reads the security definition on an operation', async () => {
+        const op = await oasStore.getOperation('get', '/securityCombo');
+        const requirement = await oasStore.getSecurityRequirement(op.security[0]);
+        const settingsId = requirement.schemes[0].settings.id;
+        const result = await oasStore.getSecuritySettings(settingsId);
+        console.log(result);
+      });
+    });
 
-    //     const result = await demoStore.getSecuritySettings(settingsId);
-    //     console.log(result);
-    //   });
-    // });
+    describe('reading security model', () => {
+      // security read from the declares rather than an operation.
+      it('reads OAuth2 security', async () => {
+        const list  = await demoStore.listSecurity();
+        const oa2 = list.find(i => i.type === 'OAuth 2.0');
+        const result = await demoStore.getSecurityScheme(oa2.id);
+        const { headers, queryParameters, responses, name, type, description, settings } = result;
+        assert.lengthOf(headers, 1, 'has headers');
+        assert.lengthOf(queryParameters, 1, 'has queryParameters');
+        assert.lengthOf(responses, 2, 'has responses');
+        assert.equal(name, 'oauth_2_0', 'has name');
+        assert.equal(type, 'OAuth 2.0', 'has type');
+        assert.equal(description, 'This API supports OAuth 2.0 for authenticating all API requests.', 'has description');
+        assert.typeOf(settings, 'object', 'has settings');
+      });
+    });
   });
 });

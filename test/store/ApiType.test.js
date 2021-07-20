@@ -53,7 +53,7 @@ describe('AmfStoreService', () => {
       await store.createWebApi();
     });
 
-    it('adds default type', async () => {
+    it('adds the default type', async () => {
       const result = await store.addType();
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
@@ -70,15 +70,16 @@ describe('AmfStoreService', () => {
       assert.isUndefined(result.displayName, 'has no displayName');
       assert.isUndefined(result.description, 'has no description');
       assert.isUndefined(result.xmlSerialization, 'has no xmlSerialization');
-      assert.isUndefined(result.writeOnly, 'has no writeOnly');
-      assert.isUndefined(result.readOnly, 'has no readOnly');
+      assert.isUndefined(result.writeOnly, 'is not writeOnly');
+      assert.isUndefined(result.readOnly, 'is not readOnly');
+      assert.isUndefined(result.deprecated, 'is not deprecated');
       assert.isUndefined(result.documentation, 'has no documentation');
       assert.isUndefined(result.defaultValueStr, 'has no defaultValueStr');
       assert.isUndefined(result.defaultValue, 'has no defaultValue');
     });
 
     it('adds ScalarShape type', async () => {
-      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape });
+      const result = /** @type ApiScalarShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape }));
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -94,8 +95,11 @@ describe('AmfStoreService', () => {
       assert.isUndefined(result.displayName, 'has no displayName');
       assert.isUndefined(result.description, 'has no description');
       assert.isUndefined(result.xmlSerialization, 'has no xmlSerialization');
-      assert.isUndefined(result.writeOnly, 'has no writeOnly');
-      assert.isUndefined(result.readOnly, 'has no readOnly');
+      assert.isUndefined(result.writeOnly, 'is not writeOnly');
+      assert.isUndefined(result.readOnly, 'is not readOnly');
+      assert.isUndefined(result.deprecated, 'is not deprecated');
+      assert.isUndefined(result.exclusiveMaximum, 'is not exclusiveMaximum');
+      assert.isUndefined(result.exclusiveMinimum, 'is not exclusiveMinimum');
       assert.isUndefined(result.documentation, 'has no documentation');
       assert.isUndefined(result.defaultValueStr, 'has no defaultValueStr');
       assert.isUndefined(result.defaultValue, 'has no defaultValue');
@@ -118,8 +122,9 @@ describe('AmfStoreService', () => {
       assert.isUndefined(result.displayName, 'has no displayName');
       assert.isUndefined(result.description, 'has no description');
       assert.isUndefined(result.xmlSerialization, 'has no xmlSerialization');
-      assert.isUndefined(result.writeOnly, 'has no writeOnly');
-      assert.isUndefined(result.readOnly, 'has no readOnly');
+      assert.isUndefined(result.writeOnly, 'is not writeOnly');
+      assert.isUndefined(result.readOnly, 'is not readOnly');
+      assert.isUndefined(result.deprecated, 'is not deprecated');
       assert.isUndefined(result.documentation, 'has no documentation');
       assert.isUndefined(result.defaultValueStr, 'has no defaultValueStr');
       assert.isUndefined(result.defaultValue, 'has no defaultValue');
@@ -142,8 +147,9 @@ describe('AmfStoreService', () => {
       assert.isUndefined(result.displayName, 'has no displayName');
       assert.isUndefined(result.description, 'has no description');
       assert.isUndefined(result.xmlSerialization, 'has no xmlSerialization');
-      assert.isUndefined(result.writeOnly, 'has no writeOnly');
-      assert.isUndefined(result.readOnly, 'has no readOnly');
+      assert.isUndefined(result.writeOnly, 'is not writeOnly');
+      assert.isUndefined(result.readOnly, 'is not readOnly');
+      assert.isUndefined(result.deprecated, 'is not deprecated');
       assert.isUndefined(result.documentation, 'has no documentation');
       assert.isUndefined(result.defaultValueStr, 'has no defaultValueStr');
       assert.isUndefined(result.defaultValue, 'has no defaultValue');
@@ -166,8 +172,9 @@ describe('AmfStoreService', () => {
       assert.isUndefined(result.displayName, 'has no displayName');
       assert.isUndefined(result.description, 'has no description');
       assert.isUndefined(result.xmlSerialization, 'has no xmlSerialization');
-      assert.isUndefined(result.writeOnly, 'has no writeOnly');
-      assert.isUndefined(result.readOnly, 'has no readOnly');
+      assert.isUndefined(result.writeOnly, 'is not writeOnly');
+      assert.isUndefined(result.readOnly, 'is not readOnly');
+      assert.isUndefined(result.deprecated, 'is not deprecated');
       assert.isUndefined(result.documentation, 'has no documentation');
       assert.isUndefined(result.defaultValueStr, 'has no defaultValueStr');
       assert.isUndefined(result.defaultValue, 'has no defaultValue');

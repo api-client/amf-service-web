@@ -10,9 +10,9 @@ import { ApiSerializer } from './ApiSerializer.js';
 
 /** @typedef {import('amf-client-js')} AMF */
 /** @typedef {import('amf-client-js').Document} Document */
-/** @typedef {import('amf-client-js').AMFClient} AMFClient */
+/** @typedef {import('amf-client-js').AMFBaseUnitClient} AMFBaseUnitClient */
 /** @typedef {import('amf-client-js').AMFConfiguration} AMFConfiguration */
-/** @typedef {import('amf-client-js').amf.core.client.platform.model.domain.DomainElement} DomainElement */
+/** @typedef {import('amf-client-js').DomainElement} DomainElement */
 /** @typedef {import('amf-client-js').WebApi} WebApi */
 /** @typedef {import('amf-client-js').EndPoint} EndPoint */
 /** @typedef {import('amf-client-js').Operation} Operation */
@@ -30,7 +30,7 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('amf-client-js').NodeShape} NodeShape */
 /** @typedef {import('amf-client-js').CreativeWork} CreativeWork */
 /** @typedef {import('amf-client-js').ScalarShape} ScalarShape */
-/** @typedef {import('amf-client-js').amf.core.client.platform.model.domain.Shape} Shape */
+/** @typedef {import('amf-client-js').Shape} Shape */
 /** @typedef {import('amf-client-js').AnyShape} AnyShape */
 /** @typedef {import('amf-client-js').UnionShape} UnionShape */
 /** @typedef {import('amf-client-js').FileShape} FileShape */
@@ -41,8 +41,8 @@ import { ApiSerializer } from './ApiSerializer.js';
 /** @typedef {import('amf-client-js').DomainExtension} DomainExtension */
 /** @typedef {import('amf-client-js').Settings} Settings */
 /** @typedef {import('amf-client-js').PropertyShape} PropertyShape */
-/** @typedef {import('amf-client-js').amf.core.client.platform.model.document.DeclaresModel} BaseUnitWithDeclaresModel */
-/** @typedef {import('amf-client-js').amf.core.client.platform.model.document.BaseUnit} BaseUnit */
+/** @typedef {import('amf-client-js').DeclaresModel} BaseUnitWithDeclaresModel */
+/** @typedef {import('amf-client-js').BaseUnit} BaseUnit */
 /** @typedef {import('amf-client-js').Dialect} Dialect */
 /** @typedef {import('./types').ApiInit} ApiInit */
 /** @typedef {import('./types').EndPointInit} EndPointInit */
@@ -143,7 +143,7 @@ export class AmfService {
     const customResourceLoader = this.amf.ResourceLoaderFactory.create(
       new ApiProjectResourceLoader(contents, this.amf)
     );
-    const client = configuration.withResourceLoader(customResourceLoader).createClient();
+    const client = configuration.withResourceLoader(customResourceLoader).baseUnitClient();
     const result = await client.parseContent(entryPoint.contents, mediaType);
     
     if (!result.conforms) {
@@ -160,14 +160,14 @@ export class AmfService {
    * @param {ParserVendors} vendor The parser type to use to parse the contents.
    */
   async loadGraph(model, vendor) {
-    /** @type AMFClient */
+    /** @type AMFBaseUnitClient */
     let client;
     switch (vendor) {
-      case 'OAS 2.0': client = this.amf.OASConfiguration.OAS20().createClient(); break;
-      case 'OAS 3.0': client = this.amf.OASConfiguration.OAS30().createClient(); break;
-      case 'RAML 1.0': client = this.amf.RAMLConfiguration.RAML10().createClient(); break;
-      case 'RAML 0.8': client = this.amf.RAMLConfiguration.RAML08().createClient(); break;
-      case 'ASYNC 2.0': client = this.amf.AsyncAPIConfiguration.Async20().createClient(); break;
+      case 'OAS 2.0': client = this.amf.OASConfiguration.OAS20().baseUnitClient(); break;
+      case 'OAS 3.0': client = this.amf.OASConfiguration.OAS30().baseUnitClient(); break;
+      case 'RAML 1.0': client = this.amf.RAMLConfiguration.RAML10().baseUnitClient(); break;
+      case 'RAML 0.8': client = this.amf.RAMLConfiguration.RAML08().baseUnitClient(); break;
+      case 'ASYNC 2.0': client = this.amf.AsyncAPIConfiguration.Async20().baseUnitClient(); break;
       default: throw new Error(`Unable to recognize API type: ${vendor}`);
       // default: client = this.amf.AMFGraphConfiguration.predefined().createClient();
     }
@@ -227,7 +227,7 @@ export class AmfService {
    * @returns {Promise<string>} RAML value for the API.
    */
   async generateRaml() {
-    const client = this.amf.WebAPIConfiguration.WebAPI().createClient();
+    const client = this.amf.WebAPIConfiguration.WebAPI().baseUnitClient();
     const transformResult = client.transformCompatibility(
       this.graph,
       this.amf.ProvidedMediaType.Raml10
@@ -243,7 +243,7 @@ export class AmfService {
    * @returns {Promise<string>} JSON+ld value of the API.
    */
   async generateGraph() {
-    const client = this.amf.WebAPIConfiguration.WebAPI().createClient();
+    const client = this.amf.WebAPIConfiguration.WebAPI().baseUnitClient();
     const transformResult = client.transformCompatibility(
       this.graph,
       this.amf.ProvidedMediaType.AMF

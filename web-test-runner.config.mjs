@@ -4,7 +4,7 @@ export default /** @type TestRunnerConfig */ ({
   // concurrency: 1,
   testFramework: {
     config: {
-      timeout: 10000,
+      timeout: 100000,
     },
   },
   testsFinishTimeout: 240000,
