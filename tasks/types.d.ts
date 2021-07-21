@@ -5,21 +5,6 @@ export declare interface ApiConfiguration {
    * The type of the API file
    */
   type: ApiType;
-  /**
-   * The API mime type
-   * @default application/yaml
-   */
-  mime?: string;
-  /**
-   * The resolution pipeline to use when processing the API. 
-   * @default editing
-   */
-  resolution?: string;
-  /**
-   * Whether to apply flattened to render options
-   * @default false
-   */
-  flattened?: boolean;
 }
 
 export declare interface ApiGenerationOptions {
@@ -37,5 +22,5 @@ export declare interface ApiGenerationOptions {
 
 export declare interface FilePrepareResult {
   opts: ApiGenerationOptions;
-  files: Map<string, ApiConfiguration|string|string[]>;
+  files: Map<string, ApiConfiguration|string>;
 }

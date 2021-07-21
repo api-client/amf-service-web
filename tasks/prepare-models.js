@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-param-reassign */
 /* eslint-disable import/no-extraneous-dependencies */
@@ -12,15 +13,10 @@ import amf from 'amf-client-js';
 
 /**
  * Normalizes input options to a common structure.
- * @param {ApiConfiguration|string|string[]} input User input
+ * @param {ApiConfiguration|string} input User input
  * @return {ApiConfiguration} A resulting configuration options with
  */
 function normalizeOptions(input) {
-  if (Array.isArray(input)) {
-    const [type, mime, resolution, flattened] = input;
-    // @ts-ignore
-    return { type, mime, resolution, flattened };
-  }
   if (typeof input === 'object') {
     return input;
   }
@@ -33,7 +29,7 @@ function normalizeOptions(input) {
  * Parses file and sends it to process.
  *
  * @param {string} file File name in `demo` folder
- * @param {ApiConfiguration|string|string[]} cnf
+ * @param {ApiConfiguration|string} cnf
  * @param {ApiGenerationOptions} opts Processing options
  * @return {Promise<void>}
  */
@@ -45,7 +41,7 @@ async function parseFile(file, cnf, opts) {
   if (!dest.endsWith('/')) {
     dest += '/';
   }
-  const { type, mime='application/yaml' } = normalizeOptions(cnf);
+  const { type } = normalizeOptions(cnf);
 
   /** @type amf.AMFConfiguration */
   let configuration;
@@ -59,7 +55,7 @@ async function parseFile(file, cnf, opts) {
   }
   const ro = new amf.RenderOptions().withCompactUris().withPrettyPrint().withSourceMaps();
   const client = configuration.withRenderOptions(ro).baseUnitClient();
-  const result = await client.parseDocument(`file://${src}${file}`, mime);
+  const result = await client.parseDocument(`file://${src}${file}`);
   
   if (!result.conforms) {
     /* eslint-disable-next-line no-console */
@@ -79,42 +75,28 @@ async function parseFile(file, cnf, opts) {
 }
 
 /**
- * Reads `file` as JSON and creates a Map with definitions from the file.
- * The keys are paths to the API file relative to `opts.src` and values is
- * API type.
- * @param {string} file Path to a file definition.
- * @return {FilePrepareResult} The key is the api file location in the `opts.src`
- * directory. The value is the build configuration.
+ * Parses the API models to prepare it for tests and demo pages
+ * @param {Map<string, ApiConfiguration>} init Either path to the api list file or the list of files to parse.
+ * @param {ApiGenerationOptions=} opts Optional parsing options.
  */
-async function prepareFile(file) {
-  const readFile = path.resolve(process.cwd(), file);
-  const data = await fs.readJson(readFile);
-  const files = new Map();
-  const opts = {};
-  Object.keys(data).forEach((key) => {
-    switch (key) {
-      case 'src':
-      case 'dest':
-        opts[key] = data[key];
-        break;
-      default:
-        files.set(key, data[key]);
-        break;
-    }
-  });
-  return {
-    files,
-    opts,
-  };
-}
-
 export default async function main(init, opts={}) {
-  if (typeof init === 'string') {
-    const { files: cnfFiles, opts: cnfOpts } = await prepareFile(init);
-    init = cnfFiles;
-    opts = { ...cnfOpts, ...opts };
-  }
   for (const [file, type] of init) {
     await parseFile(file, type, opts);
   }
 };
+
+/**
+ * Runs the default function and exists the process when failed.
+ * @param {Map<string, ApiConfiguration>} init Either path to the api list file or the list of files to parse.
+ * @param {ApiGenerationOptions=} opts Optional parsing options.
+ */
+export async function generate(init, opts) {
+  try {
+    console.log(`Generating graph models for ${init.size} api(s).`);
+    await main(init, opts);
+    console.log('Models created');
+  } catch (cause) {
+    console.error(cause);
+    process.exit(1);
+  }
+}
