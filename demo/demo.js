@@ -86,6 +86,16 @@ class ComponentPage extends DemoPage {
     this.log(result);
   }
 
+  async generateRaml() {
+    const result = await this.store.generateRaml();
+    this.log(result);
+  }
+
+  async generateGraph() {
+    const result = await this.store.generateGraph();
+    this.log(result);
+  }
+
   /**
    * @param {Event} e 
    */
@@ -96,7 +106,7 @@ class ComponentPage extends DemoPage {
       return;
     }
     switch (button.id) {
-      case 'loadApiGraph': this.loadDemoApi(button.dataset.src); break;
+      case 'loadApiGraph': this.loadDemoApi(button.dataset.src, button.dataset.type); break;
       case 'loadEmptyApi': 
         this.latestOutput = await this.store.createWebApi();
         this.loaded = true;
@@ -216,15 +226,19 @@ class ComponentPage extends DemoPage {
    * @param {any} message 
    */
   log(message) {
-    this.latestOutput = JSON.stringify(message, null, 2);
+    if (typeof message === 'object') {
+      this.latestOutput = JSON.stringify(message, null, 2);
+    } else {
+      this.latestOutput = message;
+    }
     console.log(message);
   }
 
-  async loadDemoApi(file) {
+  async loadDemoApi(file, type) {
     this.loaded = false;
     const rsp = await fetch(`./${file}`);
     const model = await rsp.text();
-    await this.store.loadGraph(model);
+    await this.store.loadGraph(model, type);
     this.loaded = true;
     this.log('void');
   }
@@ -304,11 +318,11 @@ class ComponentPage extends DemoPage {
       <h4>Initialization</h4>
       <div @click="${this.actionHandler}">
         <button id="init">Init</button>
-        <button id="loadApiGraph" data-src="demo-api.json" ?disabled="${!initialized}">Load demo API</button>
-        <button id="loadApiGraph" data-src="async-api.json" ?disabled="${!initialized}">Load async API</button>
-        <button id="loadApiGraph" data-src="google-drive-api.json" ?disabled="${!initialized}">Load Google Drive API</button>
-        <button id="loadApiGraph" data-src="streetlights.json" ?disabled="${!initialized}">Streetlights (async) API</button>
-        <button id="loadApiGraph" data-src="oas-3-api.json" ?disabled="${!initialized}">OAS 3 API</button>
+        <button id="loadApiGraph" data-type="RAML 1.0" data-src="demo-api.json" ?disabled="${!initialized}">Load demo API</button>
+        <button id="loadApiGraph" data-type="ASYNC 2.0" data-src="async-api.json" ?disabled="${!initialized}">Load async API</button>
+        <button id="loadApiGraph" data-type="RAML 1.0"  data-src="google-drive-api.json" ?disabled="${!initialized}">Load Google Drive API</button>
+        <button id="loadApiGraph" data-type="ASYNC 2.0" data-src="streetlights.json" ?disabled="${!initialized}">Streetlights (async) API</button>
+        <button id="loadApiGraph" data-type="OAS 3.0" data-src="oas-3-api.json" ?disabled="${!initialized}">OAS 3 API</button>
         <button id="loadEmptyApi" ?disabled="${!initialized}">Load empty API</button>
         <button ?disabled="${!initialized}" id="selectApiDirectory">Select API</button>
       </div>
@@ -385,6 +399,12 @@ class ComponentPage extends DemoPage {
             <input type="text" id="extId" value="amf://id#397 "/>
             <button id="readDomainExtension" ?disabled="${!loaded}" @click="${this.actionHandler}">Read extension</button>
           </div>
+        </details>
+
+        <details open>
+          <summary>Data generation</summary>
+          <button id="generateRaml" ?disabled="${!loaded}" @click="${this.actionHandler}">Generate RAML</button>
+          <button id="generateGraph" ?disabled="${!loaded}" @click="${this.actionHandler}">Generate Graph</button>
         </details>
       </div>
 

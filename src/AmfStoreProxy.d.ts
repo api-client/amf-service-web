@@ -1,4 +1,4 @@
-import { model } from 'amf-client-js';
+import AMF from 'amf-client-js';
 import { WorkerResponse, WorkerQueueItem, ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndPoint, ApiEndPointWithOperationsListItem, ApiExample, ApiInit, ApiNodeShapeListItem, ApiOperation, ApiOperationListItem, ApiParameter, ApiParametrizedSecurityScheme, ApiPayload, ApiRequest, ApiResponse, ApiSecurityRequirement, ApiSecurityScheme, ApiSecuritySchemeListItem, ApiServer, ApiServerInit, ApiTemplatedLink, EndPointInit, OperationInit, OperationRequestInit, SerializedApi, OperationResponseInit, DocumentationInit, ApiNodeShape, ShapeInit, ApiShapeUnion, ParameterInit, PayloadInit, ExampleInit, ApiSecurityOAuth2Flow, ApiSecurityScope, ApiResource, ParserVendors, ParserMediaTypes, ApiDomainExtension, ApiCustomDomainPropertyListItem, CustomDomainPropertyInit, ApiSecuritySettingsUnion, ApiPropertyShape, PropertyShapeInit, ApiOperationRecursive, ApiParameterRecursive, ApiRequestRecursive, ApiPayloadRecursive, ApiResponseRecursive, ApiParametrizedSecuritySchemeRecursive, ApiSecurityRequirementRecursive, ApiSecuritySchemeRecursive } from './types';
 
 export declare const workerValue: unique symbol;
@@ -53,8 +53,9 @@ export declare class AmfStoreProxy extends EventTarget {
 
   /**
    * Loads existing API model into to graph as Document.
+   * @param vendor The parser type to use to parse the contents.
    */
-  loadGraph(model: string): Promise<void>;
+  loadGraph(model: string, vendor: ParserVendors): Promise<void>;
 
   /**
    * Creates new Document in the graph.
@@ -254,7 +255,7 @@ export declare class AmfStoreProxy extends EventTarget {
    * @param value The new value to set.
    * @returns The updated response
    */
-  updateResponseProperty(id: string, property: keyof model.domain.Response, value: any): Promise<ApiResponse>;
+  updateResponseProperty(id: string, property: keyof AMF.Response, value: any): Promise<ApiResponse>;
 
   /**
    * @param responseId The response id to delete
@@ -281,7 +282,7 @@ export declare class AmfStoreProxy extends EventTarget {
    * @param value The new value to set.
    * @returns The updated example
    */
-  updateExampleProperty(id: string, property: keyof model.domain.Example, value: any): Promise<ApiExample>;
+  updateExampleProperty(id: string, property: keyof AMF.Example, value: any): Promise<ApiExample>;
 
   /**
    * Reads Payload data from the graph
@@ -327,7 +328,7 @@ export declare class AmfStoreProxy extends EventTarget {
    * @param value The new value to set.
    * @returns The updated Payload
    */
-  updatePayloadProperty(id: string, property: keyof model.domain.Payload, value: any): Promise<ApiPayload>;
+  updatePayloadProperty(id: string, property: keyof AMF.Payload, value: any): Promise<ApiPayload>;
 
   /**
    * Reads the TemplatedLink object from the graph.
@@ -368,7 +369,7 @@ export declare class AmfStoreProxy extends EventTarget {
    * @param value The new value to set.
    * @returns The updated custom domain property
    */
-  updateCustomDomainProperty(id: string, property: keyof model.domain.CustomDomainProperty, value: any): Promise<ApiCustomDomainProperty>;
+  updateCustomDomainProperty(id: string, property: keyof AMF.CustomDomainProperty, value: any): Promise<ApiCustomDomainProperty>;
 
   /**
    * Reads the DomainExtension object from the graph.
@@ -470,7 +471,7 @@ export declare class AmfStoreProxy extends EventTarget {
    * @param value The new value to set.
    * @returns The updated request
    */
-  updateRequestProperty(id: string, property: keyof model.domain.Request, value: any): Promise<ApiRequest>;
+  updateRequestProperty(id: string, property: keyof AMF.Request, value: any): Promise<ApiRequest>;
 
   /**
    * Reads the info about a parameter.
@@ -499,7 +500,7 @@ export declare class AmfStoreProxy extends EventTarget {
    * @param value The new value to set.
    * @returns The updated Parameter
    */
-  updateParameterProperty(id: string, property: keyof model.domain.Parameter, value: any): Promise<ApiParameter>;
+  updateParameterProperty(id: string, property: keyof AMF.Parameter, value: any): Promise<ApiParameter>;
 
   /**
    * Adds an example to a Parameter
@@ -540,7 +541,7 @@ export declare class AmfStoreProxy extends EventTarget {
    * @param property The property name to update
    * @param value The new value to set.
    */
-  updateDocumentationProperty(id: string, property: keyof model.domain.CreativeWork, value: any): Promise<ApiDocumentation>;
+  updateDocumentationProperty(id: string, property: keyof AMF.CreativeWork, value: any): Promise<ApiDocumentation>;
 
   /**
    * Removes the documentation from the graph.
@@ -610,7 +611,7 @@ export declare class AmfStoreProxy extends EventTarget {
    * @param property The property name to update
    * @param value The new value to set.
    */
-  updatePropertyShapeProperty(parent: string, id: string, property: keyof model.domain.PropertyShape, value: any): Promise<ApiPropertyShape>;
+  updatePropertyShapeProperty(parent: string, id: string, property: keyof AMF.PropertyShape, value: any): Promise<ApiPropertyShape>;
 
   /**
    * Lists the security definitions for the API.

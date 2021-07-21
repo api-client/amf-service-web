@@ -11,14 +11,16 @@ import { EventTypes } from './EventTypes.js';
 export class ApiStoreLoadGraphEvent extends CustomEvent {
   /**
    * @param {string} model The model to load.
+   * @param {ParserVendors} vendor The vendor of the API.
    */
-  constructor(model) {
+  constructor(model, vendor) {
     super(EventTypes.Store.loadGraph, {
       bubbles: true,
       composed: true,
       cancelable: true,
       detail: {
         model,
+        vendor,
         result: undefined,
       }
     });
@@ -70,10 +72,11 @@ export const StoreEvents = {
   /**
    * @param {EventTarget} target The node on which to dispatch the event
    * @param {string} model The model to load.
+   * @param {ParserVendors} vendor The vendor of the API.
    * @returns {Promise<void>} Resolved when the model is loaded.
    */
-  loadGraph: async (target, model) => {
-    const e = new ApiStoreLoadGraphEvent(model);
+  loadGraph: async (target, model, vendor) => {
+    const e = new ApiStoreLoadGraphEvent(model, vendor);
     target.dispatchEvent(e);
     return e.detail.result;
   },

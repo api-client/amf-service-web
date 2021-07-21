@@ -133,8 +133,16 @@ export declare interface ProxyErrorResponse {
 export type RAMLVendors = 'RAML 0.8' | 'RAML 1.0';
 export type OASVendors = 'OAS 2.0' | 'OAS 3.0';
 export type AmfVendors = 'AMF Graph' | 'JSON Schema';
-export type ParserVendors = RAMLVendors | OASVendors | AmfVendors;
-export type ParserMediaTypes = 'application/json' | 'application/ld+json' | 'application/yaml' | 'application/raml';
+export type AsyncVendors = 'ASYNC 2.0';
+export type ParserVendors = RAMLVendors | OASVendors | AmfVendors | AsyncVendors;
+
+export type RAMLMediaTypes = 'application/raml08+yaml' | 'application/raml10+yaml';
+export type OASMediaTypes = 'application/oas20' | 'application/oas20+yaml' | 'application/oas20+json' | 'application/openapi30' | 'application/openapi30+yaml' | 'application/openapi30+json';
+export type AsyncMediaTypes = 'application/asyncapi20' | 'application/asyncapi20+yaml' | 'application/asyncapi20+json';
+export type AmfMediaTypes = 'application/amf-payload' | 'application/amf-payload+yaml' | 'application/amf-payload+json';
+export type GraphMediaTypes = 'application/graph' | 'application/schema+json';
+
+export type ParserMediaTypes = RAMLMediaTypes | OASMediaTypes | AsyncMediaTypes | AmfMediaTypes | GraphMediaTypes;
 
 
 export declare interface ContentFile {
@@ -310,6 +318,7 @@ export interface ApiEndpointsTreeItem extends ApiEndPointWithOperationsListItem 
 }
 
 export interface ApiEndPoint extends ApiDomainProperty {
+  customDomainProperties?: ApiDomainExtension[];
   description?: string;
   name?: string;
   summary?: string;
@@ -332,6 +341,7 @@ export interface ApiOperationBase extends ApiDomainProperty {
   accepts?: string[];
   contentType?: string[];
   operationId?: string;
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 export interface ApiOperation extends ApiOperationBase {
@@ -341,7 +351,6 @@ export interface ApiOperation extends ApiOperationBase {
   security: string[];
   callbacks: string[];
   servers: string[];
-  customDomainProperties: string[];
 }
 
 export interface ApiOperationRecursive extends ApiOperationBase {
@@ -351,8 +360,6 @@ export interface ApiOperationRecursive extends ApiOperationBase {
   security: ApiSecurityRequirementRecursive[];
   callbacks: ApiCallback[];
   servers: ApiServerRecursive[];
-  // this is todo
-  customDomainProperties: string[];
 }
 
 export interface ApiOperationListItem {
@@ -364,6 +371,7 @@ export interface ApiOperationListItem {
 export interface ApiServerBase extends ApiDomainProperty {
   url: string;
   description?: string;
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 export interface ApiServer extends ApiServerBase {
@@ -384,6 +392,7 @@ export interface ApiParameterBase extends ApiDomainProperty {
   explode?: boolean;
   allowReserved?: boolean;
   binding?: string;
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 export interface ApiParameter extends ApiParameterBase {
@@ -406,11 +415,13 @@ export interface ApiExample extends ApiDomainProperty {
   structuredValue?: ApiDataNodeUnion;
   strict: boolean;
   mediaType?: string;
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 export interface ApiPayloadBase extends ApiDomainProperty {
   name?: string;
   mediaType?: string;
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 export interface ApiPayload extends ApiPayloadBase {
@@ -429,6 +440,7 @@ export interface ApiResponseBase extends ApiDomainProperty {
   name?: string;
   description?: string;
   statusCode?: string;
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 export interface ApiResponse extends ApiResponseBase {
@@ -451,25 +463,28 @@ export interface ApiTemplatedLinkBase extends ApiDomainProperty {
   template?: string;
   operationId?: string;
   requestBody?: string;
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 export interface ApiTemplatedLink extends ApiTemplatedLinkBase {
-  mapping?: string;
+  mapping?: string[];
   server?: string;
 }
 
 export interface ApiTemplatedLinkRecursive extends ApiTemplatedLinkBase {
-  mapping?: ApiIriTemplateMapping;
+  mapping?: ApiIriTemplateMapping[];
   server?: ApiServerRecursive;
 }
 
 export interface ApiIriTemplateMapping extends ApiDomainProperty {
   templateVariable?: string;
   linkExpression?: string;
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 export interface ApiSecurityRequirementBase extends ApiDomainProperty {
   name?: string;
+  customDomainProperties?: ApiDomainExtension[];
 }
 export interface ApiSecurityRequirement extends ApiSecurityRequirementBase {
   schemes: ApiParametrizedSecurityScheme[];
@@ -481,6 +496,7 @@ export interface ApiSecurityRequirementRecursive extends ApiSecurityRequirementB
 export interface ApiParametrizedSecuritySchemeBase extends ApiDomainProperty {
   name?: string;
   settings?: ApiSecuritySettingsUnion;
+  customDomainProperties?: ApiDomainExtension[];
 }
 export interface ApiParametrizedSecurityScheme extends ApiParametrizedSecuritySchemeBase {
   scheme?: ApiSecurityScheme;
@@ -495,6 +511,7 @@ export interface ApiSecuritySchemeBase extends ApiDomainProperty {
   displayName?: string;
   description?: string;
   settings?: ApiSecuritySettingsUnion;
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 export interface ApiSecurityScheme extends ApiSecuritySchemeBase {
@@ -513,6 +530,7 @@ export interface ApiSecuritySchemeRecursive extends ApiSecuritySchemeBase {
 
 export interface ApiSecuritySettings extends ApiDomainProperty {
   additionalProperties?: ApiDataNodeUnion;
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 export interface ApiSecurityOAuth1Settings extends ApiSecuritySettings {
@@ -549,16 +567,19 @@ export interface ApiSecurityOAuth2Flow {
   flow?: string;
   refreshUri?: string;
   scopes: ApiSecurityScope[];
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 export interface ApiSecurityScope {
   name?: string;
   description?: string;
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 export interface ApiRequestBase extends ApiDomainProperty {
   description?: string;
   required?: boolean;
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 export interface ApiRequest extends ApiRequestBase {
@@ -582,7 +603,8 @@ export interface ApiRequestRecursive extends ApiRequestBase {
 export interface ApiCallback extends ApiDomainProperty {
   name?: string;
   expression?: string;
-  endpoint?: string;
+  endpoint?: ApiEndPoint;
+  customDomainProperties?: ApiDomainExtension[];
 }
 
 /**
@@ -791,7 +813,7 @@ export interface ApiArrayShape extends ApiDataArrangeShape {
 
 export interface ApiTupleShape extends ApiDataArrangeShape {
   items: ApiShapeUnion[];
-  additionalItems?: boolean;
+  additionalItems?: string;
 }
 
 export interface ApiDataNode extends ApiDomainProperty {

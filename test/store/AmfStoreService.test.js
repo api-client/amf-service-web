@@ -160,22 +160,22 @@ describe('AmfStoreService', () => {
 
     it('initializes the store with RAML API', async () => {
       const model = await AmfLoader.loadApi('demo-api.json');
-      await store.loadGraph(model);
+      await store.loadGraph(model, 'RAML 1.0');
     });
 
     it('initializes the store with OAS 3 API', async () => {
       const model = await AmfLoader.loadApi('oas-3-api.json');
-      await store.loadGraph(model);
+      await store.loadGraph(model, 'OAS 3.0');
     });
 
     it('initializes the store with Async API', async () => {
       const model = await AmfLoader.loadApi('streetlights.json');
-      await store.loadGraph(model);
+      await store.loadGraph(model, 'ASYNC 2.0');
     });
 
     it('initializes the store via the event', async () => {
       const model = await AmfLoader.loadApi('streetlights.json');
-      const result = StoreEvents.Store.loadGraph(et, model);
+      const result = StoreEvents.Store.loadGraph(et, model, 'ASYNC 2.0');
       assert.typeOf(result, 'promise');
       await result;
     });
@@ -294,13 +294,13 @@ describe('AmfStoreService', () => {
       demoApi = await AmfLoader.loadApi();
       demoStore = new AmfStoreService(et);
       await demoStore.init();
-      await demoStore.loadGraph(demoApi);
+      await demoStore.loadGraph(demoApi, 'RAML 1.0');
 
       oasApi = await AmfLoader.loadApi('oas-3-api.json');
       // this has intentionally different event target set so only one store listens on `et`
       oasStore = new AmfStoreService(document.body);
       await oasStore.init();
-      await oasStore.loadGraph(oasApi);
+      await oasStore.loadGraph(oasApi, 'OAS 3.0');
     });
 
     after(() => {
@@ -382,13 +382,11 @@ describe('AmfStoreService', () => {
     it('has the provider property', async () => {
       const api = await oasStore.getApi();
       assert.typeOf(api.provider, 'string', 'has the property');
-      assert.include(api.provider, 'amf://id', 'has the value');
     });
 
     it('has the license property', async () => {
       const api = await oasStore.getApi();
       assert.typeOf(api.license, 'string', 'has the property');
-      assert.include(api.license, 'amf://id', 'has the value');
     });
 
     it('reads the API via the event', async () => {
@@ -444,17 +442,28 @@ types:
           path: 'types/api-types.raml',
         },
       ];
-      await store.loadApi(files, 'RAML 1.0', 'application/raml', 'api.raml');
+      await store.loadApi(files, 'RAML 1.0', 'application/raml10+yaml', 'api.raml');
       const project = await store.getApi();
       assert.lengthOf(project.endPoints, 1, 'has the API')
     });
 
     it('loads an OAS 3 API with files', async () => {
-      const api = `
-openapi: '3.0.2'
+      const api = `openapi: '3.0.0'
+info:
+  title: Servers demo API
+  version: '1.0'
+  description: Test API for testing AMF service
 servers:
   - url: https://development.gigantic-server.com/v1
     description: Development server
+components:
+  schemas:
+    GeneralError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
 paths:
   /test:
     get:
@@ -471,26 +480,23 @@ paths:
           path: 'api.yaml',
         },
       ];
-      await store.loadApi(files, 'OAS 3.0', 'application/yaml', 'api.yaml');
+      await store.loadApi(files, 'OAS 3.0', 'application/openapi30+yaml', 'api.yaml');
       const project = await store.getApi();
       assert.lengthOf(project.endPoints, 1, 'has the API')
     });
 
     it('loads an API with the event', async () => {
       const api = `
-openapi: '3.0.2'
-servers:
-  - url: https://development.gigantic-server.com/v1
-    description: Development server
-paths:
-  /test:
-    get:
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: string
+#%RAML 1.0
+title: API test
+version: v1
+/path:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            type: object
       `.trim();
       const files = [
         {
@@ -498,7 +504,7 @@ paths:
           path: 'api.yaml',
         },
       ];
-      await StoreEvents.Store.loadApi(et, files, 'api.yaml', 'OAS 3.0', 'application/yaml');
+      await StoreEvents.Store.loadApi(et, files, 'api.yaml', 'RAML 1.0', 'application/raml10+yaml');
       const project = await store.getApi();
       assert.lengthOf(project.endPoints, 1, 'has the API')
     });

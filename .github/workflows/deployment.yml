@@ -13,13 +13,8 @@ on:
       - main
 jobs:
   test_linux:
-    name: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-20.04]
-        # os: [ubuntu-18.04, ubuntu-20.04]
-    runs-on: ${{ matrix.os }}
+    name: Ubuntu
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -62,7 +57,7 @@ jobs:
   tag:
     name: "Publishing release"
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    needs: 
+    needs:
       - test_linux
       # - test_win
     runs-on: ubuntu-latest
@@ -73,17 +68,18 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: 15
+          registry-url: https://registry.npmjs.org
+          always-auth: true
       - uses: actions/cache@v1
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - name: Install global dependencies
-        run: npm install -g browserify uglify-js
-      - run: npm install
+      - run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Read version from package.json
         uses: culshaw/read-package-node-version-actions@v1
         id: package-node-version
@@ -97,6 +93,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ steps.package-node-version.outputs.version }}
+          release_name: v${{ steps.package-node-version.outputs.version }}
           body: |
             ${{ steps.Changelog.outputs.changelog }}
           draft: false

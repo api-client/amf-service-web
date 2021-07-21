@@ -1,49 +1,50 @@
 /* eslint-disable class-methods-use-this */
 import { ns } from './Namespace.js';
 
-/** @typedef {import('amf-client-js').model.domain.ParametrizedSecurityScheme} ParametrizedSecurityScheme */
-/** @typedef {import('amf-client-js').model.domain.Request} Request */
-/** @typedef {import('amf-client-js').model.domain.Response} Response */
-/** @typedef {import('amf-client-js').model.domain.Payload} Payload */
-/** @typedef {import('amf-client-js').model.domain.SecurityScheme} SecurityScheme */
-/** @typedef {import('amf-client-js').model.domain.SecurityRequirement} SecurityRequirement */
-/** @typedef {import('amf-client-js').model.domain.Settings} Settings */
-/** @typedef {import('amf-client-js').model.domain.OAuth1Settings} OAuth1Settings */
-/** @typedef {import('amf-client-js').model.domain.OAuth2Settings} OAuth2Settings */
-/** @typedef {import('amf-client-js').model.domain.OAuth2Flow} OAuth2Flow */
-/** @typedef {import('amf-client-js').model.domain.HttpSettings} HttpSettings */
-/** @typedef {import('amf-client-js').model.domain.ApiKeySettings} ApiKeySettings */
-/** @typedef {import('amf-client-js').model.domain.OpenIdConnectSettings} OpenIdConnectSettings */
-/** @typedef {import('amf-client-js').model.domain.TemplatedLink} TemplatedLink */
-/** @typedef {import('amf-client-js').model.domain.Example} Example */
-/** @typedef {import('amf-client-js').model.domain.Parameter} Parameter */
-/** @typedef {import('amf-client-js').model.domain.Operation} Operation */
-/** @typedef {import('amf-client-js').model.domain.EndPoint} EndPoint */
-/** @typedef {import('amf-client-js').model.domain.Server} Server */
-/** @typedef {import('amf-client-js').model.domain.CreativeWork} CreativeWork */
-/** @typedef {import('amf-client-js').model.domain.NodeShape} NodeShape */
-/** @typedef {import('amf-client-js').model.domain.WebApi} WebApi */
-/** @typedef {import('amf-client-js').model.domain.PropertyShape} PropertyShape */
-/** @typedef {import('amf-client-js').model.domain.Shape} Shape */
-/** @typedef {import('amf-client-js').model.domain.AnyShape} AnyShape */
-/** @typedef {import('amf-client-js').model.domain.ScalarShape} ScalarShape */
-/** @typedef {import('amf-client-js').model.domain.UnionShape} UnionShape */
-/** @typedef {import('amf-client-js').model.domain.FileShape} FileShape */
-/** @typedef {import('amf-client-js').model.domain.SchemaShape} SchemaShape */
-/** @typedef {import('amf-client-js').model.domain.DataArrangeShape} DataArrangeShape */
-/** @typedef {import('amf-client-js').model.domain.ArrayShape} ArrayShape */
-/** @typedef {import('amf-client-js').model.domain.TupleShape} TupleShape */
-/** @typedef {import('amf-client-js').model.domain.DataNode} DataNode */
-/** @typedef {import('amf-client-js').model.domain.ScalarNode} ScalarNode */
-/** @typedef {import('amf-client-js').model.domain.ObjectNode} ObjectNode */
-/** @typedef {import('amf-client-js').model.domain.ArrayNode} ArrayNode */
-/** @typedef {import('amf-client-js').model.domain.XMLSerializer} XMLSerializer */
-/** @typedef {import('amf-client-js').model.domain.Scope} Scope */
-/** @typedef {import('amf-client-js').model.domain.CustomDomainProperty} CustomDomainProperty */
-/** @typedef {import('amf-client-js').model.domain.DomainExtension} DomainExtension */
-/** @typedef {import('amf-client-js').model.domain.Encoding} Encoding */
-/** @typedef {import('amf-client-js').model.domain.IriTemplateMapping} IriTemplateMapping */
-/** @typedef {import('amf-client-js').model.domain.Callback} Callback */
+/** @typedef {import('amf-client-js').ParametrizedSecurityScheme} ParametrizedSecurityScheme */
+/** @typedef {import('amf-client-js').Request} Request */
+/** @typedef {import('amf-client-js').Response} Response */
+/** @typedef {import('amf-client-js').Payload} Payload */
+/** @typedef {import('amf-client-js').SecurityScheme} SecurityScheme */
+/** @typedef {import('amf-client-js').SecurityRequirement} SecurityRequirement */
+/** @typedef {import('amf-client-js').Settings} Settings */
+/** @typedef {import('amf-client-js').OAuth1Settings} OAuth1Settings */
+/** @typedef {import('amf-client-js').OAuth2Settings} OAuth2Settings */
+/** @typedef {import('amf-client-js').OAuth2Flow} OAuth2Flow */
+/** @typedef {import('amf-client-js').HttpSettings} HttpSettings */
+/** @typedef {import('amf-client-js').ApiKeySettings} ApiKeySettings */
+/** @typedef {import('amf-client-js').OpenIdConnectSettings} OpenIdConnectSettings */
+/** @typedef {import('amf-client-js').TemplatedLink} TemplatedLink */
+/** @typedef {import('amf-client-js').Example} Example */
+/** @typedef {import('amf-client-js').Parameter} Parameter */
+/** @typedef {import('amf-client-js').Operation} Operation */
+/** @typedef {import('amf-client-js').EndPoint} EndPoint */
+/** @typedef {import('amf-client-js').Server} Server */
+/** @typedef {import('amf-client-js').CreativeWork} CreativeWork */
+/** @typedef {import('amf-client-js').NodeShape} NodeShape */
+/** @typedef {import('amf-client-js').WebApi} WebApi */
+/** @typedef {import('amf-client-js').PropertyShape} PropertyShape */
+/** @typedef {import('amf-client-js').Shape} Shape */
+/** @typedef {import('amf-client-js').AnyShape} AnyShape */
+/** @typedef {import('amf-client-js').ScalarShape} ScalarShape */
+/** @typedef {import('amf-client-js').UnionShape} UnionShape */
+/** @typedef {import('amf-client-js').FileShape} FileShape */
+/** @typedef {import('amf-client-js').SchemaShape} SchemaShape */
+/** @typedef {import('amf-client-js').DataArrangeShape} DataArrangeShape */
+/** @typedef {import('amf-client-js').ArrayShape} ArrayShape */
+/** @typedef {import('amf-client-js').TupleShape} TupleShape */
+/** @typedef {import('amf-client-js').DataNode} DataNode */
+/** @typedef {import('amf-client-js').ScalarNode} ScalarNode */
+/** @typedef {import('amf-client-js').ObjectNode} ObjectNode */
+/** @typedef {import('amf-client-js').ArrayNode} ArrayNode */
+/** @typedef {import('amf-client-js').XMLSerializer} XMLSerializer */
+/** @typedef {import('amf-client-js').Scope} Scope */
+/** @typedef {import('amf-client-js').CustomDomainProperty} CustomDomainProperty */
+/** @typedef {import('amf-client-js').DomainExtension} DomainExtension */
+/** @typedef {import('amf-client-js').Encoding} Encoding */
+/** @typedef {import('amf-client-js').IriTemplateMapping} IriTemplateMapping */
+/** @typedef {import('amf-client-js').Callback} Callback */
+/** @typedef {import('amf-client-js').DomainElement} DomainElement */
 /** @typedef {import('./types').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 /** @typedef {import('./types').ApiParametrizedSecuritySchemeBase} ApiParametrizedSecuritySchemeBase */
 /** @typedef {import('./types').ApiParametrizedSecuritySchemeRecursive} ApiParametrizedSecuritySchemeRecursive */
@@ -136,6 +137,7 @@ export class ApiSerializer {
     const result = /** @type SerializedApi */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       isAsyncApi,
       isWebApi,
       schemes: [],
@@ -146,19 +148,19 @@ export class ApiSerializer {
       servers: [],
       security: [],
     });
-    if (!name.isNullOrEmpty) {
+    if (name && name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!description.isNullOrEmpty) {
+    if (description && description.isNullOrEmpty === false) {
       result.description = description.value();
     }
-    if (!identifier.isNullOrEmpty) {
+    if (identifier && identifier.isNullOrEmpty === false) {
       result.identifier = identifier.value();
     }
-    if (!version.isNullOrEmpty) {
+    if (version && version.isNullOrEmpty === false) {
       result.version = version.value();
     }
-    if (!termsOfService.isNullOrEmpty) {
+    if (termsOfService && termsOfService.isNullOrEmpty === false) {
       result.termsOfService = termsOfService.value();
     }
     if (Array.isArray(schemes) && schemes.length) {
@@ -201,8 +203,9 @@ export class ApiSerializer {
     const result = /** @type ApiParametrizedSecurityScheme */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
     if (scheme) {
@@ -232,25 +235,34 @@ export class ApiSerializer {
    * @returns {ApiSecurityScheme} Serialized SecurityScheme
    */
   static securityScheme(object) {
-    const { id, headers, queryParameters, responses, name, type, displayName, description, settings, queryString } = object;
-    const types = object.graph().types();
+    let target = object;
+    if (target.isLink) {
+      target = /** @type SecurityScheme */ (object.linkTarget);
+    }
+    const { id, headers, queryParameters, responses, name, type, displayName, description, settings, queryString } = target;
+    const types = target.graph().types();
     const result = /** @type ApiSecurityScheme */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       headers: [],
       queryParameters: [],
       responses: [],
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
+    } else if (object.name.isNullOrEmpty === false) {
+      result.name = object.name.value();
     }
-    if (!type.isNullOrEmpty) {
+    if (displayName.isNullOrEmpty === false) {
+      result.displayName = displayName.value();
+    } else if (object.displayName.isNullOrEmpty === false) {
+      result.displayName = object.displayName.value();
+    }
+    if (type.isNullOrEmpty === false) {
       result.type = type.value();
     }
-    if (!displayName.isNullOrEmpty) {
-      result.displayName = displayName.value();
-    }
-    if (!description.isNullOrEmpty) {
+    if (description.isNullOrEmpty === false) {
       result.description = description.value();
     }
     if (settings) {
@@ -276,8 +288,12 @@ export class ApiSerializer {
    * @returns {ApiSecuritySchemeRecursive} Serialized SecurityScheme
    */
   static securitySchemeRecursive(object) {
-    const { headers, queryParameters, responses, queryString } = object;
-    const result = /** @type ApiSecuritySchemeRecursive */ (/** @type ApiSecuritySchemeBase */ (ApiSerializer.securityScheme(object)));
+    let target = object;
+    if (target.isLink) {
+      target = /** @type SecurityScheme */ (object.linkTarget);
+    }
+    const { headers, queryParameters, responses, queryString } = target;
+    const result = /** @type ApiSecuritySchemeRecursive */ (/** @type ApiSecuritySchemeBase */ (ApiSerializer.securityScheme(target)));
     if (queryString) {
       result.queryString = ApiSerializer.unknownShape(queryString);
     }
@@ -303,9 +319,10 @@ export class ApiSerializer {
     const result = /** @type ApiSecurityRequirement */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       schemes: [],
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
     if (Array.isArray(schemes) && schemes.length) {
@@ -332,18 +349,26 @@ export class ApiSerializer {
    * @returns {ApiSecuritySchemeListItem} Serialized SecurityScheme
    */
   static securitySchemeListItem(object) {
-    const { id, name, type, displayName } = object;
-    const types = object.graph().types();
+    let target = object;
+    if (target.isLink) {
+      target = /** @type SecurityScheme */ (object.linkTarget);
+    }
+    const { name, type, displayName } = target;
+    const types = target.graph().types();
     const result = /** @type ApiSecuritySchemeListItem */ ({
-      id,
+      id: object.id,
       types,
       type: type.value(),
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
+    } else if (object.name.isNullOrEmpty === false) {
+      result.name = object.name.value();
     }
-    if (!displayName.isNullOrEmpty) {
+    if (displayName.isNullOrEmpty === false) {
       result.displayName = displayName.value();
+    } else if (object.displayName.isNullOrEmpty === false) {
+      result.displayName = object.displayName.value();
     }
     return result;
   }
@@ -382,6 +407,7 @@ export class ApiSerializer {
     const result = /** @type ApiSecuritySettings */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
     if (additionalProperties && additionalProperties.id) {
       result.additionalProperties = ApiSerializer.unknownDataNode(additionalProperties);
@@ -394,24 +420,22 @@ export class ApiSerializer {
    * @returns {ApiSecurityOAuth1Settings}
    */
   static oAuth1Settings(object) {
-    const { id, authorizationUri, requestTokenUri, tokenCredentialsUri, signatures, } = object;
-    const types = object.graph().types();
-    const result = /** @type ApiSecurityOAuth1Settings */ ({
-      id,
-      types,
-      signatures: [],
-    });
-    if (!authorizationUri.isNullOrEmpty) {
+    const { authorizationUri, requestTokenUri, tokenCredentialsUri, signatures, } = object;
+    const result = /** @type ApiSecurityOAuth1Settings */ (ApiSerializer.settings(object));
+    
+    if (authorizationUri.isNullOrEmpty === false) {
       result.authorizationUri = authorizationUri.value();
     }
-    if (!requestTokenUri.isNullOrEmpty) {
+    if (requestTokenUri.isNullOrEmpty === false) {
       result.requestTokenUri = requestTokenUri.value();
     }
-    if (!tokenCredentialsUri.isNullOrEmpty) {
+    if (tokenCredentialsUri.isNullOrEmpty === false) {
       result.tokenCredentialsUri = tokenCredentialsUri.value();
     }
     if (Array.isArray(signatures) && signatures.length) {
       result.signatures = signatures.map((p) => p.value());
+    } else {
+      result.signatures = [];
     }
     return result;
   }
@@ -421,19 +445,17 @@ export class ApiSerializer {
    * @returns {ApiSecurityOAuth2Settings}
    */
   static oAuth2Settings(object) {
-    const { id, authorizationGrants, flows, } = object;
-    const types = object.graph().types();
-    const result = /** @type ApiSecurityOAuth2Settings */ ({
-      id,
-      types,
-      flows: [],
-      authorizationGrants: [],
-    });
+    const { authorizationGrants, flows, } = object;
+    const result = /** @type ApiSecurityOAuth2Settings */ (ApiSerializer.settings(object));
     if (Array.isArray(authorizationGrants) && authorizationGrants.length) {
       result.authorizationGrants = authorizationGrants.map((p) => p.value());
+    } else {
+      result.authorizationGrants = [];
     }
     if (Array.isArray(flows) && flows.length) {
       result.flows = flows.map((p) => ApiSerializer.oAuth2Flow(p));
+    } else {
+      result.flows = [];
     }
     return result;
   }
@@ -448,18 +470,19 @@ export class ApiSerializer {
     const result = /** @type ApiSecurityOAuth2Flow */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       scopes: [],
     });
-    if (!authorizationUri.isNullOrEmpty) {
+    if (authorizationUri.isNullOrEmpty === false) {
       result.authorizationUri = authorizationUri.value();
     }
-    if (!accessTokenUri.isNullOrEmpty) {
+    if (accessTokenUri.isNullOrEmpty === false) {
       result.accessTokenUri = accessTokenUri.value();
     }
-    if (!flow.isNullOrEmpty) {
+    if (flow.isNullOrEmpty === false) {
       result.flow = flow.value();
     }
-    if (!refreshUri.isNullOrEmpty) {
+    if (refreshUri.isNullOrEmpty === false) {
       result.refreshUri = refreshUri.value();
     }
     if (Array.isArray(scopes) && scopes.length) {
@@ -478,11 +501,12 @@ export class ApiSerializer {
     const result = /** @type ApiSecurityScope */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!description.isNullOrEmpty) {
+    if (description.isNullOrEmpty === false) {
       result.description = description.value();
     }
     return result;
@@ -493,16 +517,12 @@ export class ApiSerializer {
    * @returns {ApiSecurityApiKeySettings}
    */
   static apiKeySettings(object) {
-    const { id, name, in: inParam } = object;
-    const types = object.graph().types();
-    const result = /** @type ApiSecurityApiKeySettings */ ({
-      id,
-      types,
-    });
-    if (!name.isNullOrEmpty) {
+    const { name, in: inParam } = object;
+    const result = /** @type ApiSecurityApiKeySettings */ (ApiSerializer.settings(object));
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!inParam.isNullOrEmpty) {
+    if (inParam.isNullOrEmpty === false) {
       result.in = inParam.value();
     }
     return result;
@@ -513,16 +533,12 @@ export class ApiSerializer {
    * @returns {ApiSecurityHttpSettings}
    */
   static httpSettings(object) {
-    const { id, scheme, bearerFormat } = object;
-    const types = object.graph().types();
-    const result = /** @type ApiSecurityHttpSettings */ ({
-      id,
-      types,
-    });
-    if (!scheme.isNullOrEmpty) {
+    const { scheme, bearerFormat } = object;
+    const result = /** @type ApiSecurityHttpSettings */ (ApiSerializer.settings(object));
+    if (scheme.isNullOrEmpty === false) {
       result.scheme = scheme.value();
     }
-    if (!bearerFormat.isNullOrEmpty) {
+    if (bearerFormat.isNullOrEmpty === false) {
       result.bearerFormat = bearerFormat.value();
     }
     return result;
@@ -533,13 +549,9 @@ export class ApiSerializer {
    * @returns {ApiSecurityOpenIdConnectSettings}
    */
   static openIdConnectSettings(object) {
-    const { id, url } = object;
-    const types = object.graph().types();
-    const result = /** @type ApiSecurityOpenIdConnectSettings */ ({
-      id,
-      types,
-    });
-    if (!url.isNullOrEmpty) {
+    const { url } = object;
+    const result = /** @type ApiSecurityOpenIdConnectSettings */ (ApiSerializer.settings(object));
+    if (url.isNullOrEmpty === false) {
       result.url = url.value();
     }
     return result;
@@ -550,11 +562,16 @@ export class ApiSerializer {
    * @returns {ApiRequest} Serialized API request
    */
   static request(object) {
-    const { id, required, description, queryString, headers, queryParameters, payloads, uriParameters, cookieParameters } = object;
-    const types = object.graph().types();
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Request */ (object.linkTarget);
+    }
+    const { id, required, description, queryString, headers, queryParameters, payloads, uriParameters, cookieParameters } = target;
+    const types = target.graph().types();
     const result = /** @type ApiRequest */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       required: required.value(),
       headers: [],
       queryParameters: [],
@@ -562,7 +579,7 @@ export class ApiSerializer {
       uriParameters: [],
       cookieParameters: [],
     });
-    if (!description.isNullOrEmpty) {
+    if (description.isNullOrEmpty === false) {
       result.description = description.value();
     }
     if (queryString) {
@@ -591,8 +608,12 @@ export class ApiSerializer {
    * @returns {ApiRequestRecursive} Serialized API request
    */
   static requestRecursive(object) {
-    const { queryString, headers, queryParameters, payloads, uriParameters, cookieParameters } = object;
-    const result = /** @type ApiRequestRecursive */ (/** @type ApiRequestBase */ (ApiSerializer.request(object)));
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Request */ (object.linkTarget);
+    }
+    const { queryString, headers, queryParameters, payloads, uriParameters, cookieParameters } = target;
+    const result = /** @type ApiRequestRecursive */ (/** @type ApiRequestBase */ (ApiSerializer.request(target)));
     if (queryString) {
       result.queryString = ApiSerializer.unknownShape(queryString);
     }
@@ -624,27 +645,28 @@ export class ApiSerializer {
     const result = /** @type ApiTemplatedLink */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!description.isNullOrEmpty) {
+    if (description.isNullOrEmpty === false) {
       result.description = description.value();
     }
-    if (!template.isNullOrEmpty) {
+    if (template.isNullOrEmpty === false) {
       result.template = template.value();
     }
-    if (!operationId.isNullOrEmpty) {
+    if (operationId.isNullOrEmpty === false) {
       result.operationId = operationId.value();
     }
-    if (!requestBody.isNullOrEmpty) {
+    if (requestBody.isNullOrEmpty === false) {
       result.requestBody = requestBody.value();
     }
     if (server) {
       result.server = server.id;
     }
-    if (mapping) {
-      result.mapping = mapping.id;
+    if (Array.isArray(mapping) && mapping.length) {
+      result.mapping = mapping.map(i => i.id);
     }
     return result;
   }
@@ -659,8 +681,8 @@ export class ApiSerializer {
     if (server) {
       result.server = ApiSerializer.serverRecursive(server);
     }
-    if (mapping) {
-      result.mapping = ApiSerializer.iriTemplateMapping(mapping);
+    if (Array.isArray(mapping) && mapping.length) {
+      result.mapping = mapping.map(i => ApiSerializer.iriTemplateMapping(i));
     }
     return result;
   }
@@ -675,11 +697,12 @@ export class ApiSerializer {
     const result = /** @type ApiIriTemplateMapping */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
-    if (!templateVariable.isNullOrEmpty) {
+    if (templateVariable.isNullOrEmpty === false) {
       result.templateVariable = templateVariable.value();
     }
-    if (!linkExpression.isNullOrEmpty) {
+    if (linkExpression.isNullOrEmpty === false) {
       result.linkExpression = linkExpression.value();
     }
     return result;
@@ -690,23 +713,28 @@ export class ApiSerializer {
    * @returns {ApiResponse} Serialized Response
    */
   static response(object) {
-    const { id, headers, payloads, examples, links, name, description, statusCode } = object;
-    const types = object.graph().types();
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Response */ (object.linkTarget);
+    }
+    const { id, headers, payloads, examples, links, name, description, statusCode } = target;
+    const types = target.graph().types();
     const result = /** @type ApiResponse */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       headers: [],
       payloads: [],
       examples: [],
       links: [],
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!description.isNullOrEmpty) {
+    if (description.isNullOrEmpty === false) {
       result.description = description.value();
     }
-    if (!statusCode.isNullOrEmpty) {
+    if (statusCode.isNullOrEmpty === false) {
       result.statusCode = statusCode.value();
     }
     if (Array.isArray(headers) && headers.length) {
@@ -729,8 +757,12 @@ export class ApiSerializer {
    * @returns {ApiResponseRecursive} Serialized Response
    */
   static responseRecursive(object) {
-    const { headers, payloads, examples, links, } = object;
-    const result = /** @type ApiResponseRecursive */ (/** @type ApiResponseBase */ (ApiSerializer.response(object)));
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Response */ (object.linkTarget);
+    }
+    const { headers, payloads, examples, links, } = target;
+    const result = /** @type ApiResponseRecursive */ (/** @type ApiResponseBase */ (ApiSerializer.response(target)));
     if (Array.isArray(headers) && headers.length) {
       result.headers = headers.map(p => ApiSerializer.parameterRecursive(p));
     }
@@ -756,13 +788,14 @@ export class ApiSerializer {
     const result = /** @type ApiPayload */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       examples: [],
       encoding: [],
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!mediaType.isNullOrEmpty) {
+    if (mediaType.isNullOrEmpty === false) {
       result.mediaType = mediaType.value();
     }
     if (schema) {
@@ -806,23 +839,20 @@ export class ApiSerializer {
     const result = /** @type ApiEncoding */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       headers: [],
     });
-    if (!propertyName.isNullOrEmpty) {
+    if (propertyName.isNullOrEmpty === false) {
       result.propertyName = propertyName.value();
     }
-    if (!contentType.isNullOrEmpty) {
+    if (contentType.isNullOrEmpty === false) {
       result.contentType = contentType.value();
     }
-    if (!style.isNullOrEmpty) {
+    if (style.isNullOrEmpty === false) {
       result.contentType = style.value();
     }
-    if (!explode.isNull) {
-      result.explode = explode.value();
-    }
-    if (!allowReserved.isNull) {
-      result.allowReserved = allowReserved.value();
-    }
+    result.explode = explode.value();
+    result.allowReserved = allowReserved.value();
     if (Array.isArray(headers) && headers.length) {
       result.headers = headers.map(h => h.id);
     }
@@ -848,26 +878,31 @@ export class ApiSerializer {
    * @returns {ApiExample} Serialized Example
    */
   static example(object) {
-    const { id, strict, name, displayName, description, value, mediaType, structuredValue } = object;
-    const types = object.graph().types();
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Example */ (object.linkTarget);
+    }
+    const { id, strict, name, displayName, description, value, mediaType, structuredValue } = target;
+    const types = target.graph().types();
     const result = /** @type ApiExample */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       strict: strict.value(),
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!displayName.isNullOrEmpty) {
+    if (displayName.isNullOrEmpty === false) {
       result.displayName = displayName.value();
     }
-    if (!description.isNullOrEmpty) {
+    if (description.isNullOrEmpty === false) {
       result.description = description.value();
     }
-    if (!value.isNullOrEmpty) {
+    if (value.isNullOrEmpty === false) {
       result.value = value.value();
     }
-    if (!mediaType.isNullOrEmpty) {
+    if (mediaType.isNullOrEmpty === false) {
       result.mediaType = mediaType.value();
     }
     if (structuredValue && structuredValue.id) {
@@ -886,34 +921,25 @@ export class ApiSerializer {
     const result = /** @type ApiParameter */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       payloads: [],
       examples: [],
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!description.isNullOrEmpty) {
+    if (description.isNullOrEmpty === false) {
       result.description = description.value();
     }
-    if (!required.isNull) {
-      result.required = required.value();
-    }
-    if (!allowEmptyValue.isNull) {
-      result.allowEmptyValue = allowEmptyValue.value();
-    }
-    if (!deprecated.isNull) {
-      result.deprecated = deprecated.value();
-    }
-    if (!explode.isNull) {
-      result.explode = explode.value();
-    }
-    if (!allowReserved.isNull) {
-      result.allowReserved = allowReserved.value();
-    }
-    if (!style.isNullOrEmpty) {
+    result.required = required.value();
+    result.allowEmptyValue = allowEmptyValue.value();
+    result.deprecated = deprecated.value();
+    result.explode = explode.value();
+    result.allowReserved = allowReserved.value();
+    if (style.isNullOrEmpty === false) {
       result.style = style.value();
     }
-    if (!binding.isNullOrEmpty) {
+    if (binding.isNullOrEmpty === false) {
       result.binding = binding.value();
     }
     if (schema) {
@@ -956,38 +982,42 @@ export class ApiSerializer {
    * @returns {ApiOperation} Serialized Operation
    */
   static operation(object) {
-    const types = object.graph().types();
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Operation */ (object.linkTarget);
+    }
+    const types = target.graph().types();
     const { 
-      id, method, deprecated, callbacks, responses, servers, security, customDomainProperties,
+      id, method, deprecated, callbacks, responses, servers, security,
       name, description, summary, request, documentation, accepts, schemes, contentType,
-    } = object;
+    } = target;
     const result = /** @type ApiOperation */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       method: method.value(),
       deprecated: deprecated.value(),
       callbacks: [],
       responses: [],
       servers: [],
       security: [],
-      customDomainProperties: [],
       accepts: [],
       schemes: [],
       contentType: [],
     });
-    if (!description.isNullOrEmpty) {
+    if (description.isNullOrEmpty === false) {
       result.description = description.value();
     }
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!summary.isNullOrEmpty) {
+    if (summary.isNullOrEmpty === false) {
       result.summary = summary.value();
     }
     // @ts-ignore
-    if (!object.operationId.isNullOrEmpty) {
+    if (target.operationId.isNullOrEmpty === false) {
       // @ts-ignore
-      result.operationId = object.operationId.value();
+      result.operationId = target.operationId.value();
     }
     if (request) {
       result.request = request.id;
@@ -1016,9 +1046,6 @@ export class ApiSerializer {
     if (Array.isArray(contentType)) {
       result.contentType = contentType.map((c) => c.value());
     }
-    if (Array.isArray(customDomainProperties)) {
-      result.customDomainProperties = customDomainProperties.map((c) => c.id);
-    }
     return result;
   }
 
@@ -1027,8 +1054,12 @@ export class ApiSerializer {
    * @returns {ApiOperationRecursive} Serialized Operation
    */
   static operationRecursive(object) {
-    const { callbacks, responses, servers, security, request, documentation, } = object;
-    const result = /** @type ApiOperationRecursive */ (/** @type ApiOperationBase */ (ApiSerializer.operation(object)));
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Operation */ (object.linkTarget);
+    }
+    const { callbacks, responses, servers, security, request, documentation, } = target;
+    const result = /** @type ApiOperationRecursive */ (/** @type ApiOperationBase */ (ApiSerializer.operation(target)));
     if (request) {
       result.request = ApiSerializer.requestRecursive(request);
     }
@@ -1068,15 +1099,16 @@ export class ApiSerializer {
     const result = /** @type ApiCallback */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!expression.isNullOrEmpty) {
+    if (expression.isNullOrEmpty === false) {
       result.expression = expression.value();
     }
     if (endpoint) {
-      result.endpoint = endpoint.id;
+      result.endpoint = this.endPoint(endpoint);
     }
     return result;
   }
@@ -1094,6 +1126,7 @@ export class ApiSerializer {
     const result = /** @type ApiEndPoint */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       path: path.value(),
       relativePath,
       operations: [],
@@ -1102,13 +1135,13 @@ export class ApiSerializer {
       servers: [],
       security: [],
     });
-    if (!description.isNullOrEmpty) {
+    if (description.isNullOrEmpty === false) {
       result.description = description.value();
     }
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!summary.isNullOrEmpty) {
+    if (summary.isNullOrEmpty === false) {
       result.summary = summary.value();
     }
     if (Array.isArray(operations) && operations.length) {
@@ -1139,7 +1172,7 @@ export class ApiSerializer {
       id,
       path: path.value(),
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       item.name = name.value();
     }
     return item;
@@ -1156,7 +1189,7 @@ export class ApiSerializer {
       path: path.value(),
       operations: [],
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       item.name = name.value();
     }
     if (Array.isArray(operations) && operations.length) {
@@ -1170,12 +1203,16 @@ export class ApiSerializer {
    * @returns {ApiOperationListItem} Serialized Operation as a list item.
    */
   static operationListItem(object) {
-    const { id, method, name } = object;
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Operation */ (object.linkTarget);
+    }
+    const { method, name } = target;
     const item = /** @type ApiOperationListItem */ ({
-      id,
+      id: object.id,
       method: method.value(),
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       item.name = name.value();
     }
     return item;
@@ -1191,10 +1228,11 @@ export class ApiSerializer {
     const result = /** @type ApiServer */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       url: url.value(),
       variables: [],
     });
-    if (!description.isNullOrEmpty) {
+    if (description.isNullOrEmpty === false) {
       result.description = description.value();
     }
     if (Array.isArray(variables) && variables.length) {
@@ -1226,14 +1264,15 @@ export class ApiSerializer {
     const result = /** @type ApiDocumentation */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
-    if (!url.isNullOrEmpty) {
+    if (url.isNullOrEmpty === false) {
       result.url = url.value();
     }
-    if (!description.isNullOrEmpty) {
+    if (description.isNullOrEmpty === false) {
       result.description = description.value();
     }
-    if (!title.isNullOrEmpty) {
+    if (title.isNullOrEmpty === false) {
       result.title = title.value();
     }
     return result;
@@ -1244,14 +1283,18 @@ export class ApiSerializer {
    * @returns {ApiNodeShapeListItem} Serialized NodeShape
    */
   static nodeShapeListItem(object) {
-    const { id, name, displayName } = object;
+    let target = object;
+    if (target.isLink) {
+      target = /** @type NodeShape */ (object.linkTarget);
+    }
+    const { name, displayName } = target;
     const result = /** @type ApiNodeShapeListItem */ ({
-      id,
+      id: object.id,
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!displayName.isNullOrEmpty) {
+    if (displayName.isNullOrEmpty === false) {
       result.displayName = displayName.value();
     }
     return result;
@@ -1307,19 +1350,19 @@ export class ApiSerializer {
     
     const result = /** @type ApiNodeShape */ (ApiSerializer.anyShape(target));
 
-    if (!discriminator.isNullOrEmpty) {
+    if (discriminator.isNullOrEmpty === false) {
       result.discriminator = discriminator.value();
     }
-    if (!discriminatorValue.isNullOrEmpty) {
+    if (discriminatorValue.isNullOrEmpty === false) {
       result.discriminatorValue = discriminatorValue.value();
     }
-    if (!closed.isNull) {
+    if (closed.value) {
       result.closed = closed.value();
     }
-    if (!minProperties.isNull) {
+    if (minProperties.value) {
       result.minProperties = minProperties.value();
     }
-    if (!maxProperties.isNull) {
+    if (maxProperties.value) {
       result.maxProperties = maxProperties.value();
     }
     if (Array.isArray(customShapeProperties) && customShapeProperties.length) {
@@ -1356,16 +1399,16 @@ export class ApiSerializer {
     }
     const { path, range, minCount, maxCount, patternName } = target;
     const result = /** @type ApiPropertyShape */ (ApiSerializer.shape(target));
-    if (!path.isNullOrEmpty) {
+    if (path.isNullOrEmpty === false) {
       result.path = path.value();
     }
-    if (!patternName.isNullOrEmpty) {
+    if (patternName.isNullOrEmpty === false) {
       result.patternName = patternName.value();
     }
-    if (!minCount.isNull) {
+    if (minCount.nonNull === true && minCount.value) {
       result.minCount = minCount.value();
     }
-    if (!maxCount.isNull) {
+    if (maxCount.nonNull === true && maxCount.value) {
       result.maxCount = maxCount.value();
     }
     if (range && range.id) {
@@ -1379,39 +1422,44 @@ export class ApiSerializer {
    * @returns {ApiShape}
    */
   static shape(object) {
+    let target = object;
+    if (target.isLink) {
+      target = /** @type Shape */ (object.linkTarget);
+    }
     const { 
       id, name, displayName, defaultValue, defaultValueStr, deprecated, description,
       values, inherits, or, and, xone, not, readOnly, writeOnly,
-    } = object;
-    const types = object.graph().types();
+    } = target;
+    const types = target.graph().types();
     const result = /** @type ApiShape */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       values: [],
       inherits: [],
       or: [],
       and: [],
       xone: [],
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!displayName.isNullOrEmpty) {
+    if (displayName.isNullOrEmpty === false) {
       result.displayName = displayName.value();
     }
-    if (!description.isNullOrEmpty) {
+    if (description.isNullOrEmpty === false) {
       result.description = description.value();
     }
-    if (!defaultValueStr.isNullOrEmpty) {
+    if (defaultValueStr.isNullOrEmpty === false) {
       result.defaultValueStr = defaultValueStr.value();
     }
-    if (!deprecated.isNull) {
+    if (deprecated.nonNull === true && deprecated.value) {
       result.deprecated = deprecated.value();
     }
-    if (!readOnly.isNull) {
+    if (readOnly.nonNull === true && readOnly.value) {
       result.readOnly = readOnly.value();
     }
-    if (!writeOnly.isNull) {
+    if (writeOnly.nonNull === true && writeOnly.value) {
       result.writeOnly = writeOnly.value();
     }
     if (defaultValue && defaultValue.id) {
@@ -1443,8 +1491,12 @@ export class ApiSerializer {
    * @returns {ApiAnyShape}
    */
   static anyShape(object) {
-    const { documentation, xmlSerialization, examples } = object;
-    const result = /** @type ApiAnyShape */ (ApiSerializer.shape(object));
+    let target = object;
+    if (target.isLink) {
+      target = /** @type AnyShape */ (object.linkTarget);
+    }
+    const { documentation, xmlSerialization, examples } = target;
+    const result = /** @type ApiAnyShape */ (ApiSerializer.shape(target));
     if (Array.isArray(examples) && examples.length) {
       result.examples = examples.map((item) => ApiSerializer.example(item));
     } else {
@@ -1469,20 +1521,17 @@ export class ApiSerializer {
     const result = /** @type ApiXMLSerializer */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
-    if (!attribute.isNull) {
-      result.attribute = attribute.value();
-    }
-    if (!wrapped.isNull) {
-      result.wrapped = wrapped.value();
-    }
-    if (!name.isNullOrEmpty) {
+    result.attribute = attribute.value();
+    result.wrapped = wrapped.value();
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!namespace.isNullOrEmpty) {
+    if (namespace.isNullOrEmpty === false) {
       result.namespace = namespace.value();
     }
-    if (!prefix.isNullOrEmpty) {
+    if (prefix.isNullOrEmpty === false) {
       result.prefix = prefix.value();
     }
     return result;
@@ -1499,35 +1548,35 @@ export class ApiSerializer {
     }
     const { dataType, pattern, minLength, maxLength, minimum, maximum, exclusiveMaximum, exclusiveMinimum, format, multipleOf } = target;
     const result = /** @type ApiScalarShape */ (ApiSerializer.anyShape(target));
-    if (!pattern.isNullOrEmpty) {
+    if (pattern.isNullOrEmpty === false) {
       result.pattern = pattern.value();
     }
-    if (!dataType.isNullOrEmpty) {
+    if (dataType.isNullOrEmpty === false) {
       result.dataType = dataType.value();
     }
-    if (!minLength.isNull) {
+    if (minLength.nonNull === true && minLength.value) {
       result.minLength = minLength.value();
     }
-    if (!maxLength.isNull) {
+    if (maxLength.nonNull === true && maxLength.value) {
       result.maxLength = maxLength.value();
     }
-    if (!minimum.isNull) {
+    if (minimum.nonNull === true && minimum.value) {
       result.minimum = minimum.value();
     }
-    if (!maximum.isNull) {
+    if (maximum.nonNull === true && maximum.value) {
       result.maximum = maximum.value();
     }
-    if (!exclusiveMaximum.isNull) {
+    if (exclusiveMaximum.isNull === false && exclusiveMaximum.value) {
       result.exclusiveMaximum = exclusiveMaximum.value();
     }
-    if (!exclusiveMinimum.isNull) {
+    if (exclusiveMinimum.isNull === false && exclusiveMinimum.value) {
       result.exclusiveMinimum = exclusiveMinimum.value();
     }
-    if (!format.isNullOrEmpty) {
-      result.format = format.value();
-    }
-    if (!multipleOf.isNull) {
+    if (multipleOf.isNull === false && multipleOf.value) {
       result.multipleOf = multipleOf.value();
+    }
+    if (format.isNullOrEmpty === false) {
+      result.format = format.value();
     }
     return result;
   }
@@ -1537,8 +1586,12 @@ export class ApiSerializer {
    * @returns {ApiUnionShape}
    */
   static unionShape(object) {
-    const { anyOf } = object;
-    const result = /** @type ApiUnionShape */ (ApiSerializer.anyShape(object));
+    let target = object;
+    if (target.isLink) {
+      target = /** @type UnionShape */ (object.linkTarget);
+    }
+    const { anyOf } = target;
+    const result = /** @type ApiUnionShape */ (ApiSerializer.anyShape(target));
     if (Array.isArray(anyOf) && anyOf.length) {
       result.anyOf = anyOf.map((shape) => ApiSerializer.unknownShape(shape));
     } else {
@@ -1558,35 +1611,35 @@ export class ApiSerializer {
     }
     const result = /** @type ApiFileShape */ (ApiSerializer.anyShape(target));
     const { fileTypes, pattern, minLength, maxLength, minimum, maximum, exclusiveMinimum, exclusiveMaximum, format, multipleOf } = target;
-    if (!pattern.isNullOrEmpty) {
+    if (pattern.isNullOrEmpty === false) {
       result.pattern = pattern.value();
     }
     if (Array.isArray(fileTypes) && fileTypes.length) {
       result.fileTypes = fileTypes.map((item) => item.value());
     }
-    if (!minLength.isNull) {
+    if (minLength.nonNull === true && minLength.value) {
       result.minLength = minLength.value();
     }
-    if (!maxLength.isNull) {
+    if (maxLength.nonNull === true && maxLength.value) {
       result.maxLength = maxLength.value();
     }
-    if (!minimum.isNull) {
+    if (minimum.nonNull === true && minimum.value) {
       result.minimum = minimum.value();
     }
-    if (!maximum.isNull) {
+    if (maximum.nonNull === true && maximum.value) {
       result.maximum = maximum.value();
     }
-    if (!exclusiveMaximum.isNull) {
+    if (exclusiveMaximum.nonNull === true && exclusiveMaximum.value) {
       result.exclusiveMaximum = exclusiveMaximum.value();
     }
-    if (!exclusiveMinimum.isNull) {
+    if (exclusiveMinimum.nonNull === true && exclusiveMinimum.value) {
       result.exclusiveMinimum = exclusiveMinimum.value();
     }
-    if (!format.isNullOrEmpty) {
-      result.format = format.value();
-    }
-    if (!multipleOf.isNull) {
+    if (multipleOf.nonNull === true && multipleOf.value) {
       result.multipleOf = multipleOf.value();
+    }
+    if (format.isNullOrEmpty === false) {
+      result.format = format.value();
     }
     return result;
   }
@@ -1602,10 +1655,10 @@ export class ApiSerializer {
     }
     const result = /** @type ApiSchemaShape */ (ApiSerializer.anyShape(target));
     const { mediaType, raw } = target;
-    if (!mediaType.isNullOrEmpty) {
+    if (mediaType.isNullOrEmpty === false) {
       result.mediaType = mediaType.value();
     }
-    if (!raw.isNullOrEmpty) {
+    if (raw.isNullOrEmpty === false) {
       result.raw = raw.value();
     }
     return result;
@@ -1616,15 +1669,19 @@ export class ApiSerializer {
    * @returns {ApiDataArrangeShape}
    */
   static dataArrangeShape(object) {
-    const result = /** @type ApiDataArrangeShape */ (ApiSerializer.anyShape(object));
-    const { minItems, maxItems, uniqueItems } = object;
-    if (!minItems.isNull) {
+    let target = object;
+    if (target.isLink) {
+      target = /** @type DataArrangeShape */ (object.linkTarget);
+    }
+    const result = /** @type ApiDataArrangeShape */ (ApiSerializer.anyShape(target));
+    const { minItems, maxItems, uniqueItems } = target;
+    if (minItems.nonNull === true && minItems.value) {
       result.minItems = minItems.value();
     }
-    if (!maxItems.isNull) {
+    if (maxItems.nonNull === true && maxItems.value) {
       result.maxItems = maxItems.value();
     }
-    if (!uniqueItems.isNull) {
+    if (uniqueItems.nonNull === true && uniqueItems.value) {
       result.uniqueItems = uniqueItems.value();
     }
     return result;
@@ -1657,9 +1714,9 @@ export class ApiSerializer {
       target = /** @type TupleShape */ (object.linkTarget);
     }
     const result = /** @type ApiTupleShape */ (ApiSerializer.dataArrangeShape(target));
-    const { items, additionalItems } = target;
-    if (!additionalItems.isNull) {
-      result.additionalItems = additionalItems.value();
+    const { items, additionalItemsSchema } = target;
+    if (!additionalItemsSchema) {
+      result.additionalItems = additionalItemsSchema.id;
     }
     if (Array.isArray(items) && items.length) {
       result.items = items.map((shape) => ApiSerializer.unknownShape(shape));
@@ -1697,8 +1754,9 @@ export class ApiSerializer {
     const result = ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
     return result;
@@ -1711,10 +1769,10 @@ export class ApiSerializer {
   static scalarNode(object) {
     const result = /** @type ApiScalarNode */ (this.dataNode(object));
     const { value, dataType } = object;
-    if (!value.isNullOrEmpty) {
+    if (value.isNullOrEmpty === false) {
       result.value = value.value();
     }
-    if (!dataType.isNullOrEmpty) {
+    if (dataType.isNullOrEmpty === false) {
       result.dataType = dataType.value();
     }
     return result;
@@ -1753,14 +1811,18 @@ export class ApiSerializer {
    * @returns {ApiCustomDomainPropertyListItem}
    */
   static domainPropertyListItem(object) {
-    const { id, name, displayName } = object;
+    let target = object;
+    if (target.isLink) {
+      target = /** @type CustomDomainProperty */ (object.linkTarget);
+    }
+    const { name, displayName } = target;
     const result = /** @type ApiSecuritySchemeListItem */ ({
-      id,
+      id: object.id,
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!displayName.isNullOrEmpty) {
+    if (displayName.isNullOrEmpty === false) {
       result.displayName = displayName.value();
     }
     return result;
@@ -1782,13 +1844,13 @@ export class ApiSerializer {
       types,
       domain: [],
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
-    if (!displayName.isNullOrEmpty) {
+    if (displayName.isNullOrEmpty === false) {
       result.displayName = displayName.value();
     }
-    if (!description.isNullOrEmpty) {
+    if (description.isNullOrEmpty === false) {
       result.description = description.value();
     }
     if (schema && schema.id) {
@@ -1811,7 +1873,7 @@ export class ApiSerializer {
       id,
       types,
     });
-    if (!name.isNullOrEmpty) {
+    if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
     if (definedBy && definedBy.id) {
@@ -1821,5 +1883,17 @@ export class ApiSerializer {
       result.extension = ApiSerializer.unknownDataNode(extension);
     }
     return result;
+  }
+
+  /**
+   * @param {DomainElement} object The object to compute the custom domain properties from.
+   * @returns {ApiDomainExtension[]|undefined} The list of custom domain properties.
+   */
+  static customDomainProperties(object) {
+    const { customDomainProperties } = object;
+    if (!Array.isArray(customDomainProperties) || !customDomainProperties.length) {
+      return [];
+    }
+    return customDomainProperties.map(p => ApiSerializer.domainExtension(p));
   }
 }

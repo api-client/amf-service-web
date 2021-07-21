@@ -26,10 +26,10 @@ describe('AmfStoreService', () => {
   describe('listServers()', () => {
     before(async () => {
       const demoApi = await AmfLoader.loadApi();
-      await demoStore.loadGraph(demoApi);
+      await demoStore.loadGraph(demoApi, 'RAML 1.0');
 
       const oasApi = await AmfLoader.loadApi('oas-3-api.json');
-      await oasStore.loadGraph(oasApi);
+      await oasStore.loadGraph(oasApi, 'OAS 3.0');
     });
 
     it('returns a single server for RAML', async () => {
@@ -45,7 +45,7 @@ describe('AmfStoreService', () => {
       assert.equal(src.url, 'http://{instance}.domain.com/{version}/', 'has the url');
       assert.typeOf(src.variables, 'array', 'has the variables');
       assert.lengthOf(src.variables, 2, 'has listed variables');
-      assert.include(src.variables[0], 'amf://', 'a variable is a link');
+      assert.typeOf(src.variables[0], 'string', 'a variable is a link');
     });
 
     it('returns servers for OAS', async () => {
@@ -61,7 +61,7 @@ describe('AmfStoreService', () => {
       assert.equal(src.url, 'https://{username}.gigantic-server.com:{port}/{basePath}', 'has the url');
       assert.typeOf(src.variables, 'array', 'has the variables');
       assert.lengthOf(src.variables, 3, 'has listed variables');
-      assert.include(src.variables[0], 'amf://', 'a variable is a link');
+      assert.typeOf(src.variables[0], 'string', 'a variable is a link');
       assert.equal(src.description, 'The production API server', 'has the description');
     });
 
@@ -119,7 +119,7 @@ describe('AmfStoreService', () => {
 
     before(async () => {
       const oasApi = await AmfLoader.loadApi('oas-3-api.json');
-      await oasStore.loadGraph(oasApi);
+      await oasStore.loadGraph(oasApi, 'OAS 3.0');
       const servers = await oasStore.listServers();
       ids = servers.map((s) => s.id);
     });
