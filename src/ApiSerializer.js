@@ -44,6 +44,7 @@ import { ns } from './Namespace.js';
 /** @typedef {import('amf-client-js').Encoding} Encoding */
 /** @typedef {import('amf-client-js').IriTemplateMapping} IriTemplateMapping */
 /** @typedef {import('amf-client-js').Callback} Callback */
+/** @typedef {import('amf-client-js').DomainElement} DomainElement */
 /** @typedef {import('./types').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 /** @typedef {import('./types').ApiParametrizedSecuritySchemeBase} ApiParametrizedSecuritySchemeBase */
 /** @typedef {import('./types').ApiParametrizedSecuritySchemeRecursive} ApiParametrizedSecuritySchemeRecursive */
@@ -136,6 +137,7 @@ export class ApiSerializer {
     const result = /** @type SerializedApi */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       isAsyncApi,
       isWebApi,
       schemes: [],
@@ -201,6 +203,7 @@ export class ApiSerializer {
     const result = /** @type ApiParametrizedSecurityScheme */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
     if (name.isNullOrEmpty === false) {
       result.name = name.value();
@@ -241,6 +244,7 @@ export class ApiSerializer {
     const result = /** @type ApiSecurityScheme */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       headers: [],
       queryParameters: [],
       responses: [],
@@ -315,6 +319,7 @@ export class ApiSerializer {
     const result = /** @type ApiSecurityRequirement */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       schemes: [],
     });
     if (name.isNullOrEmpty === false) {
@@ -348,10 +353,10 @@ export class ApiSerializer {
     if (target.isLink) {
       target = /** @type SecurityScheme */ (object.linkTarget);
     }
-    const { id, name, type, displayName } = target;
+    const { name, type, displayName } = target;
     const types = target.graph().types();
     const result = /** @type ApiSecuritySchemeListItem */ ({
-      id,
+      id: object.id,
       types,
       type: type.value(),
     });
@@ -402,6 +407,7 @@ export class ApiSerializer {
     const result = /** @type ApiSecuritySettings */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
     if (additionalProperties && additionalProperties.id) {
       result.additionalProperties = ApiSerializer.unknownDataNode(additionalProperties);
@@ -414,13 +420,9 @@ export class ApiSerializer {
    * @returns {ApiSecurityOAuth1Settings}
    */
   static oAuth1Settings(object) {
-    const { id, authorizationUri, requestTokenUri, tokenCredentialsUri, signatures, } = object;
-    const types = object.graph().types();
-    const result = /** @type ApiSecurityOAuth1Settings */ ({
-      id,
-      types,
-      signatures: [],
-    });
+    const { authorizationUri, requestTokenUri, tokenCredentialsUri, signatures, } = object;
+    const result = /** @type ApiSecurityOAuth1Settings */ (ApiSerializer.settings(object));
+    
     if (authorizationUri.isNullOrEmpty === false) {
       result.authorizationUri = authorizationUri.value();
     }
@@ -432,6 +434,8 @@ export class ApiSerializer {
     }
     if (Array.isArray(signatures) && signatures.length) {
       result.signatures = signatures.map((p) => p.value());
+    } else {
+      result.signatures = [];
     }
     return result;
   }
@@ -441,19 +445,17 @@ export class ApiSerializer {
    * @returns {ApiSecurityOAuth2Settings}
    */
   static oAuth2Settings(object) {
-    const { id, authorizationGrants, flows, } = object;
-    const types = object.graph().types();
-    const result = /** @type ApiSecurityOAuth2Settings */ ({
-      id,
-      types,
-      flows: [],
-      authorizationGrants: [],
-    });
+    const { authorizationGrants, flows, } = object;
+    const result = /** @type ApiSecurityOAuth2Settings */ (ApiSerializer.settings(object));
     if (Array.isArray(authorizationGrants) && authorizationGrants.length) {
       result.authorizationGrants = authorizationGrants.map((p) => p.value());
+    } else {
+      result.authorizationGrants = [];
     }
     if (Array.isArray(flows) && flows.length) {
       result.flows = flows.map((p) => ApiSerializer.oAuth2Flow(p));
+    } else {
+      result.flows = [];
     }
     return result;
   }
@@ -468,6 +470,7 @@ export class ApiSerializer {
     const result = /** @type ApiSecurityOAuth2Flow */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       scopes: [],
     });
     if (authorizationUri.isNullOrEmpty === false) {
@@ -498,6 +501,7 @@ export class ApiSerializer {
     const result = /** @type ApiSecurityScope */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
     if (name.isNullOrEmpty === false) {
       result.name = name.value();
@@ -513,12 +517,8 @@ export class ApiSerializer {
    * @returns {ApiSecurityApiKeySettings}
    */
   static apiKeySettings(object) {
-    const { id, name, in: inParam } = object;
-    const types = object.graph().types();
-    const result = /** @type ApiSecurityApiKeySettings */ ({
-      id,
-      types,
-    });
+    const { name, in: inParam } = object;
+    const result = /** @type ApiSecurityApiKeySettings */ (ApiSerializer.settings(object));
     if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
@@ -533,12 +533,8 @@ export class ApiSerializer {
    * @returns {ApiSecurityHttpSettings}
    */
   static httpSettings(object) {
-    const { id, scheme, bearerFormat } = object;
-    const types = object.graph().types();
-    const result = /** @type ApiSecurityHttpSettings */ ({
-      id,
-      types,
-    });
+    const { scheme, bearerFormat } = object;
+    const result = /** @type ApiSecurityHttpSettings */ (ApiSerializer.settings(object));
     if (scheme.isNullOrEmpty === false) {
       result.scheme = scheme.value();
     }
@@ -553,12 +549,8 @@ export class ApiSerializer {
    * @returns {ApiSecurityOpenIdConnectSettings}
    */
   static openIdConnectSettings(object) {
-    const { id, url } = object;
-    const types = object.graph().types();
-    const result = /** @type ApiSecurityOpenIdConnectSettings */ ({
-      id,
-      types,
-    });
+    const { url } = object;
+    const result = /** @type ApiSecurityOpenIdConnectSettings */ (ApiSerializer.settings(object));
     if (url.isNullOrEmpty === false) {
       result.url = url.value();
     }
@@ -579,6 +571,7 @@ export class ApiSerializer {
     const result = /** @type ApiRequest */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       required: required.value(),
       headers: [],
       queryParameters: [],
@@ -652,6 +645,7 @@ export class ApiSerializer {
     const result = /** @type ApiTemplatedLink */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
     if (name.isNullOrEmpty === false) {
       result.name = name.value();
@@ -703,6 +697,7 @@ export class ApiSerializer {
     const result = /** @type ApiIriTemplateMapping */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
     if (templateVariable.isNullOrEmpty === false) {
       result.templateVariable = templateVariable.value();
@@ -727,6 +722,7 @@ export class ApiSerializer {
     const result = /** @type ApiResponse */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       headers: [],
       payloads: [],
       examples: [],
@@ -792,6 +788,7 @@ export class ApiSerializer {
     const result = /** @type ApiPayload */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       examples: [],
       encoding: [],
     });
@@ -842,6 +839,7 @@ export class ApiSerializer {
     const result = /** @type ApiEncoding */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       headers: [],
     });
     if (propertyName.isNullOrEmpty === false) {
@@ -889,6 +887,7 @@ export class ApiSerializer {
     const result = /** @type ApiExample */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       strict: strict.value(),
     });
     if (name.isNullOrEmpty === false) {
@@ -922,6 +921,7 @@ export class ApiSerializer {
     const result = /** @type ApiParameter */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       payloads: [],
       examples: [],
     });
@@ -988,19 +988,19 @@ export class ApiSerializer {
     }
     const types = target.graph().types();
     const { 
-      id, method, deprecated, callbacks, responses, servers, security, customDomainProperties,
+      id, method, deprecated, callbacks, responses, servers, security,
       name, description, summary, request, documentation, accepts, schemes, contentType,
     } = target;
     const result = /** @type ApiOperation */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       method: method.value(),
       deprecated: deprecated.value(),
       callbacks: [],
       responses: [],
       servers: [],
       security: [],
-      customDomainProperties: [],
       accepts: [],
       schemes: [],
       contentType: [],
@@ -1045,9 +1045,6 @@ export class ApiSerializer {
     }
     if (Array.isArray(contentType)) {
       result.contentType = contentType.map((c) => c.value());
-    }
-    if (Array.isArray(customDomainProperties)) {
-      result.customDomainProperties = customDomainProperties.map((c) => c.id);
     }
     return result;
   }
@@ -1102,6 +1099,7 @@ export class ApiSerializer {
     const result = /** @type ApiCallback */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
     if (name.isNullOrEmpty === false) {
       result.name = name.value();
@@ -1110,7 +1108,7 @@ export class ApiSerializer {
       result.expression = expression.value();
     }
     if (endpoint) {
-      result.endpoint = endpoint.id;
+      result.endpoint = this.endPoint(endpoint);
     }
     return result;
   }
@@ -1128,6 +1126,7 @@ export class ApiSerializer {
     const result = /** @type ApiEndPoint */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       path: path.value(),
       relativePath,
       operations: [],
@@ -1208,9 +1207,9 @@ export class ApiSerializer {
     if (target.isLink) {
       target = /** @type Operation */ (object.linkTarget);
     }
-    const { id, method, name } = target;
+    const { method, name } = target;
     const item = /** @type ApiOperationListItem */ ({
-      id,
+      id: object.id,
       method: method.value(),
     });
     if (name.isNullOrEmpty === false) {
@@ -1229,6 +1228,7 @@ export class ApiSerializer {
     const result = /** @type ApiServer */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       url: url.value(),
       variables: [],
     });
@@ -1264,6 +1264,7 @@ export class ApiSerializer {
     const result = /** @type ApiDocumentation */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
     if (url.isNullOrEmpty === false) {
       result.url = url.value();
@@ -1286,9 +1287,9 @@ export class ApiSerializer {
     if (target.isLink) {
       target = /** @type NodeShape */ (object.linkTarget);
     }
-    const { id, name, displayName } = target;
+    const { name, displayName } = target;
     const result = /** @type ApiNodeShapeListItem */ ({
-      id,
+      id: object.id,
     });
     if (name.isNullOrEmpty === false) {
       result.name = name.value();
@@ -1433,6 +1434,7 @@ export class ApiSerializer {
     const result = /** @type ApiShape */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
       values: [],
       inherits: [],
       or: [],
@@ -1519,6 +1521,7 @@ export class ApiSerializer {
     const result = /** @type ApiXMLSerializer */ ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
     result.attribute = attribute.value();
     result.wrapped = wrapped.value();
@@ -1751,6 +1754,7 @@ export class ApiSerializer {
     const result = ({
       id,
       types,
+      customDomainProperties: ApiSerializer.customDomainProperties(object),
     });
     if (name.isNullOrEmpty === false) {
       result.name = name.value();
@@ -1811,9 +1815,9 @@ export class ApiSerializer {
     if (target.isLink) {
       target = /** @type CustomDomainProperty */ (object.linkTarget);
     }
-    const { id, name, displayName } = target;
+    const { name, displayName } = target;
     const result = /** @type ApiSecuritySchemeListItem */ ({
-      id,
+      id: object.id,
     });
     if (name.isNullOrEmpty === false) {
       result.name = name.value();
@@ -1879,5 +1883,17 @@ export class ApiSerializer {
       result.extension = ApiSerializer.unknownDataNode(extension);
     }
     return result;
+  }
+
+  /**
+   * @param {DomainElement} object The object to compute the custom domain properties from.
+   * @returns {ApiDomainExtension[]|undefined} The list of custom domain properties.
+   */
+  static customDomainProperties(object) {
+    const { customDomainProperties } = object;
+    if (!Array.isArray(customDomainProperties) || !customDomainProperties.length) {
+      return [];
+    }
+    return customDomainProperties.map(p => ApiSerializer.domainExtension(p));
   }
 }

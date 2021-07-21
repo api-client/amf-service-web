@@ -196,11 +196,24 @@ describe('AmfStoreService', () => {
       assert.equal(result.id, endpoints[0].id);
     });
 
+    it('has custom domain properties', async () => {
+      const result = await store.getEndpoint('/people');
+      const { customDomainProperties } = result;
+      assert.typeOf(customDomainProperties, 'array', 'has customDomainProperties');
+      assert.lengthOf(customDomainProperties, 1, 'has single customDomainProperty');
+      const [cdp] = customDomainProperties;
+      assert.equal(cdp.name, 'clearanceLevel', 'cdp.name is set');
+      assert.typeOf(cdp.definedBy, 'object', 'cdp.definedBy is set');
+      const { extension } = cdp;
+      assert.typeOf(extension, 'object', 'cdp.extension is set');
+      assert.include(extension.types, ns.aml.vocabularies.data.Object, 'extension has types');
+    });
+
     it('has endpoint properties', async () => {
       const result = await store.getEndpoint('/people/{personId}');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.equal(result.path, '/people/{personId}', 'has the path');
-      assert.equal(result.relativePath, '/people/{personId}', 'has the relativePath');
+      assert.equal(result.relativePath, '/{personId}', 'has the relativePath');
       assert.equal(result.description, 'The endpoint to access information about the person', 'has the description');
       assert.equal(result.name, 'A person', 'has the name');
       assert.lengthOf(result.parameters, 1, 'has the parameters');

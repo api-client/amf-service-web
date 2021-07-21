@@ -47,25 +47,27 @@ async function parseFile(file, cnf, opts) {
   }
   const { type, mime='application/yaml' } = normalizeOptions(cnf);
 
-  /** @type amf.AMFClient */
-  let client;
+  /** @type amf.AMFConfiguration */
+  let configuration;
   switch (type) {
-    case 'OAS 2.0': client = amf.OASConfiguration.OAS20().createClient(); break;
-    case 'OAS 3.0': client = amf.OASConfiguration.OAS30().createClient(); break;
-    case 'RAML 1.0': client = amf.RAMLConfiguration.RAML10().createClient(); break;
-    case 'RAML 0.8': client = amf.RAMLConfiguration.RAML08().createClient(); break;
-    case 'ASYNC 2.0': client = amf.AsyncAPIConfiguration.Async20().createClient(); break;
+    case 'OAS 2.0': configuration = amf.OASConfiguration.OAS20(); break;
+    case 'OAS 3.0': configuration = amf.OASConfiguration.OAS30(); break;
+    case 'RAML 1.0': configuration = amf.RAMLConfiguration.RAML10(); break;
+    case 'RAML 0.8': configuration = amf.RAMLConfiguration.RAML08(); break;
+    case 'ASYNC 2.0': configuration = amf.AsyncAPIConfiguration.Async20(); break;
     default: throw new Error(`Unsupported API type: ${type}`);
   }
-  
+  const ro = new amf.RenderOptions().withCompactUris().withPrettyPrint().withSourceMaps();
+  const client = configuration.withRenderOptions(ro).baseUnitClient();
   const result = await client.parseDocument(`file://${src}${file}`, mime);
   
   if (!result.conforms) {
     /* eslint-disable-next-line no-console */
     result.results.forEach(r => console.error(r.toString()));
   }
-  const transformResult = client.transformCompatibility(result.baseUnit, amf.ProvidedMediaType.AMF);
-  const rendered = client.render(transformResult.baseUnit, amf.Vendor.AMF.mediaType);
+  const transformed = client.transform(result.baseUnit, amf.ProvidedMediaType.AMF);
+  // const transformResult = client.transformCompatibility(result.baseUnit, amf.ProvidedMediaType.AMF);
+  const rendered = client.render(transformed.baseUnit, amf.Vendor.AMF.mediaType);
   
   let destFile = `${file.substr(0, file.lastIndexOf('.')) }.json`;
   if (destFile.indexOf('/') !== -1) {

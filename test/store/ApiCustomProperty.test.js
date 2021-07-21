@@ -194,8 +194,8 @@ describe('AmfStoreService', () => {
 
     it('reads the extension data', async () => {
       const op  = await store.getOperation('get', '/test-parameters/{feature}');
-      const [id] = op.customDomainProperties;
-      const result = await store.getDomainExtension(id);
+      const [prop] = op.customDomainProperties;
+      const result = await store.getDomainExtension(prop.id);
       assert.typeOf(result.name, 'string', 'has the name');
       assert.typeOf(result.definedBy, 'object', 'has the definedBy');
       assert.typeOf(result.definedBy.id, 'string', 'definedBy is an object');
@@ -206,8 +206,8 @@ describe('AmfStoreService', () => {
 
     it('reads the extension data via the event', async () => {
       const op  = await store.getOperation('get', '/test-parameters/{feature}');
-      const [id] = op.customDomainProperties;
-      const result = await StoreEvents.CustomProperty.getExtension(window, id);
+      const [prop] = op.customDomainProperties;
+      const result = await StoreEvents.CustomProperty.getExtension(window, prop.id);
       assert.typeOf(result.name, 'string', 'has the name');
       assert.typeOf(result.definedBy, 'object', 'has the definedBy');
       assert.typeOf(result.definedBy.id, 'string', 'definedBy is an object');
