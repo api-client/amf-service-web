@@ -11,6 +11,7 @@ import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.
 /** @typedef {import('../..').ApiSchemaShape} ApiSchemaShape */
 /** @typedef {import('../..').ApiTupleShape} ApiTupleShape */
 /** @typedef {import('../..').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../..').ApiScalarNode} ApiScalarNode */
 
 describe('AmfStoreService', () => {
   let store = /** @type AmfStoreService */ (null);
@@ -329,16 +330,27 @@ describe('AmfStoreService', () => {
   });
 
   describe('getType()', () => {
-    /** @type ApiShapeUnion */
-    let created;
-    beforeEach(async () => {
-      await store.createWebApi();
-      created = await store.addType({ name: 'test-type' });
+    before(async () => {
+      const demoApi = await AmfLoader.loadApi();
+      await store.loadGraph(demoApi, 'RAML 1.0');
     });
 
-    it('returns the type', async () => {
-      const result = await store.getType(created.id);
-      assert.deepEqual(result, created);
+    /**
+     * @param {string} name
+     * @returns {Promise<ApiShapeUnion>} 
+     */
+    async function getShape(name) {
+      const types = await store.listTypes();
+      const item = types.find(t => t.name === name);
+      if (!item) {
+        throw new Error(`The shape ${name} does not exist in the API.`);
+      }
+      return store.getType(item.id);
+    }
+
+    it('returns an object', async () => {
+      const result = await getShape('ErrorResource');
+      assert.typeOf(result, 'object');
     });
 
     it('returns undefined when type not found', async () => {
@@ -347,8 +359,47 @@ describe('AmfStoreService', () => {
     });
 
     it('reads the type from the event', async () => {
-      const result = await StoreEvents.Type.get(window, created.id);
-      assert.deepEqual(result, created);
+      const type = await getShape('ErrorResource');
+      const result = await StoreEvents.Type.get(window, type.id);
+      assert.deepEqual(result, type);
+    });
+
+    it('serializes the default value string', async () => {
+      const type = /** @type ApiNodeShape */ (await getShape('ErrorResource'));
+      const [error] = type.properties;
+      assert.equal(error.range.defaultValueStr, 'true', 'has the default value string');
+    });
+
+    it('serializes the default value node', async () => {
+      const type = /** @type ApiNodeShape */ (await getShape('ErrorResource'));
+      const [error] = type.properties;
+      const { defaultValue } = error.range;
+      assert.typeOf(defaultValue, 'object', 'the defaultValue is an object');
+      assert.include(defaultValue.types, ns.aml.vocabularies.data.Scalar, 'is a Scalar node');
+      assert.typeOf(defaultValue.name, 'string', 'has a name');
+      const typed = /** @type ApiScalarNode */ (defaultValue);
+      assert.equal(typed.value, 'true', 'has the value');
+      assert.equal(typed.dataType, ns.w3.xmlSchema.boolean, 'has the dataType');
+    });
+
+    it('has serialized inherits property', async () => {
+      const type = /** @type ApiNodeShape */ (await getShape('AppPerson'));
+      const { inherits } = type;
+      assert.typeOf(inherits, 'array', 'inherits is an array');
+      assert.lengthOf(inherits, 1, 'has one parent');
+      const [inherit] = inherits;
+      assert.typeOf(inherit, 'object', 'the inherit is an object');
+      assert.include(inherit.types, ns.w3.shacl.NodeShape, 'has the NodeShape type');
+    });
+
+    it('has the link name', async () => {
+      const type = /** @type ApiNodeShape */ (await getShape('AppPerson'));
+      assert.equal(type.name, 'AppPerson');
+    });
+
+    it('has the displayName', async () => {
+      const type = /** @type ApiNodeShape */ (await getShape('AppPerson'));
+      assert.equal(type.displayName, 'A person resource');
     });
   });
 

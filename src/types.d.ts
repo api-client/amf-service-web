@@ -728,7 +728,7 @@ export interface ApiShape extends ApiDomainProperty {
   deprecated?: boolean;
   readOnly?: boolean;
   writeOnly?: boolean;
-  defaultValue?: string;
+  defaultValue?: ApiDataNodeUnion;
   not?: ApiShapeUnion;
 }
 

@@ -1287,7 +1287,8 @@ export class ApiSerializer {
     if (target.isLink) {
       target = /** @type NodeShape */ (object.linkTarget);
     }
-    const { name, displayName } = target;
+    const { displayName } = target;
+    const name = object.name || target.name;
     const result = /** @type ApiNodeShapeListItem */ ({
       id: object.id,
     });
@@ -1311,27 +1312,27 @@ export class ApiSerializer {
     }
     const types = target.graph().types();
     if (types.includes(ns.aml.vocabularies.shapes.ScalarShape)) {
-      return ApiSerializer.scalarShape(/** @type ScalarShape */ (target));
+      return ApiSerializer.scalarShape(/** @type ScalarShape */ (object));
     }
     if (types.includes(ns.w3.shacl.NodeShape)) {
-      return ApiSerializer.nodeShape(/** @type NodeShape */ (target));
+      return ApiSerializer.nodeShape(/** @type NodeShape */ (object));
     }
     if (types.includes(ns.aml.vocabularies.shapes.UnionShape)) {
-      return ApiSerializer.unionShape(/** @type UnionShape */ (target));
+      return ApiSerializer.unionShape(/** @type UnionShape */ (object));
     }
     if (types.includes(ns.aml.vocabularies.shapes.FileShape)) {
-      return ApiSerializer.fileShape(/** @type FileShape */ (target));
+      return ApiSerializer.fileShape(/** @type FileShape */ (object));
     }
     if (types.includes(ns.aml.vocabularies.shapes.SchemaShape)) {
-      return ApiSerializer.schemaShape(/** @type SchemaShape */ (target));
+      return ApiSerializer.schemaShape(/** @type SchemaShape */ (object));
     }
     if (types.includes(ns.aml.vocabularies.shapes.ArrayShape) || types.includes(ns.aml.vocabularies.shapes.MatrixShape)) {
-      return ApiSerializer.arrayShape(/** @type ArrayShape */ (target));
+      return ApiSerializer.arrayShape(/** @type ArrayShape */ (object));
     }
     if (types.includes(ns.aml.vocabularies.shapes.TupleShape)) {
-      return ApiSerializer.tupleShape(/** @type TupleShape */ (target));
+      return ApiSerializer.tupleShape(/** @type TupleShape */ (object));
     }
-    return ApiSerializer.anyShape(/** @type AnyShape */ (target));
+    return ApiSerializer.anyShape(/** @type AnyShape */ (object));
   }
 
   /**
@@ -1348,7 +1349,7 @@ export class ApiSerializer {
       customShapePropertyDefinitions, discriminator, discriminatorValue, properties, dependencies,
     } = target;
     
-    const result = /** @type ApiNodeShape */ (ApiSerializer.anyShape(target));
+    const result = /** @type ApiNodeShape */ (ApiSerializer.anyShape(object));
 
     if (discriminator.isNullOrEmpty === false) {
       result.discriminator = discriminator.value();
@@ -1398,7 +1399,7 @@ export class ApiSerializer {
       target = /** @type PropertyShape */ (object.linkTarget);
     }
     const { path, range, minCount, maxCount, patternName } = target;
-    const result = /** @type ApiPropertyShape */ (ApiSerializer.shape(target));
+    const result = /** @type ApiPropertyShape */ (ApiSerializer.shape(object));
     if (path.isNullOrEmpty === false) {
       result.path = path.value();
     }
@@ -1427,9 +1428,10 @@ export class ApiSerializer {
       target = /** @type Shape */ (object.linkTarget);
     }
     const { 
-      id, name, displayName, defaultValue, defaultValueStr, deprecated, description,
+      id, displayName, defaultValue, defaultValueStr, deprecated, description,
       values, inherits, or, and, xone, not, readOnly, writeOnly,
     } = target;
+    const name = object.name || target.name;
     const types = target.graph().types();
     const result = /** @type ApiShape */ ({
       id,
@@ -1463,7 +1465,7 @@ export class ApiSerializer {
       result.writeOnly = writeOnly.value();
     }
     if (defaultValue && defaultValue.id) {
-      result.defaultValue = defaultValue.id;
+      result.defaultValue = this.unknownDataNode(defaultValue);
     }
     if (Array.isArray(inherits) && inherits.length) {
       result.inherits = inherits.map((item) => ApiSerializer.unknownShape(item));
@@ -1496,7 +1498,7 @@ export class ApiSerializer {
       target = /** @type AnyShape */ (object.linkTarget);
     }
     const { documentation, xmlSerialization, examples } = target;
-    const result = /** @type ApiAnyShape */ (ApiSerializer.shape(target));
+    const result = /** @type ApiAnyShape */ (ApiSerializer.shape(object));
     if (Array.isArray(examples) && examples.length) {
       result.examples = examples.map((item) => ApiSerializer.example(item));
     } else {
@@ -1547,7 +1549,7 @@ export class ApiSerializer {
       target = /** @type ScalarShape */ (object.linkTarget);
     }
     const { dataType, pattern, minLength, maxLength, minimum, maximum, exclusiveMaximum, exclusiveMinimum, format, multipleOf } = target;
-    const result = /** @type ApiScalarShape */ (ApiSerializer.anyShape(target));
+    const result = /** @type ApiScalarShape */ (ApiSerializer.anyShape(object));
     if (pattern.isNullOrEmpty === false) {
       result.pattern = pattern.value();
     }
@@ -1591,7 +1593,7 @@ export class ApiSerializer {
       target = /** @type UnionShape */ (object.linkTarget);
     }
     const { anyOf } = target;
-    const result = /** @type ApiUnionShape */ (ApiSerializer.anyShape(target));
+    const result = /** @type ApiUnionShape */ (ApiSerializer.anyShape(object));
     if (Array.isArray(anyOf) && anyOf.length) {
       result.anyOf = anyOf.map((shape) => ApiSerializer.unknownShape(shape));
     } else {
@@ -1609,7 +1611,7 @@ export class ApiSerializer {
     if (target.isLink) {
       target = /** @type FileShape */ (object.linkTarget);
     }
-    const result = /** @type ApiFileShape */ (ApiSerializer.anyShape(target));
+    const result = /** @type ApiFileShape */ (ApiSerializer.anyShape(object));
     const { fileTypes, pattern, minLength, maxLength, minimum, maximum, exclusiveMinimum, exclusiveMaximum, format, multipleOf } = target;
     if (pattern.isNullOrEmpty === false) {
       result.pattern = pattern.value();
@@ -1653,7 +1655,7 @@ export class ApiSerializer {
     if (target.isLink) {
       target = /** @type SchemaShape */ (object.linkTarget);
     }
-    const result = /** @type ApiSchemaShape */ (ApiSerializer.anyShape(target));
+    const result = /** @type ApiSchemaShape */ (ApiSerializer.anyShape(object));
     const { mediaType, raw } = target;
     if (mediaType.isNullOrEmpty === false) {
       result.mediaType = mediaType.value();
@@ -1673,7 +1675,7 @@ export class ApiSerializer {
     if (target.isLink) {
       target = /** @type DataArrangeShape */ (object.linkTarget);
     }
-    const result = /** @type ApiDataArrangeShape */ (ApiSerializer.anyShape(target));
+    const result = /** @type ApiDataArrangeShape */ (ApiSerializer.anyShape(object));
     const { minItems, maxItems, uniqueItems } = target;
     if (minItems.nonNull === true && minItems.value) {
       result.minItems = minItems.value();
@@ -1696,7 +1698,7 @@ export class ApiSerializer {
     if (target.isLink) {
       target = /** @type ArrayShape */ (object.linkTarget);
     }
-    const result = /** @type ApiArrayShape */ (ApiSerializer.dataArrangeShape(target));
+    const result = /** @type ApiArrayShape */ (ApiSerializer.dataArrangeShape(object));
     const { items } = target;
     if (items && items.id) {
       result.items = ApiSerializer.unknownShape(items);
@@ -1713,7 +1715,7 @@ export class ApiSerializer {
     if (target.isLink) {
       target = /** @type TupleShape */ (object.linkTarget);
     }
-    const result = /** @type ApiTupleShape */ (ApiSerializer.dataArrangeShape(target));
+    const result = /** @type ApiTupleShape */ (ApiSerializer.dataArrangeShape(object));
     const { items, additionalItemsSchema } = target;
     if (!additionalItemsSchema) {
       result.additionalItems = additionalItemsSchema.id;
