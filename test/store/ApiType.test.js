@@ -33,7 +33,7 @@ describe('AmfStoreService', () => {
     it('reads list of types', async () => {
       const result  = await store.listTypes();
       assert.typeOf(result, 'array', 'has the result');
-      assert.lengthOf(result, 12, 'has all types definitions');
+      assert.lengthOf(result, 13, 'has all types definitions');
     });
 
     it('has the types definition', async () => {

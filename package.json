@@ -1,6 +1,6 @@
 {
   "name": "@api-client/amf-store",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "A library to work with the AMF parser and model in a web worker. Exposes a set of APIs to manipulate the API model.",
   "license": "cc-by-4.0",
   "main": "node.js",

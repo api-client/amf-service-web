@@ -5,6 +5,7 @@
 import { ns } from './Namespace.js';
 import { ApiProjectResourceLoader } from './ApiProjectResourceLoader.js';
 import { ApiSerializer } from './ApiSerializer.js';
+import { isShape } from './Utils.js';
 
 // Example https://github.com/aml-org/amf-examples/blob/snapshot/src/test/java/co/acme/model/WebApiBuilder.java
 
@@ -1577,8 +1578,7 @@ export class AmfService {
     const result = /** @type ApiNodeShapeListItem[] */ ([]);
     this.graph.declares.forEach((obj) => {
       const types = obj.graph().types();
-      
-      if (!types.includes(ns.w3.shacl.NodeShape) && !types.includes(ns.aml.vocabularies.shapes.ScalarShape)) {
+      if (!isShape(types)) {
         return;
       }
       const type = /** @type NodeShape */ (obj);
@@ -1593,7 +1593,7 @@ export class AmfService {
       }
       declares.forEach((obj) => {
         const types = obj.graph().types();
-        if (!types.includes(ns.w3.shacl.NodeShape) && !types.includes(ns.aml.vocabularies.shapes.ScalarShape)) {
+        if (!isShape(types)) {
           return;
         }
         const type = /** @type NodeShape */ (obj);
