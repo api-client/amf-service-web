@@ -228,15 +228,9 @@ export class AmfService {
    * @returns {Promise<string>} RAML value for the API.
    */
   async generateRaml() {
-    const client = this.amf.WebAPIConfiguration.WebAPI().baseUnitClient();
-    const transformResult = client.transformCompatibility(
-      this.graph,
-      this.amf.ProvidedMediaType.Raml10
-    );
-    // if (transformResult.conforms) {
-    //   console.log(transformResult.results);
-    // }
-    return client.render(transformResult.baseUnit, this.amf.Vendor.RAML10.mediaType);
+    const configuration = this.amf.RAMLConfiguration.RAML10();
+    const client = configuration.baseUnitClient();
+    return client.render(this.graph);
   }
 
   /**
@@ -244,15 +238,9 @@ export class AmfService {
    * @returns {Promise<string>} JSON+ld value of the API.
    */
   async generateGraph() {
-    const client = this.amf.WebAPIConfiguration.WebAPI().baseUnitClient();
-    const transformResult = client.transformCompatibility(
-      this.graph,
-      this.amf.ProvidedMediaType.AMF
-    );
-    // if (transformResult.conforms) {
-    //   console.log(transformResult.results);
-    // }
-    return client.render(transformResult.baseUnit, this.amf.Vendor.AMF.mediaType);
+    const configuration = this.amf.AMLConfiguration.predefined();
+    const client = configuration.baseUnitClient();
+    return client.render(this.graph, 'application/ld+json');
   }
 
   /**

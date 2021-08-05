@@ -545,4 +545,55 @@ version: v1
       assert.isTrue(result);
     });
   });
+
+  describe('generateRaml()', () => {
+    let store = /** @type AmfStoreService */ (null);
+    /** @type EventTarget */
+    let et;
+
+    before(async () => {
+      et = await etFixture();
+      const demoApi = await AmfLoader.loadApi();
+      store = new AmfStoreService(et);
+      await store.init();
+      await store.loadGraph(demoApi, 'RAML 1.0');
+    });
+
+    after(() => {
+      store.worker.terminate();
+    });
+
+    it('returns the generated RAML', async () => {
+      const result = await store.generateRaml();
+      assert.typeOf(result, 'string', 'has the result');
+      assert.include(result, '#%RAML 1.0', 'has the RAML spec');
+      assert.include(result, 'title: API body demo', 'has the API content');
+    });
+  });
+
+  describe('generateGraph()', () => {
+    let store = /** @type AmfStoreService */ (null);
+    /** @type EventTarget */
+    let et;
+
+    before(async () => {
+      et = await etFixture();
+      const demoApi = await AmfLoader.loadApi();
+      store = new AmfStoreService(et);
+      await store.init();
+      await store.loadGraph(demoApi, 'RAML 1.0');
+    });
+
+    after(() => {
+      store.worker.terminate();
+    });
+
+    it('returns the generated RAML', async () => {
+      const result = await store.generateGraph();
+      assert.typeOf(result, 'string', 'has the result');
+      const parsed = JSON.parse(result);
+      assert.typeOf(parsed, 'object', 'represents an object');
+      assert.typeOf(parsed['@graph'], 'array', 'has the graph');
+    });
+  });
 });

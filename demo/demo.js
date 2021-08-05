@@ -96,6 +96,11 @@ class ComponentPage extends DemoPage {
     this.log(result);
   }
 
+  async getApi() {
+    const result = await this.store.getApi();
+    this.log(result);
+  }
+
   /**
    * @param {Event} e 
    */
@@ -329,6 +334,7 @@ class ComponentPage extends DemoPage {
 
       <h4>Reading data</h4>
       <div @click="${this.actionHandler}">
+        <button id="getApi" ?disabled="${!loaded}">Read API</button>
         <button id="listEndpoints" ?disabled="${!loaded}">List endpoints</button>
         <button id="listEndpointsWithOperations" ?disabled="${!loaded}">List endpoints & operations</button>
         <button id="listTypes" ?disabled="${!loaded}">List types</button>
