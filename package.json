@@ -40,6 +40,7 @@
     "@web/test-runner-commands": "^0.5.8",
     "@web/test-runner-playwright": "^0.8.6",
     "amf-client-js": "^5.0.0-beta.3",
+    "browserify": "^17.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "fs-extra": "^10.0.0",
@@ -51,7 +52,7 @@
   },
   "peerDependencies": {
     "fs-extra": "^10.0.0",
-    "amf-client-js": "^5.0.0-beta.2"
+    "amf-client-js": "^5.0.0-beta.3"
   },
   "scripts": {
     "start": "web-dev-server --app-index demo/index.html --node-resolve --open --watch --root-dir .",

@@ -56,15 +56,16 @@ async function parseFile(file, cnf, opts) {
   const ro = new amf.RenderOptions().withCompactUris().withPrettyPrint().withSourceMaps();
   const client = configuration.withRenderOptions(ro).baseUnitClient();
   const result = await client.parseDocument(`file://${src}${file}`);
-  
+
   if (!result.conforms) {
     /* eslint-disable-next-line no-console */
     result.results.forEach(r => console.error(r, r.toString()));
   }
-  const transformed = client.transform(result.baseUnit);
+  const transformed = client.transform(result.baseUnit, amf.PipelineId.Editing);
+  if (!transformed.conforms) console.error(`Error: ${transformed.results[0].message}`)
   // const transformResult = client.transformCompatibility(result.baseUnit, amf.ProvidedMediaType.AMF);
   const rendered = client.render(transformed.baseUnit, 'application/ld+json');
-  
+
   let destFile = `${file.substr(0, file.lastIndexOf('.')) }.json`;
   if (destFile.indexOf('/') !== -1) {
     destFile = destFile.substr(destFile.lastIndexOf('/'));
