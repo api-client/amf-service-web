@@ -72,7 +72,54 @@ types:
       - A
       - B
       - C
-
+  RecursiveShape:
+    (deprecated): This type is deprecated causes it throws errors.
+    type: object
+    properties: 
+      id: string
+      relatedTo:
+        type: RecursiveShape
+        description: This is recursive.
+  Arrable:
+    type: array
+    items: Picture
+  Picture:
+    displayName: Pic
+    type: Resource
+    description: The user's profile picture.
+    properties:
+      url:
+        (annotationTest):
+        type: string
+        required: false
+        description: A URL that points to a profile picture of this user.
+  ImportFormat:
+    properties:
+      source:
+        type: string
+        description: The imported file's content type to convert from.
+        required: true
+      targets:
+        description: The possible content types to convert to.
+        type: string[]
+        required: true
+  Unionable:
+    type: ImportFormat | Picture
+  MaFile:
+    type: file
+    displayName: My file
+    description: This is a file description
+    minLength: 1
+    maxLength: 10
+    # required: true
+    # pattern: test
+    # multipleOf: 20
+    fileTypes: 
+      - image/png
+      - image/jpeg
+      - image/jpg
+      - image/gif
+  
 resourceTypes:
   ResourceNotFound:
     displayName: Not found resource
@@ -517,3 +564,23 @@ securitySchemes:
         body: 
           application/json:
             type: AppPerson
+/xml:
+  displayName: People
+  description: The people API used to access data about the people.
+  post:
+    displayName: Create a person
+    description: Use this method to add new person
+    body:
+      application/xml:
+        type: !include schemas/person.xsd
+        example: !include examples/person.xml
+
+/annotations:
+  (clearanceLevel):
+      level: high
+      signature: 230-ghtwvfrs1itr
+  get:
+    (deprecated): This method is deprecated and will be removed.
+    responses: 
+      200:
+        description:

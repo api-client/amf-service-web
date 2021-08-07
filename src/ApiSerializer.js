@@ -45,6 +45,7 @@ import { ns } from './Namespace.js';
 /** @typedef {import('amf-client-js').IriTemplateMapping} IriTemplateMapping */
 /** @typedef {import('amf-client-js').Callback} Callback */
 /** @typedef {import('amf-client-js').DomainElement} DomainElement */
+/** @typedef {import('amf-client-js').RecursiveShape} RecursiveShape */
 /** @typedef {import('./types').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 /** @typedef {import('./types').ApiParametrizedSecuritySchemeBase} ApiParametrizedSecuritySchemeBase */
 /** @typedef {import('./types').ApiParametrizedSecuritySchemeRecursive} ApiParametrizedSecuritySchemeRecursive */
@@ -110,14 +111,15 @@ import { ns } from './Namespace.js';
 /** @typedef {import('./types').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
 /** @typedef {import('./types').ApiSecuritySettingsUnion} ApiSecuritySettingsUnion */
 /** @typedef {import('./types').ApiSecurityScope} ApiSecurityScope */
-/** @typedef {import('./types').ApiCustomDomainProperty} ApiCustomDomainProperty */
+/** @typedef {import('./types').ApiCustomDomainExtension} ApiCustomDomainExtension */
 /** @typedef {import('./types').ApiDomainExtension} ApiDomainExtension */
-/** @typedef {import('./types').ApiCustomDomainPropertyListItem} ApiCustomDomainPropertyListItem */
+/** @typedef {import('./types').ApiCustomDomainExtensionListItem} ApiCustomDomainExtensionListItem */
 /** @typedef {import('./types').ApiEncodingBase} ApiEncodingBase */
 /** @typedef {import('./types').ApiEncoding} ApiEncoding */
 /** @typedef {import('./types').ApiEncodingRecursive} ApiEncodingRecursive */
 /** @typedef {import('./types').ApiIriTemplateMapping} ApiIriTemplateMapping */
 /** @typedef {import('./types').ApiCallback} ApiCallback */
+/** @typedef {import('./types').ApiRecursiveShape} ApiRecursiveShape */
 
 
 export class ApiSerializer {
@@ -1332,6 +1334,9 @@ export class ApiSerializer {
     if (types.includes(ns.aml.vocabularies.shapes.TupleShape)) {
       return ApiSerializer.tupleShape(/** @type TupleShape */ (object));
     }
+    if (types.includes(ns.aml.vocabularies.shapes.RecursiveShape)) {
+      return ApiSerializer.recursiveShape(/** @type RecursiveShape */ (object));
+    }
     return ApiSerializer.anyShape(/** @type AnyShape */ (object));
   }
 
@@ -1423,8 +1428,11 @@ export class ApiSerializer {
    * @returns {ApiShape}
    */
   static shape(object) {
+    /** @type string */
+    let linkLabel;
     let target = object;
     if (target.isLink) {
+      linkLabel = target.linkLabel.value();
       target = /** @type Shape */ (object.linkTarget);
     }
     const { 
@@ -1443,6 +1451,9 @@ export class ApiSerializer {
       and: [],
       xone: [],
     });
+    if (linkLabel) {
+      result.linkLabel = linkLabel;
+    }
     if (name.isNullOrEmpty === false) {
       result.name = name.value();
     }
@@ -1494,11 +1505,11 @@ export class ApiSerializer {
    */
   static anyShape(object) {
     let target = object;
+    const result = /** @type ApiAnyShape */ (ApiSerializer.shape(target));
     if (target.isLink) {
       target = /** @type AnyShape */ (object.linkTarget);
     }
     const { documentation, xmlSerialization, examples } = target;
-    const result = /** @type ApiAnyShape */ (ApiSerializer.shape(object));
     if (Array.isArray(examples) && examples.length) {
       result.examples = examples.map((item) => ApiSerializer.example(item));
     } else {
@@ -1545,11 +1556,11 @@ export class ApiSerializer {
    */
   static scalarShape(object) {
     let target = object;
+    const result = /** @type ApiScalarShape */ (ApiSerializer.anyShape(target));
     if (target.isLink) {
       target = /** @type ScalarShape */ (object.linkTarget);
     }
     const { dataType, pattern, minLength, maxLength, minimum, maximum, exclusiveMaximum, exclusiveMinimum, format, multipleOf } = target;
-    const result = /** @type ApiScalarShape */ (ApiSerializer.anyShape(object));
     if (pattern.isNullOrEmpty === false) {
       result.pattern = pattern.value();
     }
@@ -1588,12 +1599,12 @@ export class ApiSerializer {
    * @returns {ApiUnionShape}
    */
   static unionShape(object) {
+    const result = /** @type ApiUnionShape */ (ApiSerializer.anyShape(object));
     let target = object;
     if (target.isLink) {
       target = /** @type UnionShape */ (object.linkTarget);
     }
     const { anyOf } = target;
-    const result = /** @type ApiUnionShape */ (ApiSerializer.anyShape(object));
     if (Array.isArray(anyOf) && anyOf.length) {
       result.anyOf = anyOf.map((shape) => ApiSerializer.unknownShape(shape));
     } else {
@@ -1607,11 +1618,11 @@ export class ApiSerializer {
    * @returns {ApiFileShape}
    */
   static fileShape(object) {
+    const result = /** @type ApiFileShape */ (ApiSerializer.anyShape(object));
     let target = object;
     if (target.isLink) {
       target = /** @type FileShape */ (object.linkTarget);
     }
-    const result = /** @type ApiFileShape */ (ApiSerializer.anyShape(object));
     const { fileTypes, pattern, minLength, maxLength, minimum, maximum, exclusiveMinimum, exclusiveMaximum, format, multipleOf } = target;
     if (pattern.isNullOrEmpty === false) {
       result.pattern = pattern.value();
@@ -1651,11 +1662,11 @@ export class ApiSerializer {
    * @returns {ApiSchemaShape}
    */
   static schemaShape(object) {
+    const result = /** @type ApiSchemaShape */ (ApiSerializer.anyShape(object));
     let target = object;
     if (target.isLink) {
       target = /** @type SchemaShape */ (object.linkTarget);
     }
-    const result = /** @type ApiSchemaShape */ (ApiSerializer.anyShape(object));
     const { mediaType, raw } = target;
     if (mediaType.isNullOrEmpty === false) {
       result.mediaType = mediaType.value();
@@ -1671,11 +1682,11 @@ export class ApiSerializer {
    * @returns {ApiDataArrangeShape}
    */
   static dataArrangeShape(object) {
+    const result = /** @type ApiDataArrangeShape */ (ApiSerializer.anyShape(object));
     let target = object;
     if (target.isLink) {
       target = /** @type DataArrangeShape */ (object.linkTarget);
     }
-    const result = /** @type ApiDataArrangeShape */ (ApiSerializer.anyShape(object));
     const { minItems, maxItems, uniqueItems } = target;
     if (minItems.nonNull === true && minItems.value) {
       result.minItems = minItems.value();
@@ -1694,11 +1705,11 @@ export class ApiSerializer {
    * @returns {ApiArrayShape}
    */
   static arrayShape(object) {
+    const result = /** @type ApiArrayShape */ (ApiSerializer.dataArrangeShape(object));
     let target = object;
     if (target.isLink) {
       target = /** @type ArrayShape */ (object.linkTarget);
     }
-    const result = /** @type ApiArrayShape */ (ApiSerializer.dataArrangeShape(object));
     const { items } = target;
     if (items && items.id) {
       result.items = ApiSerializer.unknownShape(items);
@@ -1711,11 +1722,11 @@ export class ApiSerializer {
    * @returns {ApiTupleShape}
    */
   static tupleShape(object) {
+    const result = /** @type ApiTupleShape */ (ApiSerializer.dataArrangeShape(object));
     let target = object;
     if (target.isLink) {
       target = /** @type TupleShape */ (object.linkTarget);
     }
-    const result = /** @type ApiTupleShape */ (ApiSerializer.dataArrangeShape(object));
     const { items, additionalItemsSchema } = target;
     if (!additionalItemsSchema) {
       result.additionalItems = additionalItemsSchema.id;
@@ -1724,6 +1735,23 @@ export class ApiSerializer {
       result.items = items.map((shape) => ApiSerializer.unknownShape(shape));
     } else {
       result.items = [];
+    }
+    return result;
+  }
+
+  /**
+   * @param {RecursiveShape} object
+   * @returns {ApiRecursiveShape}
+   */
+  static recursiveShape(object) {
+    const result = /** @type ApiRecursiveShape */ (ApiSerializer.shape(object));
+    let target = object;
+    if (target.isLink) {
+      target = /** @type RecursiveShape */ (object.linkTarget);
+    }
+    const { fixpoint } = object;
+    if (fixpoint && fixpoint.isNullOrEmpty === false) {
+      result.fixPoint = fixpoint.value();
     }
     return result;
   }
@@ -1810,7 +1838,7 @@ export class ApiSerializer {
 
   /**
    * @param {CustomDomainProperty} object
-   * @returns {ApiCustomDomainPropertyListItem}
+   * @returns {ApiCustomDomainExtensionListItem}
    */
   static domainPropertyListItem(object) {
     let target = object;
@@ -1832,7 +1860,7 @@ export class ApiSerializer {
 
   /**
    * @param {CustomDomainProperty} object
-   * @returns {ApiCustomDomainProperty}
+   * @returns {ApiCustomDomainExtension}
    */
   static customDomainProperty(object) {
     let target = object;
@@ -1841,7 +1869,7 @@ export class ApiSerializer {
     }
     const { id, name, displayName, description, domain, schema } = target;
     const types = object.graph().types();
-    const result = /** @type ApiCustomDomainProperty */ ({
+    const result = /** @type ApiCustomDomainExtension */ ({
       id,
       types,
       domain: [],

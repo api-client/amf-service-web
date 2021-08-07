@@ -12,6 +12,12 @@ import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.
 /** @typedef {import('../..').ApiTupleShape} ApiTupleShape */
 /** @typedef {import('../..').ApiShapeUnion} ApiShapeUnion */
 /** @typedef {import('../..').ApiScalarNode} ApiScalarNode */
+/** @typedef {import('../..').ApiAnyShape} ApiAnyShape */
+/** @typedef {import('../..').ApiUnionShape} ApiUnionShape */
+/** @typedef {import('../..').ApiArrayShape} ApiArrayShape */
+/** @typedef {import('../..').ApiRecursiveShape} ApiRecursiveShape */
+/** @typedef {import('../..').ApiCustomDomainExtension} ApiCustomDomainExtension */
+/** @typedef {import('../..').ApiDomainExtension} ApiDomainExtension */
 
 describe('AmfStoreService', () => {
   let store = /** @type AmfStoreService */ (null);
@@ -33,7 +39,7 @@ describe('AmfStoreService', () => {
     it('reads list of types', async () => {
       const result  = await store.listTypes();
       assert.typeOf(result, 'array', 'has the result');
-      assert.lengthOf(result, 13, 'has all types definitions');
+      assert.lengthOf(result, 19, 'has all types definitions');
     });
 
     it('has the types definition', async () => {
@@ -55,7 +61,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds the default type', async () => {
-      const result = await store.addType();
+      const result = /** @type ApiAnyShape */ (await store.addType());
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -107,7 +113,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds NodeShape type', async () => {
-      const result = await store.addType({ type: ns.w3.shacl.NodeShape });
+      const result = /** @type ApiNodeShape */ (await store.addType({ type: ns.w3.shacl.NodeShape }));
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -132,7 +138,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds UnionShape type', async () => {
-      const result = await store.addType({ type: ns.aml.vocabularies.shapes.UnionShape });
+      const result = /** @type ApiUnionShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.UnionShape }));
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -157,7 +163,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds FileShape type', async () => {
-      const result = await store.addType({ type: ns.aml.vocabularies.shapes.FileShape });
+      const result = /** @type ApiFileShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.FileShape }));
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -182,7 +188,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds SchemaShape type', async () => {
-      const result = await store.addType({ type: ns.aml.vocabularies.shapes.SchemaShape });
+      const result = /** @type ApiSchemaShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.SchemaShape }));
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -206,7 +212,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds ArrayShape type', async () => {
-      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ArrayShape });
+      const result = /** @type ApiArrayShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.ArrayShape }));
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -230,7 +236,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds MatrixShape type', async () => {
-      const result = await store.addType({ type: ns.aml.vocabularies.shapes.MatrixShape });
+      const result = /** @type ApiArrayShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.MatrixShape }));
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -254,7 +260,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds TupleShape type', async () => {
-      const result = await store.addType({ type: ns.aml.vocabularies.shapes.TupleShape });
+      const result = /** @type ApiArrayShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.TupleShape }));
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -335,21 +341,8 @@ describe('AmfStoreService', () => {
       await store.loadGraph(demoApi, 'RAML 1.0');
     });
 
-    /**
-     * @param {string} name
-     * @returns {Promise<ApiShapeUnion>} 
-     */
-    async function getShape(name) {
-      const types = await store.listTypes();
-      const item = types.find(t => t.name === name);
-      if (!item) {
-        throw new Error(`The shape ${name} does not exist in the API.`);
-      }
-      return store.getType(item.id);
-    }
-
     it('returns an object', async () => {
-      const result = await getShape('ErrorResource');
+      const result = await AmfLoader.getShape(store, 'ErrorResource');
       assert.typeOf(result, 'object');
     });
 
@@ -359,19 +352,19 @@ describe('AmfStoreService', () => {
     });
 
     it('reads the type from the event', async () => {
-      const type = await getShape('ErrorResource');
+      const type = await AmfLoader.getShape(store, 'ErrorResource');
       const result = await StoreEvents.Type.get(window, type.id);
       assert.deepEqual(result, type);
     });
 
     it('serializes the default value string', async () => {
-      const type = /** @type ApiNodeShape */ (await getShape('ErrorResource'));
+      const type = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'ErrorResource'));
       const [error] = type.properties;
       assert.equal(error.range.defaultValueStr, 'true', 'has the default value string');
     });
 
     it('serializes the default value node', async () => {
-      const type = /** @type ApiNodeShape */ (await getShape('ErrorResource'));
+      const type = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'ErrorResource'));
       const [error] = type.properties;
       const { defaultValue } = error.range;
       assert.typeOf(defaultValue, 'object', 'the defaultValue is an object');
@@ -384,7 +377,7 @@ describe('AmfStoreService', () => {
 
     // this is not set when the Editing pipeline is applied when processing API spec files.
     // it('has serialized inherits property', async () => {
-    //   const type = /** @type ApiNodeShape */ (await getShape('AppPerson'));
+    //   const type = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'AppPerson'));
     //   const { inherits } = type;
     //   assert.typeOf(inherits, 'array', 'inherits is an array');
     //   assert.lengthOf(inherits, 1, 'has one parent');
@@ -394,13 +387,167 @@ describe('AmfStoreService', () => {
     // });
 
     it('has the link name', async () => {
-      const type = /** @type ApiNodeShape */ (await getShape('AppPerson'));
+      const type = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'AppPerson'));
       assert.equal(type.name, 'AppPerson');
     });
 
     it('has the displayName', async () => {
-      const type = /** @type ApiNodeShape */ (await getShape('AppPerson'));
+      const type = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'AppPerson'));
       assert.equal(type.displayName, 'A person resource');
+    });
+
+    it('processes an ArrayShape', async () => {
+      const result = /** @type ApiArrayShape */ (await AmfLoader.getShape(store, 'Arrable'));
+      assert.include(result.types, ns.aml.vocabularies.shapes.ArrayShape, 'has the ArrayShape type');
+      assert.equal(result.name, 'Arrable', 'has the name');
+      assert.deepEqual(result.examples, [], 'has empty examples');
+      assert.deepEqual(result.values, [], 'has empty values');
+      assert.deepEqual(result.inherits, [], 'has empty inherits');
+      assert.deepEqual(result.or, [], 'has empty or');
+      assert.deepEqual(result.and, [], 'has empty and');
+      assert.deepEqual(result.xone, [], 'has empty xone');
+      assert.deepEqual(result.customDomainProperties, [], 'has empty customDomainProperties');
+      assert.typeOf(result.items, 'object', 'has the items');
+      assert.include(result.items.types, ns.w3.shacl.NodeShape, 'items has the NodeShape type');
+    });
+
+    it('processes a NodeShape', async () => {
+      const result = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'AppPerson'));
+      assert.include(result.types, ns.w3.shacl.NodeShape, 'has the NodeShape type');
+      assert.equal(result.name, 'AppPerson', 'has the name');
+      assert.typeOf(result.description, 'string', 'has the description');
+      assert.lengthOf(result.examples, 1, 'has an example');
+      assert.include(result.examples[0].types, ns.aml.vocabularies.apiContract.Example, 'example has the Example type');
+      assert.deepEqual(result.values, [], 'has empty values');
+      assert.deepEqual(result.inherits, [], 'has empty inherits');
+      assert.deepEqual(result.or, [], 'has empty or');
+      assert.deepEqual(result.and, [], 'has empty and');
+      assert.deepEqual(result.xone, [], 'has empty xone');
+      assert.deepEqual(result.customShapeProperties, [], 'has empty customShapeProperties');
+      assert.deepEqual(result.customShapePropertyDefinitions, [], 'has empty customShapePropertyDefinitions');
+      assert.deepEqual(result.dependencies, [], 'has empty dependencies');
+      assert.deepEqual(result.customDomainProperties, [], 'has empty customDomainProperties');
+      assert.isFalse(result.closed, 'has the closed');
+      assert.typeOf(result.properties, 'array', 'has the properties');
+      assert.isNotEmpty(result.properties, 'the properties is not empty');
+    });
+
+    it('processes an UnionShape', async () => {
+      const result = /** @type ApiUnionShape */ (await AmfLoader.getShape(store, 'Unionable'));
+      assert.include(result.types, ns.aml.vocabularies.shapes.UnionShape, 'has the NodeShape type');
+      assert.equal(result.name, 'Unionable', 'has the name');
+      assert.isUndefined(result.description, 'has no description');
+      assert.deepEqual(result.examples, [], 'has no examples');
+      assert.deepEqual(result.values, [], 'has empty values');
+      assert.deepEqual(result.inherits, [], 'has empty inherits');
+      assert.deepEqual(result.or, [], 'has empty or');
+      assert.deepEqual(result.and, [], 'has empty and');
+      assert.deepEqual(result.xone, [], 'has empty xone');
+      assert.deepEqual(result.customDomainProperties, [], 'has empty customDomainProperties');
+      assert.typeOf(result.anyOf, 'array', 'has the anyOf');
+      assert.lengthOf(result.anyOf, 2, 'has all anyOf');
+      const [any1] = result.anyOf;
+      assert.typeOf(any1.id, 'string', 'has the anyOf definition as Shape');
+    });
+
+    it('processes a ScalarShape', async () => {
+      const result = /** @type ApiScalarShape */ (await AmfLoader.getShape(store, 'Feature'));
+      assert.include(result.types, ns.aml.vocabularies.shapes.ScalarShape, 'has the NodeShape type');
+      assert.equal(result.name, 'Feature', 'has the name');
+      assert.typeOf(result.description, 'string', 'has the description');
+      assert.deepEqual(result.examples, [], 'has no examples');
+      assert.deepEqual(result.inherits, [], 'has empty inherits');
+      assert.deepEqual(result.or, [], 'has empty or');
+      assert.deepEqual(result.and, [], 'has empty and');
+      assert.deepEqual(result.xone, [], 'has empty xone');
+      assert.deepEqual(result.customDomainProperties, [], 'has empty customDomainProperties');
+      assert.equal(result.dataType, 'http://www.w3.org/2001/XMLSchema#string', 'has the dataType');
+      assert.lengthOf(result.values, 3, 'has the values set');
+    });
+
+    it('processes a ScalarShape with enum values', async () => {
+      const result = /** @type ApiScalarShape */ (await AmfLoader.getShape(store, 'Feature'));
+      const [v1, v2, v3] = /** @type ApiScalarNode[] */ (result.values);
+      assert.include(v1.types, ns.aml.vocabularies.data.Scalar, 'v1 has the type');
+      assert.include(v2.types, ns.aml.vocabularies.data.Scalar, 'v2 has the type');
+      assert.include(v3.types, ns.aml.vocabularies.data.Scalar, 'v3 has the type');
+      assert.equal(v1.name, 'scalar_1', 'v1 has the name');
+      assert.equal(v2.name, 'scalar_2', 'v2 has the name');
+      assert.equal(v3.name, 'scalar_3', 'v3 has the name');
+      assert.equal(v1.value, 'A', 'v1 has the value');
+      assert.equal(v2.value, 'B', 'v2 has the value');
+      assert.equal(v3.value, 'C', 'v3 has the value');
+      assert.equal(v1.dataType, ns.w3.xmlSchema.string, 'v1 has the dataType');
+      assert.equal(v2.dataType, ns.w3.xmlSchema.string, 'v2 has the dataType');
+      assert.equal(v3.dataType, ns.w3.xmlSchema.string, 'v3 has the dataType');
+    });
+
+    it('processes a FileShape with enum values', async () => {
+      const result = /** @type ApiFileShape */ (await AmfLoader.getShape(store, 'MaFile'));
+
+      assert.include(result.types, ns.aml.vocabularies.shapes.FileShape, 'has the FileShape type');
+      assert.equal(result.name, 'MaFile', 'has the name');
+      assert.typeOf(result.description, 'string', 'has the description');
+      assert.deepEqual(result.examples, [], 'has no examples');
+      assert.deepEqual(result.inherits, [], 'has empty inherits');
+      assert.deepEqual(result.or, [], 'has empty or');
+      assert.deepEqual(result.and, [], 'has empty and');
+      assert.deepEqual(result.xone, [], 'has empty xone');
+      assert.deepEqual(result.values, [], 'has empty values');
+      assert.deepEqual(result.customDomainProperties, [], 'has empty customDomainProperties');
+      assert.deepEqual(result.fileTypes, ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'], 'has the fileTypes');
+      assert.equal(result.minLength, 1, 'has the minLength set');
+      assert.equal(result.maxLength, 10, 'has the maxLength set');
+    });
+
+    it('processes a RecursiveShape', async () => {
+      const shape = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'RecursiveShape'));
+      const item = /** @type ApiRecursiveShape */ (shape.properties.find(i => i.name === 'relatedTo').range);
+      assert.typeOf(item.id, 'string', 'has the id');
+      assert.include(item.types, ns.aml.vocabularies.shapes.RecursiveShape, 'has the RecursiveShape type');
+      assert.equal(item.name, 'relatedTo', 'has the name');
+      assert.typeOf(item.description, 'string', 'has the description');
+      assert.deepEqual(item.inherits, [], 'has empty inherits');
+      assert.deepEqual(item.or, [], 'has empty or');
+      assert.deepEqual(item.and, [], 'has empty and');
+      assert.deepEqual(item.xone, [], 'has empty xone');
+      assert.deepEqual(item.values, [], 'has empty values');
+      assert.deepEqual(item.customDomainProperties, [], 'has empty customDomainProperties');
+      assert.typeOf(item.fixPoint, 'string', 'has the fixPoint');
+    });
+
+    it('processes a custom domain properties', async () => {
+      const result = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'RecursiveShape'));
+      const { customDomainProperties: cdp } = result;
+      assert.typeOf(cdp, 'array', 'has the properties');
+      assert.lengthOf(cdp, 1, 'has a single property');
+      const [item] = cdp;
+      assert.typeOf(item.id, 'string', 'has the id');
+      assert.include(item.types, ns.aml.vocabularies.apiContract.DomainExtension, 'has the Scalar type');
+      assert.equal(item.name, 'deprecated', 'has the name');
+      assert.typeOf(item.definedBy, 'object', 'has the definedBy');
+      assert.typeOf(item.extension, 'object', 'has the extension');
+      const { extension } = item;
+      assert.include(extension.types, ns.aml.vocabularies.data.Scalar, 'the extension is a Scalar data mode');
+      // @ts-ignore
+      assert.equal(extension.dataType, ns.w3.xmlSchema.string, 'the extension has the data type');
+      // @ts-ignore
+      assert.equal(extension.value, 'This type is deprecated causes it throws errors.', 'the extension has the value');
+    });
+
+    // AMF does not restore XML schemas
+    it.skip('processes a SchemaShape', async () => {
+      const expects = await AmfLoader.lookupRequest(store, '/xml', 'post');
+      const [payload] = expects.payloads;
+      const { schema } = payload;
+      const result = /** @type ApiSchemaShape */ (schema);
+      assert.equal(result.mediaType, 'application/xml', 'has media type');
+      assert.typeOf(result.raw, 'string', 'has raw');
+      assert.typeOf(result.examples, 'array', 'has examples');
+      assert.lengthOf(result.examples, 1, 'has single examples');
+      const [ example ] = result.examples;
+      assert.isTrue(example.strict, 'example.strict is set');
+      assert.typeOf(example.value, 'string', 'example.value is set');
     });
   });
 

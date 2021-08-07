@@ -1,6 +1,8 @@
 {
   "cSpell.words": [
+    "Arrable",
     "Mediatype",
+    "Unionable",
     "apistoreapiaddserver",
     "apistoreapicreatewebapi",
     "apistoreapigenerategraph",
@@ -136,6 +138,7 @@
     "apistoretypeupdate",
     "apistoretypeupdateproperty",
     "asyncapi",
+    "fixpoint",
     "xone"
   ]
 }
