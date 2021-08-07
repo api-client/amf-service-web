@@ -5,6 +5,8 @@ import { ApiEndPointListItem, ApiCustomDomainProperty, ApiDocumentation, ApiEndP
 export declare class AmfService {
   graph?: AMF.Document;
   amf: unknown;
+  client?: AMF.AMFBaseUnitClient;
+  elementClient?: AMF.AMFElementClient;
   /**
    * @param amf The reference to the AMF library.
    */
@@ -569,7 +571,7 @@ export declare class AmfService {
    * Creates a new type in the API.
    * @param init The Shape init options.
    */
-  buildShape(init?: ShapeInit): AMF.amf.core.client.platform.model.domain.Shape;
+  buildShape(init?: ShapeInit): AMF.Shape;
   /**
    * Creates a new type in the API.
    * @param init The Shape init options.

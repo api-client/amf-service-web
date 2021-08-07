@@ -189,24 +189,24 @@ export declare class ApiSerializer {
    * @returns Serialized NodeShape
    */
   static nodeShapeListItem(object: AMF.NodeShape): ApiNodeShapeListItem;
-  static unknownShape(object: AMF.amf.core.client.platform.model.domain.Shape): ApiShapeUnion;
+  static unknownShape(object: AMF.Shape): ApiShapeUnion;
   /**
    * @param object The NodeShape to serialize
    */
   static nodeShape(object: AMF.NodeShape): ApiNodeShape;
   static propertyShape(object: AMF.PropertyShape): ApiPropertyShape;
-  static shape(object: AMF.amf.core.client.platform.model.domain.Shape): ApiShape;
+  static shape(object: AMF.Shape): ApiShape;
   static anyShape(object: AMF.AnyShape): ApiAnyShape;
   static xmlSerializer(object: AMF.XMLSerializer): ApiXMLSerializer;
   static scalarShape(object: AMF.ScalarShape): ApiScalarShape;
   static unionShape(object: AMF.UnionShape): ApiUnionShape;
   static fileShape(object: AMF.FileShape): ApiFileShape;
   static schemaShape(object: AMF.SchemaShape):ApiSchemaShape;
-  static dataArrangeShape(object: AMF.amf.shapes.client.platform.model.domain.DataArrangeShape): ApiDataArrangeShape;
+  static dataArrangeShape(object: AMF.DataArrangeShape): ApiDataArrangeShape;
   static arrayShape(object: AMF.ArrayShape): ApiArrayShape;
   static tupleShape(object: AMF.TupleShape): ApiTupleShape;
-  static unknownDataNode(object: AMF.amf.core.client.platform.model.domain.DataNode): ApiScalarNode|ApiObjectNode|ApiArrayNode|undefined;
-  static dataNode(object: AMF.amf.core.client.platform.model.domain.DataNode): ApiDataNode;
+  static unknownDataNode(object: AMF.DataNode): ApiScalarNode|ApiObjectNode|ApiArrayNode|undefined;
+  static dataNode(object: AMF.DataNode): ApiDataNode;
   static scalarNode(object: AMF.ScalarNode): ApiScalarNode;
   static objectNode(object: AMF.ObjectNode): ApiObjectNode;
   static arrayNode(object: AMF.ArrayNode): ApiArrayNode;  
