@@ -39,10 +39,10 @@ describe('AmfStoreService', () => {
   
       it('has the security definition', async () => {
         const result  = await demoStore.listSecurity();
-        const sec = result[2];
+        const sec = result.find(i => i.name === 'oauth_2_0');
+        assert.ok(sec, 'has the name');
         assert.typeOf(sec.id, 'string', 'has the id');
         assert.equal(sec.type, 'OAuth 2.0', 'has the type');
-        assert.equal(sec.name, 'oauth_2_0', 'has the name');
       });
   
       it('list security with the event', async () => {

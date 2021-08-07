@@ -101,6 +101,30 @@ class ComponentPage extends DemoPage {
     this.log(result);
   }
 
+  async readOperation() {
+    const input = /** @type HTMLInputElement */ (document.getElementById('operationId'));
+    const id = input.value.trim();
+    if (!id) {
+      return;
+    }
+    const pathInput = /** @type HTMLInputElement */ (document.getElementById('operationEndpointIdOrPath'));
+    const path = pathInput.value.trim();
+    const result = await this.store.getOperation(id, path); 
+    this.log(result);
+  }
+
+  async getOperationRecursive() {
+    const input = /** @type HTMLInputElement */ (document.getElementById('operationId'));
+    const id = input.value.trim();
+    if (!id) {
+      return;
+    }
+    const pathInput = /** @type HTMLInputElement */ (document.getElementById('operationEndpointIdOrPath'));
+    const path = pathInput.value.trim();
+    const result = await this.store.getOperationRecursive(id, path); 
+    this.log(result);
+  }
+
   /**
    * @param {Event} e 
    */
@@ -172,17 +196,6 @@ class ComponentPage extends DemoPage {
             return;
           }
           const result = await this.store.addOperation(endpoint, { method }); 
-          this.log(result);
-        }
-        break;
-      case 'readOperation':
-        {
-          const input = /** @type HTMLInputElement */ (document.getElementById('operationId'));
-          const id = input.value.trim();
-          if (!id) {
-            return;
-          }
-          const result = await this.store.getOperation(id); 
           this.log(result);
         }
         break;
@@ -353,17 +366,26 @@ class ComponentPage extends DemoPage {
           <button id="deleteEndpoint" ?disabled="${!loaded}" @click="${this.actionHandler}">Delete endpoint</button>
         </div>
 
-        <h4>Operations</h4>
-        <div>
-          <label for="operationId">Operation id (or method)</label>
-          <input type="text" id="operationId" value="get"/>
-          <label for="operationEndpointIdOrPath">Endpoint id (or path)</label>
-          <input type="text" id="operationEndpointIdOrPath" value="/annotable"/>
-          <button id="addOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Add operation (needs endpoint and operation)</button>
-          <button id="readOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Read operation</button>
-          <button id="deleteOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Delete operation</button>
-        </div>
+        <details>
+          <summary>Operations</summary>
+          
+          <div class="form-field">
+            <label for="operationId">Operation id (or method)</label>
+            <input type="text" id="operationId" value="get"/>
+          </div>
+          <div class="form-field">
+            <label for="operationEndpointIdOrPath">Endpoint id (or path)</label>
+            <input type="text" id="operationEndpointIdOrPath" value="/people"/>
+          </div>
+          <div class="form-field">
+            <button id="addOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Add</button>
+            <button id="readOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Read</button>
+            <button id="deleteOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Delete</button>
+            <button id="getOperationRecursive" ?disabled="${!loaded}" @click="${this.actionHandler}">Read recursive</button>
+          </div>
+        </details>
 
+        
         <h4>Types</h4>
         <div>
           <label for="typeId">Type id</label>

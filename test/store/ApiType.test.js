@@ -382,15 +382,16 @@ describe('AmfStoreService', () => {
       assert.equal(typed.dataType, ns.w3.xmlSchema.boolean, 'has the dataType');
     });
 
-    it('has serialized inherits property', async () => {
-      const type = /** @type ApiNodeShape */ (await getShape('AppPerson'));
-      const { inherits } = type;
-      assert.typeOf(inherits, 'array', 'inherits is an array');
-      assert.lengthOf(inherits, 1, 'has one parent');
-      const [inherit] = inherits;
-      assert.typeOf(inherit, 'object', 'the inherit is an object');
-      assert.include(inherit.types, ns.w3.shacl.NodeShape, 'has the NodeShape type');
-    });
+    // this is not set when the Editing pipeline is applied when processing API spec files.
+    // it('has serialized inherits property', async () => {
+    //   const type = /** @type ApiNodeShape */ (await getShape('AppPerson'));
+    //   const { inherits } = type;
+    //   assert.typeOf(inherits, 'array', 'inherits is an array');
+    //   assert.lengthOf(inherits, 1, 'has one parent');
+    //   const [inherit] = inherits;
+    //   assert.typeOf(inherit, 'object', 'the inherit is an object');
+    //   assert.include(inherit.types, ns.w3.shacl.NodeShape, 'has the NodeShape type');
+    // });
 
     it('has the link name', async () => {
       const type = /** @type ApiNodeShape */ (await getShape('AppPerson'));

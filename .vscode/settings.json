@@ -135,6 +135,7 @@
     "apistoretypestateupdate",
     "apistoretypeupdate",
     "apistoretypeupdateproperty",
+    "asyncapi",
     "xone"
   ]
 }

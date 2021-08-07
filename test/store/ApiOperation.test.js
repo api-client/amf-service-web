@@ -1,6 +1,7 @@
 import { assert, oneEvent } from '@open-wc/testing';
 // import { AmfLoader } from '../helpers/AmfLoader.js';
 import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.index.js';
+import { AmfLoader } from '../helpers/AmfLoader.js';
 
 /** @typedef {import('../../').ApiEndPointListItem} ApiEndPointListItem */
 /** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
@@ -602,6 +603,31 @@ describe('AmfStoreService', () => {
       assert.equal(record.graphId, requestId, 'has the request id');
       assert.equal(record.domainType, ns.aml.vocabularies.apiContract.Request, 'has the domainType');
       assert.equal(record.domainParent, opId, 'has the domainParent');
+    });
+  });
+
+  describe('With RAML API model', () => {
+    describe('getOperation()', () => {
+      before(async () => {
+        const demoApi = await AmfLoader.loadApi();
+        await store.loadGraph(demoApi, 'RAML 1.0');
+      });
+
+      it('applies a RAML resource type', async () => {
+        const result = await store.getOperation('get', '/people/{personId}');
+        assert.ok(result, 'has operation defined in the resource type');
+        assert.typeOf(result.responses, 'array', 'has a single response defined in a resource type');
+        const responses = await store.getResponses(result.responses);
+        const rsp = responses.find(i => i.statusCode === '404');
+        assert.ok(rsp, 'has the resource type applied');
+      });
+
+      it('applies a RAML trait', async () => {
+        const result = await store.getOperation('get', '/people');
+        const request = await store.getRequestRecursive(result.request);
+        const limitParam = request.queryParameters.find(i => i.name === 'limit');
+        assert.ok(limitParam, 'has a query parameter defined in a trait');
+      });
     });
   });
 });

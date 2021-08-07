@@ -12,6 +12,7 @@ import { isShape } from './Utils.js';
 /** @typedef {import('amf-client-js')} AMF */
 /** @typedef {import('amf-client-js').Document} Document */
 /** @typedef {import('amf-client-js').AMFBaseUnitClient} AMFBaseUnitClient */
+/** @typedef {import('amf-client-js').AMFElementClient} AMFElementClient */
 /** @typedef {import('amf-client-js').AMFConfiguration} AMFConfiguration */
 /** @typedef {import('amf-client-js').DomainElement} DomainElement */
 /** @typedef {import('amf-client-js').WebApi} WebApi */
@@ -45,6 +46,7 @@ import { isShape } from './Utils.js';
 /** @typedef {import('amf-client-js').DeclaresModel} BaseUnitWithDeclaresModel */
 /** @typedef {import('amf-client-js').BaseUnit} BaseUnit */
 /** @typedef {import('amf-client-js').Dialect} Dialect */
+/** @typedef {import('amf-client-js').ResourceType} ResourceType */
 /** @typedef {import('./types').ApiInit} ApiInit */
 /** @typedef {import('./types').EndPointInit} EndPointInit */
 /** @typedef {import('./types').OperationInit} OperationInit */
@@ -115,6 +117,14 @@ export class AmfService {
      * @type {AMF}
      */
     this.amf = amf;
+    /**
+     * @type {AMFBaseUnitClient} The AMF client used initialize the API.
+     */
+    this.client = undefined;
+    /**
+     * @type {AMFElementClient} The AMF element client used initialize the API.
+     */
+    this.elementClient = undefined;
   }
 
   /**
@@ -144,8 +154,10 @@ export class AmfService {
     const customResourceLoader = this.amf.ResourceLoaderFactory.create(
       new ApiProjectResourceLoader(contents, this.amf)
     );
-    const client = configuration.withResourceLoader(customResourceLoader).baseUnitClient();
-    const result = await client.parseContent(entryPoint.contents, mediaType);
+    const configured = configuration.withResourceLoader(customResourceLoader);
+    this.client = configured.baseUnitClient();
+    this.elementClient = configured.elementClient();
+    const result = await this.client.parseContent(entryPoint.contents, mediaType);
     
     if (!result.conforms) {
       // eslint-disable-next-line no-console
@@ -161,18 +173,19 @@ export class AmfService {
    * @param {ParserVendors} vendor The parser type to use to parse the contents.
    */
   async loadGraph(model, vendor) {
-    /** @type AMFBaseUnitClient */
-    let client;
+    /** @type AMFConfiguration */
+    let configuration;
     switch (vendor) {
-      case 'OAS 2.0': client = this.amf.OASConfiguration.OAS20().baseUnitClient(); break;
-      case 'OAS 3.0': client = this.amf.OASConfiguration.OAS30().baseUnitClient(); break;
-      case 'RAML 1.0': client = this.amf.RAMLConfiguration.RAML10().baseUnitClient(); break;
-      case 'RAML 0.8': client = this.amf.RAMLConfiguration.RAML08().baseUnitClient(); break;
-      case 'ASYNC 2.0': client = this.amf.AsyncAPIConfiguration.Async20().baseUnitClient(); break;
+      case 'OAS 2.0': configuration = this.amf.OASConfiguration.OAS20(); break;
+      case 'OAS 3.0': configuration = this.amf.OASConfiguration.OAS30(); break;
+      case 'RAML 1.0': configuration = this.amf.RAMLConfiguration.RAML10(); break;
+      case 'RAML 0.8': configuration = this.amf.RAMLConfiguration.RAML08(); break;
+      case 'ASYNC 2.0': configuration = this.amf.AsyncAPIConfiguration.Async20(); break;
       default: throw new Error(`Unable to recognize API type: ${vendor}`);
-      // default: client = this.amf.AMFGraphConfiguration.predefined().createClient();
     }
-    const result = await client.parseContent(model);
+    this.client = configuration.baseUnitClient();
+    this.elementClient = configuration.elementClient();
+    const result = await this.client.parseContent(model);
     if (!result.conforms) {
       // eslint-disable-next-line no-console
       console.log(result.toString());
@@ -1973,28 +1986,36 @@ export class AmfService {
    */
   async listSecurity() {
     const result = /** @type ApiSecuritySchemeListItem[] */ ([]);
-    const list = /** @type SecurityScheme[] */ (this.graph.findByType(ns.aml.vocabularies.security.SecurityScheme));
+    // const list = /** @type SecurityScheme[] */ (this.graph.findByType(ns.aml.vocabularies.security.SecurityScheme));
     const processed = [];
-    list.forEach((item) => {
-      let target = item;
-      if (item.isLink) {
-        target = /** @type SecurityScheme */ (item.linkTarget);
+    // list.forEach((item) => {
+    //   let target = item;
+    //   if (item.isLink) {
+    //     target = /** @type SecurityScheme */ (item.linkTarget);
+    //   }
+    //   if (processed.includes(target.id)) {
+    //     return;
+    //   }
+    //   processed.push(target.id);
+    //   result.push(ApiSerializer.securitySchemeListItem(item));
+    // });
+    this.graph.declares.forEach((obj) => {
+      let target = /** @type SecurityScheme */ (obj);
+      if (target.isLink) {
+        target = /** @type SecurityScheme */ (target.linkTarget);
+      }
+      const types = target.graph().types();
+      if (!types.includes(ns.aml.vocabularies.security.SecurityScheme)) {
+        return;
       }
       if (processed.includes(target.id)) {
         return;
       }
       processed.push(target.id);
-      result.push(ApiSerializer.securitySchemeListItem(item));
+      const type = /** @type SecurityScheme */ (target);
+      const item = ApiSerializer.securitySchemeListItem(type);
+      result.push(item);
     });
-    // this.graph.declares.forEach((obj) => {
-    //   const types = obj.graph().types();
-    //   if (!types.includes(ns.aml.vocabularies.security.SecurityScheme)) {
-    //     return;
-    //   }
-    //   const type = /** @type SecurityScheme */ (obj);
-    //   const item = ApiSerializer.securitySchemeListItem(type);
-    //   result.push(item);
-    // });
     return result;
   }
 

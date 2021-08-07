@@ -75,6 +75,9 @@ types:
 
 resourceTypes:
   ResourceNotFound:
+    displayName: Not found resource
+    description: Applies the 404 method to the response
+    usage: This API is used by <<resourcePathName>>
     get:
       responses:
         404:
@@ -87,6 +90,9 @@ resourceTypes:
               type: !include schemas/error-response.xsd
               example: !include examples/e404.xml
   UnauthorizedResponse:
+    description: Applies the 404 when authorization is required
+    usage: The resource <<resourcePathName>> is protected.
+    securedBy: [basic]
     get:
       responses:
         404:
@@ -162,6 +168,7 @@ securitySchemes:
       description: To test enum values in the URI parameters for global type declaration.
 /people:
   displayName: People
+  type: UnauthorizedResponse
   (clearanceLevel):
       level: medium
       signature: 123-qwerty

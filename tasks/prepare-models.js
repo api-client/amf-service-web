@@ -59,10 +59,10 @@ async function parseFile(file, cnf, opts) {
   
   if (!result.conforms) {
     /* eslint-disable-next-line no-console */
-    result.results.forEach(r => console.error(r, r.toString()));
+    result.results.forEach(r => console.error(r.message));
   }
-  const transformed = client.transform(result.baseUnit);
-  // const transformResult = client.transformCompatibility(result.baseUnit, amf.ProvidedMediaType.AMF);
+  // const transformed = client.transform(result.baseUnit);
+  const transformed = client.transform(result.baseUnit, amf.PipelineId.Editing);
   const rendered = client.render(transformed.baseUnit, 'application/ld+json');
   
   let destFile = `${file.substr(0, file.lastIndexOf('.')) }.json`;

@@ -213,7 +213,7 @@ describe('AmfStoreService', () => {
       const result = await store.getEndpoint('/people/{personId}');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.equal(result.path, '/people/{personId}', 'has the path');
-      assert.equal(result.relativePath, '/{personId}', 'has the relativePath');
+      assert.equal(result.relativePath, '/people/{personId}', 'has the relativePath');
       assert.equal(result.description, 'The endpoint to access information about the person', 'has the description');
       assert.equal(result.name, 'A person', 'has the name');
       assert.lengthOf(result.parameters, 1, 'has the parameters');
