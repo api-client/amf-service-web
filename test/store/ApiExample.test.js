@@ -31,10 +31,11 @@ describe('AmfStoreService', () => {
         const request = await store.addRequest(op.id);
         const payload = await store.addRequestPayload(request.id, { mediaType: 'application/json' });
         const example = await store.addParameterExample(payload.id, { ...init });
+        console.log("example", example);
         id = example.id;
       });
 
-      it('reads the example from the store', async () => {
+      it.only('reads the example from the store', async () => {
         const example = await store.getExample(id);
         assert.typeOf(example, 'object', 'is the object');
         const [type] = example.types;

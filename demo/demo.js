@@ -1,6 +1,6 @@
 /* eslint-disable lit-a11y/click-events-have-key-events */
 import { html } from 'lit-html';
-import { DemoPage } from '@advanced-rest-client/arc-demo-helper';
+import { DemoPage } from './lib/DemoPage.js';
 import { AmfStoreService } from '../worker.index.js';
 import { ApiSorting } from '../src/ApiSorting.js';
 import { EndpointsTree } from '../src/EndpointsTree.js';
@@ -9,12 +9,12 @@ import { ApiSearch } from '../src/lib/ApiSearch.js';
 class ComponentPage extends DemoPage {
   constructor() {
     super();
-    this.initObservableProperties(['loaded', 'initialized', 'latestOutput']);
+    // this.initObservableProperties(['loaded', 'initialized', 'latestOutput']);
     this.loaded = false;
     this.initialized = false;
-    this.latestOutput = '';
+    this.latestOutput = "";
     this.store = new AmfStoreService();
-    this.componentName = 'AmfStoreProxy';
+    this.componentName = "AmfStoreProxy";
     this.actionHandler = this.actionHandler.bind(this);
 
     this.init();
@@ -22,12 +22,15 @@ class ComponentPage extends DemoPage {
 
   async init() {
     await this.store.init();
-    this.log('void');
+    this.log("void");
     this.initialized = true;
+    this.render();
   }
 
   async readSecurity() {
-    const input = /** @type HTMLInputElement */ (document.getElementById('securityId'));
+    const input = /** @type HTMLInputElement */ (
+      document.getElementById("securityId")
+    );
     const id = input.value.trim();
     if (!id) {
       return;
@@ -37,7 +40,9 @@ class ComponentPage extends DemoPage {
   }
 
   async readSecuritySettings() {
-    const input = /** @type HTMLInputElement */ (document.getElementById('securitySettingsId'));
+    const input = /** @type HTMLInputElement */ (
+      document.getElementById("securitySettingsId")
+    );
     const id = input.value.trim();
     if (!id) {
       return;
@@ -47,7 +52,9 @@ class ComponentPage extends DemoPage {
   }
 
   async readSecurityRequirement() {
-    const input = /** @type HTMLInputElement */ (document.getElementById('securityRequirementId'));
+    const input = /** @type HTMLInputElement */ (
+      document.getElementById("securityRequirementId")
+    );
     const id = input.value.trim();
     if (!id) {
       return;
@@ -57,7 +64,9 @@ class ComponentPage extends DemoPage {
   }
 
   async readCustomDomainProperty() {
-    const input = /** @type HTMLInputElement */ (document.getElementById('cdpId'));
+    const input = /** @type HTMLInputElement */ (
+      document.getElementById("cdpId")
+    );
     const id = input.value.trim();
     if (!id) {
       return;
@@ -67,7 +76,9 @@ class ComponentPage extends DemoPage {
   }
 
   async readDomainExtension() {
-    const input = /** @type HTMLInputElement */ (document.getElementById('extId'));
+    const input = /** @type HTMLInputElement */ (
+      document.getElementById("extId")
+    );
     const id = input.value.trim();
     if (!id) {
       return;
@@ -77,7 +88,9 @@ class ComponentPage extends DemoPage {
   }
 
   async listCustomDomainProperties() {
-    const input = /** @type HTMLInputElement */ (document.getElementById('extId'));
+    const input = /** @type HTMLInputElement */ (
+      document.getElementById("extId")
+    );
     const id = input.value.trim();
     if (!id) {
       return;
@@ -102,149 +115,191 @@ class ComponentPage extends DemoPage {
   }
 
   async readOperation() {
-    const input = /** @type HTMLInputElement */ (document.getElementById('operationId'));
+    const input = /** @type HTMLInputElement */ (
+      document.getElementById("operationId")
+    );
     const id = input.value.trim();
     if (!id) {
       return;
     }
-    const pathInput = /** @type HTMLInputElement */ (document.getElementById('operationEndpointIdOrPath'));
+    const pathInput = /** @type HTMLInputElement */ (
+      document.getElementById("operationEndpointIdOrPath")
+    );
     const path = pathInput.value.trim();
-    const result = await this.store.getOperation(id, path); 
+    const result = await this.store.getOperation(id, path);
     this.log(result);
   }
 
   async getOperationRecursive() {
-    const input = /** @type HTMLInputElement */ (document.getElementById('operationId'));
+    const input = /** @type HTMLInputElement */ (
+      document.getElementById("operationId")
+    );
     const id = input.value.trim();
     if (!id) {
       return;
     }
-    const pathInput = /** @type HTMLInputElement */ (document.getElementById('operationEndpointIdOrPath'));
+    const pathInput = /** @type HTMLInputElement */ (
+      document.getElementById("operationEndpointIdOrPath")
+    );
     const path = pathInput.value.trim();
-    const result = await this.store.getOperationRecursive(id, path); 
+    const result = await this.store.getOperationRecursive(id, path);
     this.log(result);
   }
 
   /**
-   * @param {Event} e 
+   * @param {Event} e
    */
   async actionHandler(e) {
     const button = /** @type HTMLButtonElement */ (e.target);
-    if (typeof this[button.id] === 'function') {
+    if (typeof this[button.id] === "function") {
       this[button.id]();
       return;
     }
     switch (button.id) {
-      case 'loadApiGraph': this.loadDemoApi(button.dataset.src, button.dataset.type); break;
-      case 'loadEmptyApi': 
+      case "loadApiGraph":
+        this.loadDemoApi(button.dataset.src, button.dataset.type);
+        break;
+      case "loadEmptyApi":
         this.latestOutput = await this.store.createWebApi();
         this.loaded = true;
-        this.log('void');
+        this.log("void");
+        this.render();
         break;
-      case 'addEndpoint': 
+      case "addEndpoint":
         {
-          const input = /** @type HTMLInputElement */ (document.getElementById('endpointIdPath'));
+          const input = /** @type HTMLInputElement */ (
+            document.getElementById("endpointIdPath")
+          );
           const path = input.value.trim();
           if (!path) {
             return;
           }
-          const result = await this.store.addEndpoint({ path }); 
+          const result = await this.store.addEndpoint({ path });
           this.log(result);
+          this.render();
         }
         break;
-      case 'readEndpoint': 
+      case "readEndpoint":
         {
-          const input = /** @type HTMLInputElement */ (document.getElementById('endpointIdPath'));
+          const input = /** @type HTMLInputElement */ (
+            document.getElementById("endpointIdPath")
+          );
           const path = input.value.trim();
           if (!path) {
             return;
           }
-          const result = await this.store.getEndpoint(path); 
+          const result = await this.store.getEndpoint(path);
           this.log(result);
+          this.render();
         }
         break;
-      case 'deleteEndpoint':
+      case "deleteEndpoint":
         {
-          const input = /** @type HTMLInputElement */ (document.getElementById('endpointIdPath'));
+          const input = /** @type HTMLInputElement */ (
+            document.getElementById("endpointIdPath")
+          );
           const id = input.value.trim();
           if (!id) {
             return;
           }
           await this.store.deleteEndpoint(id);
-          this.log('void');
+          this.log("void");
+          this.render();
         }
         break;
-      case 'deleteOperation':
+      case "deleteOperation":
         {
-          const input = /** @type HTMLInputElement */ (document.getElementById('operationId'));
+          const input = /** @type HTMLInputElement */ (
+            document.getElementById("operationId")
+          );
           const id = input.value.trim();
           if (!id) {
             return;
           }
           const endpoint = await this.store.getOperationParent(id);
-          const result = await this.store.deleteOperation(id, endpoint.id); 
+          const result = await this.store.deleteOperation(id, endpoint.id);
           this.log(result);
+          this.render();
         }
         break;
-      case 'addOperation':
+      case "addOperation":
         {
-          const input = /** @type HTMLInputElement */ (document.getElementById('operationId'));
-          const eInput = /** @type HTMLInputElement */ (document.getElementById('operationEndpointIdOrPath'));
+          const input = /** @type HTMLInputElement */ (
+            document.getElementById("operationId")
+          );
+          const eInput = /** @type HTMLInputElement */ (
+            document.getElementById("operationEndpointIdOrPath")
+          );
           const method = input.value.trim();
           const endpoint = eInput.value.trim();
           if (!method || !endpoint) {
             return;
           }
-          const result = await this.store.addOperation(endpoint, { method }); 
+          const result = await this.store.addOperation(endpoint, { method });
           this.log(result);
+          this.render();
         }
         break;
-      case 'listTypes':
+      case "listTypes":
         {
-          const result = await this.store.listTypes(); 
+          const result = await this.store.listTypes();
           this.log(result);
+          this.render();
         }
         break;
-      case 'listSecurity':
+      case "listSecurity":
         {
-          const result = await this.store.listSecurity(); 
+          const result = await this.store.listSecurity();
           this.log(result);
+          this.render();
         }
         break;
-      case 'listEndpoints':
+      case "listEndpoints":
         {
           const result = await this.store.listEndpoints();
           this.log(result);
+          this.render();
         }
         break;
-      case 'listEndpointsWithOperations':
+      case "listEndpointsWithOperations":
         {
           const result = await this.store.listEndpointsWithOperations();
           const sorted = ApiSorting.sortEndpointsByPath(result);
-          const items = new EndpointsTree().create(sorted); 
+          const items = new EndpointsTree().create(sorted);
           this.log(items);
+          this.render();
         }
         break;
-      case 'readType':
+      case "readType":
         {
-          const input = /** @type HTMLInputElement */ (document.getElementById('typeId'));
+          const input = /** @type HTMLInputElement */ (
+            document.getElementById("typeId")
+          );
           const id = input.value.trim();
           if (!id) {
             return;
           }
-          const result = await this.store.getType(id); 
+          const result = await this.store.getType(id);
           this.log(result);
         }
         break;
-      default: console.warn(`Unhandled action ${button.id}`);
+      default:
+        console.warn(`Unhandled action ${button.id}`);
     }
   }
 
   /**
-   * @param {any} message 
+   * @param {HTMLButtonElement} button
+   */
+  async loadApiGraph(button) {
+    this.loadDemoApi(button.dataset.src, button.dataset.type);
+  }
+
+  /**
+   * @param {any} message
    */
   log(message) {
-    if (typeof message === 'object') {
+    if (typeof message === "object") {
       this.latestOutput = JSON.stringify(message, null, 2);
     } else {
       this.latestOutput = message;
@@ -258,7 +313,7 @@ class ComponentPage extends DemoPage {
     const model = await rsp.text();
     await this.store.loadGraph(model, type);
     this.loaded = true;
-    this.log('void');
+    this.log("void");
   }
 
   async selectApiDirectory() {
@@ -268,18 +323,18 @@ class ComponentPage extends DemoPage {
       return;
     }
     const files = [];
-    await this.listDirectory(dirHandle, files, '');
+    await this.listDirectory(dirHandle, files, "");
     // @ts-ignore
     const [mainHandle] = await window.showOpenFilePicker({
       types: [
         {
-          description: 'API files',
+          description: "API files",
           accept: {
-            'application/json': ['.json'],
-            'application/ld+json': ['.jsonld'],
-            'application/yaml': ['.raml', '.yaml'],
-            'application/raml': ['.raml'],
-          }
+            "application/json": [".json"],
+            "application/ld+json": [".jsonld"],
+            "application/yaml": [".raml", ".yaml"],
+            "application/raml": [".raml"],
+          },
         },
       ],
       excludeAcceptAllOption: true,
@@ -292,9 +347,14 @@ class ComponentPage extends DemoPage {
       name: mainHandle.name,
       lastModified: Date.now(),
       size: 0,
-      type: '',
+      type: "",
     });
-    await this.store.loadApi(files, result.type, result.contentType, mainHandle.name);
+    await this.store.loadApi(
+      files,
+      result.type,
+      result.contentType,
+      mainHandle.name
+    );
     this.loaded = true;
   }
 
@@ -304,8 +364,8 @@ class ComponentPage extends DemoPage {
     }
   }
 
-  async listContent(handle, result, parent='/') {
-    if (handle.kind === 'file') {
+  async listContent(handle, result, parent = "/") {
+    if (handle.kind === "file") {
       const file = await handle.getFile();
       const contents = await file.text();
       const fPath = `${parent}${handle.name}`;
@@ -330,117 +390,259 @@ class ComponentPage extends DemoPage {
   _demoTemplate() {
     const { loaded, initialized, latestOutput } = this;
     return html`
-    <section class="documentation-section">
-      <h3>Store demo</h3>
+      <section class="documentation-section">
+        <h3>Store demo</h3>
 
-      <h4>Initialization</h4>
-      <div @click="${this.actionHandler}">
-        <button id="init">Init</button>
-        <button id="loadApiGraph" data-type="RAML 1.0" data-src="demo-api.json" ?disabled="${!initialized}">Load demo API</button>
-        <button id="loadApiGraph" data-type="ASYNC 2.0" data-src="async-api.json" ?disabled="${!initialized}">Load async API</button>
-        <button id="loadApiGraph" data-type="RAML 1.0"  data-src="google-drive-api.json" ?disabled="${!initialized}">Load Google Drive API</button>
-        <button id="loadApiGraph" data-type="ASYNC 2.0" data-src="streetlights.json" ?disabled="${!initialized}">Streetlights (async) API</button>
-        <button id="loadApiGraph" data-type="OAS 3.0" data-src="oas-3-api.json" ?disabled="${!initialized}">OAS 3 API</button>
-        <button id="loadEmptyApi" ?disabled="${!initialized}">Load empty API</button>
-        <button ?disabled="${!initialized}" id="selectApiDirectory">Select API</button>
-      </div>
-
-      <h4>Reading data</h4>
-      <div @click="${this.actionHandler}">
-        <button id="getApi" ?disabled="${!loaded}">Read API</button>
-        <button id="listEndpoints" ?disabled="${!loaded}">List endpoints</button>
-        <button id="listEndpointsWithOperations" ?disabled="${!loaded}">List endpoints & operations</button>
-        <button id="listTypes" ?disabled="${!loaded}">List types</button>
-        <button id="listSecurity" ?disabled="${!loaded}">List security</button>
-        <button id="listCustomDomainProperties" ?disabled="${!loaded}">List annotations/extensions</button>
-      </div>
-
-      <h4>API manipulation</h4>
-      <div>
-        <h4>Endpoints</h4>
-        <div>
-          <label for="endpointIdPath">Endpoint path or id</label>
-          <input type="text" id="endpointIdPath" value="/annotable"/>
-          <button id="addEndpoint" ?disabled="${!loaded}" @click="${this.actionHandler}">Add endpoint</button>
-          <button id="readEndpoint" ?disabled="${!loaded}" @click="${this.actionHandler}">Read endpoint</button>
-          <button id="deleteEndpoint" ?disabled="${!loaded}" @click="${this.actionHandler}">Delete endpoint</button>
+        <h4>Initialization</h4>
+        <div @click="${this.actionHandler}">
+          <button id="init">Init</button>
+          <button
+            id="loadApiGraph"
+            data-type="RAML 1.0"
+            data-src="demo-api.json"
+            ?disabled="${!initialized}"
+          >
+            Load demo API
+          </button>
+          <button
+            id="loadApiGraph"
+            data-type="ASYNC 2.0"
+            data-src="async-api.json"
+            ?disabled="${!initialized}"
+          >
+            Load async API
+          </button>
+          <button
+            id="loadApiGraph"
+            data-type="RAML 1.0"
+            data-src="google-drive-api.json"
+            ?disabled="${!initialized}"
+          >
+            Load Google Drive API
+          </button>
+          <button
+            id="loadApiGraph"
+            data-type="ASYNC 2.0"
+            data-src="streetlights.json"
+            ?disabled="${!initialized}"
+          >
+            Streetlights (async) API
+          </button>
+          <button
+            id="loadApiGraph"
+            data-type="OAS 3.0"
+            data-src="oas-3-api.json"
+            ?disabled="${!initialized}"
+          >
+            OAS 3 API
+          </button>
+          <button id="loadEmptyApi" ?disabled="${!initialized}">
+            Load empty API
+          </button>
+          <button ?disabled="${!initialized}" id="selectApiDirectory">
+            Select API
+          </button>
         </div>
 
-        <details>
-          <summary>Operations</summary>
-          
-          <div class="form-field">
-            <label for="operationId">Operation id (or method)</label>
-            <input type="text" id="operationId" value="get"/>
-          </div>
-          <div class="form-field">
-            <label for="operationEndpointIdOrPath">Endpoint id (or path)</label>
-            <input type="text" id="operationEndpointIdOrPath" value="/people"/>
-          </div>
-          <div class="form-field">
-            <button id="addOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Add</button>
-            <button id="readOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Read</button>
-            <button id="deleteOperation" ?disabled="${!loaded}" @click="${this.actionHandler}">Delete</button>
-            <button id="getOperationRecursive" ?disabled="${!loaded}" @click="${this.actionHandler}">Read recursive</button>
-          </div>
-        </details>
-
-        
-        <h4>Types</h4>
-        <div>
-          <label for="typeId">Type id</label>
-          <input type="text" id="typeId" value=""/>
-          <button id="readType" ?disabled="${!loaded}" @click="${this.actionHandler}">Read type</button>
+        <h4>Reading data</h4>
+        <div @click="${this.actionHandler}">
+          <button id="getApi" ?disabled="${!loaded}">Read API</button>
+          <button id="listEndpoints" ?disabled="${!loaded}">
+            List endpoints
+          </button>
+          <button id="listEndpointsWithOperations" ?disabled="${!loaded}">
+            List endpoints & operations
+          </button>
+          <button id="listTypes" ?disabled="${!loaded}">List types</button>
+          <button id="listSecurity" ?disabled="${!loaded}">
+            List security
+          </button>
+          <button id="listCustomDomainProperties" ?disabled="${!loaded}">
+            List annotations/extensions
+          </button>
         </div>
 
-        <details>
-          <summary>Security</summary>
-          
-          <div class="form-field">
-            <label for="securityId">Security id</label>
-            <input type="text" id="securityId" value="amf://id#363"/>
-            <button id="readSecurity" ?disabled="${!loaded}" @click="${this.actionHandler}">Read security</button>
+        <h4>API manipulation</h4>
+        <div>
+          <h4>Endpoints</h4>
+          <div>
+            <label for="endpointIdPath">Endpoint path or id</label>
+            <input type="text" id="endpointIdPath" value="/annotable" />
+            <button
+              id="addEndpoint"
+              ?disabled="${!loaded}"
+              @click="${this.actionHandler}"
+            >
+              Add endpoint
+            </button>
+            <button
+              id="readEndpoint"
+              ?disabled="${!loaded}"
+              @click="${this.actionHandler}"
+            >
+              Read endpoint
+            </button>
+            <button
+              id="deleteEndpoint"
+              ?disabled="${!loaded}"
+              @click="${this.actionHandler}"
+            >
+              Delete endpoint
+            </button>
           </div>
-          <div class="form-field">
-            <label for="securitySettingsId">Security settings id</label>
-            <input type="text" id="securitySettingsId" value="amf://id#205"/>
-            <button id="readSecuritySettings" ?disabled="${!loaded}" @click="${this.actionHandler}">Read security settings</button>
-          </div>
-          <div class="form-field">
-            <label for="securityRequirementId">Security requirement id</label>
-            <input type="text" id="securityRequirementId" value=""/>
-            <button id="readSecurityRequirement" ?disabled="${!loaded}" @click="${this.actionHandler}">Read security requirements</button>
-          </div>
-        </details>
 
-        <details open>
-          <summary>Custom domain properties</summary>
-          
-          <div class="form-field">
-            <label for="cdpId">Property id</label>
-            <input type="text" id="cdpId" value="amf://id#397 "/>
-            <button id="readCustomDomainProperty" ?disabled="${!loaded}" @click="${this.actionHandler}">Read property</button>
+          <details>
+            <summary>Operations</summary>
+
+            <div class="form-field">
+              <label for="operationId">Operation id (or method)</label>
+              <input type="text" id="operationId" value="get" />
+            </div>
+            <div class="form-field">
+              <label for="operationEndpointIdOrPath"
+                >Endpoint id (or path)</label
+              >
+              <input
+                type="text"
+                id="operationEndpointIdOrPath"
+                value="/people"
+              />
+            </div>
+            <div class="form-field">
+              <button
+                id="addOperation"
+                ?disabled="${!loaded}"
+                @click="${this.actionHandler}"
+              >
+                Add
+              </button>
+              <button
+                id="readOperation"
+                ?disabled="${!loaded}"
+                @click="${this.actionHandler}"
+              >
+                Read
+              </button>
+              <button
+                id="deleteOperation"
+                ?disabled="${!loaded}"
+                @click="${this.actionHandler}"
+              >
+                Delete
+              </button>
+              <button
+                id="getOperationRecursive"
+                ?disabled="${!loaded}"
+                @click="${this.actionHandler}"
+              >
+                Read recursive
+              </button>
+            </div>
+          </details>
+
+          <h4>Types</h4>
+          <div>
+            <label for="typeId">Type id</label>
+            <input type="text" id="typeId" value="" />
+            <button
+              id="readType"
+              ?disabled="${!loaded}"
+              @click="${this.actionHandler}"
+            >
+              Read type
+            </button>
           </div>
 
-          <div class="form-field">
-            <label for="extId">Extension id</label>
-            <input type="text" id="extId" value="amf://id#397 "/>
-            <button id="readDomainExtension" ?disabled="${!loaded}" @click="${this.actionHandler}">Read extension</button>
-          </div>
-        </details>
+          <details>
+            <summary>Security</summary>
 
-        <details open>
-          <summary>Data generation</summary>
-          <button id="generateRaml" ?disabled="${!loaded}" @click="${this.actionHandler}">Generate RAML</button>
-          <button id="generateGraph" ?disabled="${!loaded}" @click="${this.actionHandler}">Generate Graph</button>
-        </details>
-      </div>
+            <div class="form-field">
+              <label for="securityId">Security id</label>
+              <input type="text" id="securityId" value="amf://id#363" />
+              <button
+                id="readSecurity"
+                ?disabled="${!loaded}"
+                @click="${this.actionHandler}"
+              >
+                Read security
+              </button>
+            </div>
+            <div class="form-field">
+              <label for="securitySettingsId">Security settings id</label>
+              <input type="text" id="securitySettingsId" value="amf://id#205" />
+              <button
+                id="readSecuritySettings"
+                ?disabled="${!loaded}"
+                @click="${this.actionHandler}"
+              >
+                Read security settings
+              </button>
+            </div>
+            <div class="form-field">
+              <label for="securityRequirementId">Security requirement id</label>
+              <input type="text" id="securityRequirementId" value="" />
+              <button
+                id="readSecurityRequirement"
+                ?disabled="${!loaded}"
+                @click="${this.actionHandler}"
+              >
+                Read security requirements
+              </button>
+            </div>
+          </details>
 
-      <div>
-        <h4>Latest result</h4>
-        <output>${latestOutput}</output>
-      </div>
-    </section>
+          <details open>
+            <summary>Custom domain properties</summary>
+
+            <div class="form-field">
+              <label for="cdpId">Property id</label>
+              <input type="text" id="cdpId" value="amf://id#397 " />
+              <button
+                id="readCustomDomainProperty"
+                ?disabled="${!loaded}"
+                @click="${this.actionHandler}"
+              >
+                Read property
+              </button>
+            </div>
+
+            <div class="form-field">
+              <label for="extId">Extension id</label>
+              <input type="text" id="extId" value="amf://id#397 " />
+              <button
+                id="readDomainExtension"
+                ?disabled="${!loaded}"
+                @click="${this.actionHandler}"
+              >
+                Read extension
+              </button>
+            </div>
+          </details>
+
+          <details open>
+            <summary>Data generation</summary>
+            <button
+              id="generateRaml"
+              ?disabled="${!loaded}"
+              @click="${this.actionHandler}"
+            >
+              Generate RAML
+            </button>
+            <button
+              id="generateGraph"
+              ?disabled="${!loaded}"
+              @click="${this.actionHandler}"
+            >
+              Generate Graph
+            </button>
+          </details>
+        </div>
+
+        <div>
+          <h4>Latest result</h4>
+          <output>${latestOutput}</output>
+        </div>
+      </section>
     `;
   }
 }

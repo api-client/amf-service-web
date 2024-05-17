@@ -1,6 +1,4 @@
 /* eslint-disable class-methods-use-this */
-import { dedupeMixin } from '@open-wc/dedupe-mixin';
-import { EventsTargetMixin } from  '@advanced-rest-client/events-target-mixin';
 import { EventTypes } from '../events/EventTypes.js';
 
 /** @typedef {import('../AmfStoreProxy').AmfStoreProxy} AmfStoreProxy */
@@ -110,33 +108,94 @@ const eventsMap = {
  * @param {*} base
  */
 const mxFunction = base => {
-  class AmfStoreDomEventsMixin extends EventsTargetMixin(base) {
+  class AmfStoreDomEventsMixin extends base {
+    /**
+     * @return {EventTarget} Currently registered events target,
+     */
+    get eventsTarget() {
+      return this._eventsTarget;
+    }
+
+    /**
+     * By default the element listens on the `window` object. If this value is set,
+     * then all events listeners will be attached to this object instead of `window`.
+     * @param {EventTarget} value Events handlers target.
+     */
+    set eventsTarget(value) {
+      const old = this._eventsTarget;
+      if (old === value) {
+        return;
+      }
+      this._eventsTarget = value;
+      this._eventsTargetChanged(value);
+      // @ts-ignore
+      if (this.requestUpdate) {
+        // @ts-ignore
+        this.requestUpdate("eventsTarget", old);
+      }
+    }
+
     /**
      * @param {...any} args Base class arguments
      */
     constructor(...args) {
       super(...args);
       this[eventHandler] = this[eventHandler].bind(this);
+      this._eventsTarget = null;
+      this._oldEventsTarget = null;
+    }
+
+    connectedCallback() {
+      super.connectedCallback();
+      this._eventsTargetChanged(this.eventsTarget);
+    }
+
+    disconnectedCallback() {
+      super.disconnectedCallback();
+      if (this._oldEventsTarget) {
+        this._detachListeners(this._oldEventsTarget);
+      }
     }
 
     /**
-     * @param {EventTarget} node
+     * Removes old handlers (if any) and attaches listeners on new event
+     * event target.
+     *
+     * @param {EventTarget=} eventsTarget Event target to set handlers on. If not set it
+     * will set handlers on the `window` object.
      */
-    _attachListeners(node) {
-      super._attachListeners(node);
-      Object.keys(eventsMap).forEach(type => node.addEventListener(type, this[eventHandler]));
+    _eventsTargetChanged(eventsTarget) {
+      if (this._oldEventsTarget) {
+        this._detachListeners(this._oldEventsTarget);
+      }
+      this._oldEventsTarget = eventsTarget || window;
+      this._attachListeners(this._oldEventsTarget);
     }
 
     /**
-     * @param {EventTarget} node
+     * @param {EventTarget=} node
      */
-    _detachListeners(node) {
+    _attachListeners(node = window) {
+      if (super._attachListeners) {
+        super._attachListeners(node);
+      }
+      Object.keys(eventsMap).forEach((type) =>
+        node.addEventListener(type, this[eventHandler])
+      );
+    }
+
+    /**
+     * @param {EventTarget=} node
+     */
+    _detachListeners(node = window) {
       super._detachListeners(node);
-      Object.keys(eventsMap).forEach(type => node.removeEventListener(type, this[eventHandler]));
+      Object.keys(eventsMap).forEach((type) =>
+        node.removeEventListener(type, this[eventHandler])
+      );
     }
 
     /**
-     * @param {CustomEvent} e 
+     * @param {CustomEvent} e
      */
     [eventHandler](e) {
       if (e.defaultPrevented) {
@@ -154,7 +213,7 @@ const mxFunction = base => {
         e.detail.result = this[target]();
       } else {
         const params = [];
-        args.forEach(n => {
+        args.forEach((n) => {
           const value = info.eventProperties ? e[n] : e.detail[n];
           params.push(value);
         });
@@ -175,4 +234,4 @@ const mxFunction = base => {
  * 
  * @mixin
  */
-export const AmfStoreDomEventsMixin = dedupeMixin(mxFunction);
+export const AmfStoreDomEventsMixin = mxFunction;
