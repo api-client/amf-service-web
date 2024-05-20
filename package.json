@@ -3,8 +3,8 @@
   "version": "0.3.6",
   "description": "A library to work with the AMF parser and model in a web worker. Exposes a set of APIs to manipulate the API model.",
   "license": "cc-by-4.0",
-  "main": "node.js",
-  "module": "worker.index.js",
+  "main": "build/node.js",
+  "module": "build/worker.index.js",
   "type": "module",
   "keywords": [
     "web-components",
@@ -27,25 +27,33 @@
     "url": "https://github.com/api-client/amf-store/issues",
     "email": "pawel.psztyc@gmail.com"
   },
+  "dependencies": {
+    "@api-client/core": "^0.10.8"
+  },
   "devDependencies": {
-    "@open-wc/eslint-config": "^12.0.3",
     "@open-wc/testing": "^4.0.0",
     "@types/mocha": "^10.0.6",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@typescript-eslint/parser": "^6.1.0",
     "@web/dev-server": "^0.4.4",
+    "@web/dev-server-esbuild": "^1.0.2",
     "@web/test-runner": "^0.18.1",
     "@web/test-runner-commands": "^0.9.0",
     "@web/test-runner-playwright": "^0.11.0",
     "amf-client-js": "^5.5.1",
     "browserify": "^17.0.0",
-    "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.3.0",
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-import-resolver-typescript": "^3.5.1",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-no-only-tests": "^3.0.0",
+    "eslint-plugin-unused-imports": "^3.0.0",
     "fs-extra": "^11.2.0",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "sinon": "^17.0.2",
     "typescript": "^5.4.5",
-    "typescript-lit-html-plugin": "^0.9.0",
-    "uglifyjs": "^2.4.11"
+    "uglify-js": "^3.17.4"
   },
   "peerDependencies": {
     "amf-client-js": "^5.5.1",
@@ -53,45 +61,20 @@
   },
   "scripts": {
     "start": "web-dev-server --app-index demo/index.html --node-resolve --open --watch --root-dir .",
-    "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
-    "format:eslint": "eslint --ext .js,.html . --fix --ignore-path .gitignore",
-    "lint:types": "tsc",
-    "lint": "npm run lint:eslint",
-    "format": "npm run format:eslint",
-    "test": "web-test-runner test/**/*.test.js --coverage --node-resolve --playwright --browsers chromium webkit",
-    "test:watch": "web-test-runner test/**/*.test.js --node-resolve --watch --playwright --browsers chromium",
+    "build:ts": "tsc --project tsconfig.json",
+    "build": "npm run build:ts && npm run lint",
+    "tsc:watch": "tsc --watch",
+    "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
+    "test:browser": "wtr --playwright --browsers chromium --coverage",
+    "test:browser:watch": "wtr --watch --playwright --browsers chromium",
+    "test:node": "npm run build:ts && mocha",
+    "test": "npm run test:browser",
+    "prepare": "husky && npm run build:ts && npm run prepare:amf && npm run prepare:apis && npm run prepare:playwright",
     "prepare:amf-strict-mode": "node tasks/fix-amf.mjs",
     "prepare:amf": "npx browserify tasks/amf-compiler.js | npx uglifyjs > amf-bundle.js",
     "prepare:amf-dev": "npx browserify tasks/amf-compiler.js -o  amf-bundle.js",
     "prepare:apis": "node demo/model.js",
-    "prepare": "npm run prepare:amf-dev && npm run prepare:apis"
-  },
-  "eslintConfig": {
-    "extends": [
-      "@open-wc/eslint-config",
-      "eslint-config-prettier"
-    ],
-    "overrides": [
-      {
-        "files": [
-          "demo/**/*.js",
-          "test/**/*.js",
-          "test/*.js",
-          "**/demo/**/*.html"
-        ],
-        "rules": {
-          "no-console": "off",
-          "no-unused-expressions": "off",
-          "no-plusplus": "off",
-          "no-continue": "off",
-          "no-param-reassign": "off",
-          "class-methods-use-this": "off",
-          "import/no-extraneous-dependencies": "off",
-          "prefer-destructuring": "off",
-          "no-template-curly-in-string": "off"
-        }
-      }
-    ]
+    "prepare:playwright": "npx playwright install --with-deps"
   },
   "husky": {
     "hooks": {

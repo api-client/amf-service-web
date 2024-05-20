@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+import { esbuildPlugin } from '@web/dev-server-esbuild';
+
 /** @typedef {import('@web/test-runner').TestRunnerConfig} TestRunnerConfig */
 
 const filteredLogs = ["Running in dev mode", "Lit is in dev mode"];
 
 export default /** @type TestRunnerConfig */ ({
-  /** Resolve bare module imports */
-  nodeResolve: {
-    exportConditions: ["browser", "production"],
-  },
+  nodeResolve: true,
+  files: [
+    'test/**/*.browser.test.ts'
+  ],
 
   /** Filter out lit dev mode logs */
   filterBrowserLogs(log) {
@@ -28,6 +31,9 @@ export default /** @type TestRunnerConfig */ ({
   concurrentBrowsers: 3,
 
   // plugins: [esbuildPlugin({ ts: true, tsconfig: "./tsconfig.json" })],
+  plugins: [
+    esbuildPlugin({ ts: true, js: true }),
+  ],
 
   /** Amount of test files per browser to test concurrently */
   // concurrency: 10,

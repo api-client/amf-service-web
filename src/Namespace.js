@@ -1,15 +1,27 @@
 
 /**
  * A namespace for AMF properties.
+ * @deprecated Use `@api-client/core` instead.
  */
 export const ns = {};
 
-// RAML namespace
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.aml = {};
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.raml = ns.aml;
 ns.aml.key = 'http://a.ml/';
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.aml.vocabularies = {};
 ns.aml.vocabularies.key = `${ns.aml.key}vocabularies/`;
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.aml.vocabularies.document = {};
 ns.aml.vocabularies.document.key = `${ns.aml.vocabularies.key}document#`;
 const docKey = ns.aml.vocabularies.document.key;
@@ -36,6 +48,9 @@ ns.aml.vocabularies.document.raw = `${docKey}raw`;
 ns.aml.vocabularies.document.extends = `${docKey}extends`;
 ns.aml.vocabularies.document.value = `${docKey}value`;
 ns.aml.vocabularies.document.name = `${docKey}name`;
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.aml.vocabularies.core = {};
 ns.aml.vocabularies.core.key = `${ns.aml.vocabularies.key}core#`;
 const coreKey = ns.aml.vocabularies.core.key;
@@ -55,6 +70,9 @@ ns.aml.vocabularies.core.termsOfService = `${coreKey}termsOfService`;
 ns.aml.vocabularies.core.license = `${coreKey}license`;
 ns.aml.vocabularies.core.mediaType = `${coreKey}mediaType`;
 ns.aml.vocabularies.core.extensionName = `${coreKey}extensionName`;
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.aml.vocabularies.security = {};
 ns.aml.vocabularies.security.key = `${ns.aml.vocabularies.key}security#`;
 const secKey = ns.aml.vocabularies.security.key;
@@ -89,6 +107,9 @@ ns.aml.vocabularies.security.requestTokenUri = `${secKey}requestTokenUri`;
 ns.aml.vocabularies.security.openIdConnectUrl = `${secKey}openIdConnectUrl`;
 ns.aml.vocabularies.security.bearerFormat = `${secKey}bearerFormat`;
 ns.aml.vocabularies.security.in = `${secKey}in`;
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.aml.vocabularies.apiContract = {};
 ns.aml.vocabularies.http = ns.aml.vocabularies.apiContract;
 ns.aml.vocabularies.apiContract.key = `${ns.aml.vocabularies.key}apiContract#`;
@@ -147,6 +168,9 @@ ns.aml.vocabularies.apiContract.protocol = `${contractKey}protocol`;
 ns.aml.vocabularies.apiContract.protocolVersion = `${contractKey}protocolVersion`;
 ns.aml.vocabularies.apiContract.headerSchema = `${contractKey}headerSchema`;
 ns.aml.vocabularies.apiContract.contentType = `${contractKey}contentType`;
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.aml.vocabularies.shapes = {};
 ns.aml.vocabularies.shapes.key = `${ns.aml.vocabularies.key}shapes#`;
 const shapesKey = ns.aml.vocabularies.shapes.key;
@@ -181,6 +205,9 @@ ns.aml.vocabularies.shapes.xmlName = `${shapesKey}xmlName`;
 ns.aml.vocabularies.shapes.xmlAttribute = `${shapesKey}xmlAttribute`;
 ns.aml.vocabularies.shapes.xmlWrapped = `${shapesKey}xmlWrapped`;
 ns.aml.vocabularies.shapes.readOnly = `${shapesKey}readOnly`;
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.aml.vocabularies.data = {};
 ns.aml.vocabularies.data.key = `${ns.aml.vocabularies.key}data#`;
 const dataKey = ns.aml.vocabularies.data.key;
@@ -205,6 +232,9 @@ ns.aml.vocabularies.data.items = `${dataKey}items`;
 ns.aml.vocabularies.data.format = `${dataKey}format`;
 ns.aml.vocabularies.data.example = `${dataKey}example`;
 ns.aml.vocabularies.data.examples = `${dataKey}examples`;
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.aml.vocabularies.docSourceMaps = {};
 ns.aml.vocabularies.docSourceMaps.key = `${ns.aml.vocabularies.key}document-source-maps#`;
 const dsmKey = ns.aml.vocabularies.docSourceMaps.key;
@@ -218,6 +248,9 @@ ns.aml.vocabularies.docSourceMaps.parsedJsonSchema = `${dsmKey}parsed-json-schem
 ns.aml.vocabularies.docSourceMaps.lexical = `${dsmKey}lexical`;
 
 // W3 namespace
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.w3 = {};
 ns.w3.key = 'http://www.w3.org/';
 ns.w3.rdfSyntax = {};
@@ -226,12 +259,17 @@ ns.w3.rdfSyntax.toString = () => ns.w3.rdfSyntax.key;
 // TODO: is this unnecessary?
 ns.w3.rdfSyntax.member = `${ns.w3.rdfSyntax.key}member`;
 ns.w3.rdfSyntax.Seq = `${ns.w3.rdfSyntax.key}Seq`;
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.w3.rdfSchema = {};
 ns.w3.rdfSchema.key = `${ns.w3.key}2000/01/rdf-schema#`;
 ns.w3.rdfSchema.toString = () => ns.w3.rdfSchema.key;
 ns.w3.rdfSchema.member = `${ns.w3.rdfSchema.key}member`;
 ns.w3.rdfSchema.Seq = `${ns.w3.rdfSchema.key}Seq`;
-
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.w3.xmlSchema = {};
 ns.w3.xmlSchema.key = `${ns.w3.key}2001/XMLSchema#`;
 ns.w3.xmlSchema.toString = () => ns.w3.xmlSchema.key;
@@ -247,7 +285,9 @@ ns.w3.xmlSchema.dateTime = `${ns.w3.xmlSchema.key}dateTime`;
 ns.w3.xmlSchema.time = `${ns.w3.xmlSchema.key}time`;
 ns.w3.xmlSchema.date = `${ns.w3.xmlSchema.key}date`;
 ns.w3.xmlSchema.base64Binary = `${ns.w3.xmlSchema.key}base64Binary`;
-// w3 types
+/**
+ * @deprecated Use `@api-client/core` instead.
+ */
 ns.w3.shacl = {};
 ns.w3.shacl.key = `${ns.w3.key}ns/shacl#`;
 const n2shaclName = ns.w3.shacl.key;

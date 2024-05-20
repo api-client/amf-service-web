@@ -61,3 +61,4 @@ amf-bundle.js
 # AMF models
 /demo/*.json
 !demo/apis.json
+build/
