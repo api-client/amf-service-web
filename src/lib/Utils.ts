@@ -1,4 +1,4 @@
-import { AmfNamespace } from "@api-client/core";
+import { AmfNamespace } from "@api-client/core/build/esm/browser.js";
 
 /**
  * @returns true when the passed list of AMF types is a Shape.

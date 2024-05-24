@@ -10,10 +10,7 @@
   "rules": {
     "@typescript-eslint/explicit-function-return-type": "error",
     "import/no-unresolved": ["error"],
-    "import/extensions": ["error", "ignorePackages", {
-      "js": "never",
-      "ts": "never"
-    }],
+    "import/extensions": "off",
     "unused-imports/no-unused-imports": "error",
     "no-only-tests/no-only-tests": "error",
     "no-dupe-class-members": "off",
@@ -82,7 +79,15 @@
       "rules": {
         "explicit-function-return-type": "off"
       }
-    }
+    },
+    {
+      "files": [
+        "demo/**/*.ts"
+      ],
+      "rules": {
+        "no-console": "off"
+      }
+    },
   ],
   "globals": {
     "RequestInit": true

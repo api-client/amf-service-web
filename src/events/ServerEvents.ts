@@ -1,4 +1,4 @@
-import { ApiDefinitions } from '@api-client/core';
+import { ApiDefinitions } from '@api-client/core/build/esm/browser.js';
 import { EventTypes } from './EventTypes.js';
 import { ApiStoreContextEvent } from './BaseEvents.js';
 import { ApiServerInit } from '../types.js';

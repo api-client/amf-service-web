@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { ApiDefinitions } from '@api-client/core';
+import { ApiDefinitions } from '@api-client/core/build/esm/browser.js';
 import { EventTypes } from './EventTypes.js';
 import { ApiStoreContextEvent } from './BaseEvents.js';
 import { ApiInit } from '../types.js';

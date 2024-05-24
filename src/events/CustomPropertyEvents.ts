@@ -1,15 +1,15 @@
-import { AmfBase, ApiDefinitions } from '@api-client/core';
+import { AmfBase, ApiDefinitions } from '@api-client/core/build/esm/browser.js';
 import { EventTypes } from './EventTypes.js';
 import { ApiStoreContextEvent, ApiStoreReadEvent, ApiStoreDeleteEvent, ApiStoreCreateEvent, ApiStoreUpdateScalarEvent } from './BaseEvents.js';
-import { ApiCustomDomainPropertyListItem, CustomDomainPropertyInit } from '../types.js';
+import { ApiCustomDomainExtensionListItem, CustomDomainPropertyInit } from '../types.js';
 
 export const CustomPropertyEvents = {
   /**
    * Lists the custom domain properties (domain extensions, annotations) definitions for the API.
    * @param target The node on which to dispatch the event
    */
-  list: async (target: EventTarget = window): Promise<ApiCustomDomainPropertyListItem[] | undefined> => {
-    const e = new ApiStoreContextEvent<object, ApiCustomDomainPropertyListItem[]>(EventTypes.CustomProperty.list, {});
+  list: async (target: EventTarget = window): Promise<ApiCustomDomainExtensionListItem[] | undefined> => {
+    const e = new ApiStoreContextEvent<object, ApiCustomDomainExtensionListItem[]>(EventTypes.CustomProperty.list, {});
     target.dispatchEvent(e);
     return e.detail.result;
   },

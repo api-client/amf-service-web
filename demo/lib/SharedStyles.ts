@@ -158,10 +158,10 @@ const style = css`
   }
 `;
 try {
-  // @ts-ignore
-  document.adoptedStyleSheets = document.adoptedStyleSheets.concat(
-    style.styleSheet
-  );
+  const { styleSheet } = style;
+  if (styleSheet) {
+    document.adoptedStyleSheets = document.adoptedStyleSheets.concat(styleSheet);
+  }
 } catch (_) {
   /* istanbul ignore next */
   {

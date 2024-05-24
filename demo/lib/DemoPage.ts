@@ -1,8 +1,5 @@
-/* eslint-disable class-methods-use-this */
-import { html, render } from "lit-html";
+import { html, render, TemplateResult } from "lit";
 import "./SharedStyles.js";
-
-/** @typedef {import('lit-html').TemplateResult} TemplateResult */
 
 /**
  * Base class for ARC components demo page.
@@ -16,7 +13,7 @@ import "./SharedStyles.js";
  * class ComponentDemo extends DemoPage {
  *  contentTemplate() {
  *    return html`
- *      return html`<my-component ?narrow="${this.narrow}"></my-component>`;
+ *      return html`<my-component></my-component>`;
  *    `;
  *  }
  * }
@@ -36,41 +33,23 @@ import "./SharedStyles.js";
  * in dark theme.
  */
 export class DemoPage extends EventTarget {
+  componentName: string;
+  firstRendered: boolean;
+
+  _darkThemeActive = false;
+  _rendering = false;
+
   constructor() {
     super();
     // this._darkThemeHandler = this._darkThemeHandler.bind(this);
-    // this._narrowHandler = this._narrowHandler.bind(this);
     // this._stylesHandler = this._stylesHandler.bind(this);
     // this._toggleMainOption = this._toggleMainOption.bind(this);
     // this._demoStateHandler = this._demoStateHandler.bind(this);
     this._mediaQueryHandler = this._mediaQueryHandler.bind(this);
 
     this.initObservableProperties([
-      "narrow",
       "componentName",
-      "stylesActive",
-      "anypoint",
     ]);
-
-    /**
-     * A list of demo states to be passed to `arc-interactive-demo` element
-     * @type {string[]}
-     */
-    this.demoStates = ["Material", "Anypoint"];
-
-    /**
-     * Whether the demoed component should be rendered in the "narrow" view
-     * @type {boolean}
-     * @default false
-     */
-    this.narrow = false;
-
-    /**
-     * Whether view controls should be rendered in the top navigation.
-     * @type {boolean}
-     * @default false
-     */
-    this.renderViewControls = false;
 
     /**
      * Component name rendered in the header section.
@@ -88,51 +67,23 @@ export class DemoPage extends EventTarget {
     this.firstRendered = false;
 
     /**
-     * Whether or not the styles should be applied to `.styled` element.
-     * @type {boolean}
-     * @default true
-     */
-    this.stylesActive = true;
-
-    /**
      * Whether or not the dark theme is active
-     * @type {boolean}
      * @default false
      */
     this.darkThemeActive = false;
-
-    /**
-     * Enables Anypoint platform styles.
-     * @type {boolean}
-     * @default false
-     */
-    this.anypoint = false;
 
     document.body.classList.add("styled");
 
     this.initMediaQueries();
   }
 
-  /**
-   * @deprecated
-   */
-  get compatibility() {
-    return this.anypoint;
-  }
+  
 
-  /**
-   * @param {boolean} value
-   * @deprecated
-   */
-  set compatibility(value) {
-    this.anypoint = value;
-  }
-
-  get darkThemeActive() {
+  get darkThemeActive(): boolean {
     return this._darkThemeActive;
   }
 
-  set darkThemeActive(value) {
+  set darkThemeActive(value: boolean) {
     if (this._darkThemeActive === value || !document.body) {
       return;
     }
@@ -149,15 +100,15 @@ export class DemoPage extends EventTarget {
    * Helper function to be overridden by child classes. It is called when the view
    * is rendered for the first time.
    */
-  firstRender() {}
+  firstRender(): void {}
 
   /**
    * Creates setters and getters to properties defined in the passed list of properties.
    * Property setter will trigger render function.
    *
-   * @param {string[]} props List of properties to initialize.
+   * @param props List of properties to initialize.
    */
-  initObservableProperties(props) {
+  initObservableProperties(props: string[]): void {
     props.forEach((item) => {
       Object.defineProperty(this, item, {
         get() {
@@ -175,7 +126,7 @@ export class DemoPage extends EventTarget {
   /**
    * Initializes media queries for dark system theme.
    */
-  initMediaQueries() {
+  initMediaQueries(): void {
     const matcher = window.matchMedia("(prefers-color-scheme: dark)");
     if (matcher.matches) {
       this.darkThemeActive = true;
@@ -183,11 +134,7 @@ export class DemoPage extends EventTarget {
     matcher.addEventListener("change", this._mediaQueryHandler);
   }
 
-  /**
-   * @param {string} prop
-   * @param {any} value
-   */
-  _setObservableProperty(prop, value) {
+  _setObservableProperty(prop: string, value: unknown): void {
     const key = `_${prop}`;
     if (this[key] === value) {
       return;
@@ -196,61 +143,15 @@ export class DemoPage extends EventTarget {
     this.render();
   }
 
-  /**
-   * A handler for the `change` event for an element that has `checked` and `name` properties.
-   * This can be used with `anypoint-switch`, `anypoint-checkbox`, and `checkbox` elements.
-   *
-   * The `name` should correspond to a variable name to be set. The set value is the value
-   * of `checked` property read from the event's target.
-   *
-   * @param {CustomEvent} e
-   */
-  _toggleMainOption(e) {
-    const { name, checked } = /** @type HTMLInputElement */ (e.target);
-    this[name] = checked;
-  }
-
-  /**
-   * A handler for the `change` event for the demo state
-   *
-   * @param {CustomEvent} e
-   */
-  _demoStateHandler(e) {
-    const { value } = e.detail;
-    this.anypoint = value === 1;
-    this._updateAnypoint();
-  }
-
-  /**
-   * @deprecated Use `_updateAnypoint` instead.
-   */
-  _updateCompatibility() {
-    this._updateAnypoint();
-  }
-
-  /**
-   * Depending on the `anypoint` flag state it adds or removes the `anypoint` styles from the body.
-   */
-  _updateAnypoint() {
-    if (this.anypoint) {
-      document.body.classList.add("anypoint");
-    } else {
-      document.body.classList.remove("anypoint");
-    }
-  }
-
-  /**
-   * @param {MediaQueryListEvent} e
-   */
-  _mediaQueryHandler(e) {
+  _mediaQueryHandler(e: MediaQueryListEvent): void {
     this.darkThemeActive = e.matches;
   }
 
   /**
    * Call this on the top of the `render()` method to render demo navigation
-   * @return {TemplateResult} HTML template for demo header
+   * @return HTML template for demo header
    */
-  headerTemplate() {
+  headerTemplate(): TemplateResult {
     const { componentName } = this;
     return html` <header>
       ${componentName ? html`<h1 class="api-title">${componentName}</h1>` : ""}
@@ -266,9 +167,8 @@ export class DemoPage extends EventTarget {
    *  return html`<p>Demo content</p>`;
    * }
    * ```
-   * @return {TemplateResult}
    */
-  contentTemplate() {
+  contentTemplate(): TemplateResult {
     return html``;
   }
 
@@ -278,7 +178,7 @@ export class DemoPage extends EventTarget {
    *
    * @return {TemplateResult}
    */
-  pageTemplate() {
+  pageTemplate(): TemplateResult {
     return html` ${this.headerTemplate()}
       <section role="main" class="vertical-section-container centered main">
         ${this.contentTemplate()}
@@ -292,7 +192,7 @@ export class DemoPage extends EventTarget {
    * The function calls `_render()` in a timeout so it is safe to call this
    * multiple time in the same event loop.
    */
-  render() {
+  render(): void {
     if (this._rendering) {
       return;
     }
@@ -303,14 +203,14 @@ export class DemoPage extends EventTarget {
     });
   }
 
-  _render() {
+  _render(): void {
     if (!this.firstRendered) {
       this.firstRendered = true;
       setTimeout(() => this.firstRender());
     }
     render(
       this.pageTemplate(),
-      /** @type HTMLElement */ (document.querySelector("#demo")),
+      document.querySelector("#demo") as HTMLElement,
       {
         // eventContext: this,
         host: this,

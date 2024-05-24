@@ -19,11 +19,12 @@
     "baseUrl": ".",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "importHelpers": false
+    "importHelpers": false,
+    "types": [ "@types/wicg-file-system-access"]
   },
   "include": [
     "src/**/*",
-    "node.ts",
-    "worker.index.ts"
+    "src/node.ts",
+    "src/worker.index.ts"
   ]
 }

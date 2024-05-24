@@ -33,6 +33,7 @@
   "devDependencies": {
     "@open-wc/testing": "^4.0.0",
     "@types/mocha": "^10.0.6",
+    "@types/wicg-file-system-access": "^2023.10.5",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
     "@typescript-eslint/parser": "^6.1.0",
     "@web/dev-server": "^0.4.4",

@@ -1,4 +1,4 @@
-import { AmfShapes } from '@api-client/core';
+import { AmfShapes } from '@api-client/core/build/esm/browser.js';
 import { EventTypes } from './EventTypes.js';
 import { ApiStoreReadEvent, ApiStoreUpdateScalarEvent, ApiStoreReadBulkEvent } from './BaseEvents.js';
 

@@ -1,36 +1,41 @@
-/* eslint-disable lit-a11y/click-events-have-key-events */
-import { html } from 'lit-html';
+import { html, TemplateResult } from 'lit';
 import { DemoPage } from './lib/DemoPage.js';
-import { AmfStoreService } from '../worker.index.js';
-import { ApiSorting } from '../src/ApiSorting.js';
-import { EndpointsTree } from '../src/EndpointsTree.js';
+import { AmfStoreService } from '../src/worker.index.js';
+import { ApiSorting } from '../src/lib/ApiSorting.js';
+import { EndpointsTree } from '../src/lib/EndpointsTree.js';
 import { ApiSearch } from '../src/lib/ApiSearch.js';
+import { ApiResource, ParserVendors } from '../src/types.js';
+import { DemoPersistance } from './lib/DemoPersistance.js';
 
 class ComponentPage extends DemoPage {
+  loaded: boolean;
+  initialized: boolean;
+  latestOutput: string;
+  store: AmfStoreService;
+
   constructor() {
     super();
-    // this.initObservableProperties(['loaded', 'initialized', 'latestOutput']);
+    this.initObservableProperties(['loaded', 'initialized', 'latestOutput']);
     this.loaded = false;
     this.initialized = false;
     this.latestOutput = "";
-    this.store = new AmfStoreService();
+    const persistance = new DemoPersistance('demo.page');
+    this.store = new AmfStoreService(persistance);
     this.componentName = "AmfStoreProxy";
     this.actionHandler = this.actionHandler.bind(this);
 
     this.init();
   }
 
-  async init() {
+  async init(): Promise<void> {
     await this.store.init();
     this.log("void");
     this.initialized = true;
     this.render();
   }
 
-  async readSecurity() {
-    const input = /** @type HTMLInputElement */ (
-      document.getElementById("securityId")
-    );
+  async readSecurity(): Promise<void> {
+    const input = document.getElementById("securityId") as HTMLInputElement;
     const id = input.value.trim();
     if (!id) {
       return;
@@ -39,10 +44,8 @@ class ComponentPage extends DemoPage {
     this.log(result);
   }
 
-  async readSecuritySettings() {
-    const input = /** @type HTMLInputElement */ (
-      document.getElementById("securitySettingsId")
-    );
+  async readSecuritySettings(): Promise<void> {
+    const input = document.getElementById("securitySettingsId") as HTMLInputElement;
     const id = input.value.trim();
     if (!id) {
       return;
@@ -51,10 +54,8 @@ class ComponentPage extends DemoPage {
     this.log(result);
   }
 
-  async readSecurityRequirement() {
-    const input = /** @type HTMLInputElement */ (
-      document.getElementById("securityRequirementId")
-    );
+  async readSecurityRequirement(): Promise<void> {
+    const input = document.getElementById("securityRequirementId") as HTMLInputElement;
     const id = input.value.trim();
     if (!id) {
       return;
@@ -63,10 +64,8 @@ class ComponentPage extends DemoPage {
     this.log(result);
   }
 
-  async readCustomDomainProperty() {
-    const input = /** @type HTMLInputElement */ (
-      document.getElementById("cdpId")
-    );
+  async readCustomDomainProperty(): Promise<void> {
+    const input = document.getElementById("cdpId") as HTMLInputElement;
     const id = input.value.trim();
     if (!id) {
       return;
@@ -75,10 +74,8 @@ class ComponentPage extends DemoPage {
     this.log(result);
   }
 
-  async readDomainExtension() {
-    const input = /** @type HTMLInputElement */ (
-      document.getElementById("extId")
-    );
+  async readDomainExtension(): Promise<void> {
+    const input = document.getElementById("extId") as HTMLInputElement;
     const id = input.value.trim();
     if (!id) {
       return;
@@ -87,10 +84,8 @@ class ComponentPage extends DemoPage {
     this.log(result);
   }
 
-  async listCustomDomainProperties() {
-    const input = /** @type HTMLInputElement */ (
-      document.getElementById("extId")
-    );
+  async listCustomDomainProperties(): Promise<void> {
+    const input = document.getElementById("extId") as HTMLInputElement;
     const id = input.value.trim();
     if (!id) {
       return;
@@ -99,65 +94,54 @@ class ComponentPage extends DemoPage {
     this.log(result);
   }
 
-  async generateRaml() {
+  async generateRaml(): Promise<void> {
     const result = await this.store.generateRaml();
     this.log(result);
   }
 
-  async generateGraph() {
+  async generateGraph(): Promise<void> {
     const result = await this.store.generateGraph();
     this.log(result);
   }
 
-  async getApi() {
+  async getApi(): Promise<void> {
     const result = await this.store.getApi();
     this.log(result);
   }
 
-  async readOperation() {
-    const input = /** @type HTMLInputElement */ (
-      document.getElementById("operationId")
-    );
+  async readOperation(): Promise<void> {
+    const input = document.getElementById("operationId") as HTMLInputElement;
     const id = input.value.trim();
     if (!id) {
       return;
     }
-    const pathInput = /** @type HTMLInputElement */ (
-      document.getElementById("operationEndpointIdOrPath")
-    );
+    const pathInput = document.getElementById("operationEndpointIdOrPath") as HTMLInputElement;
     const path = pathInput.value.trim();
     const result = await this.store.getOperation(id, path);
     this.log(result);
   }
 
-  async getOperationRecursive() {
-    const input = /** @type HTMLInputElement */ (
-      document.getElementById("operationId")
-    );
+  async getOperationRecursive(): Promise<void> {
+    const input = document.getElementById("operationId") as HTMLInputElement;
     const id = input.value.trim();
     if (!id) {
       return;
     }
-    const pathInput = /** @type HTMLInputElement */ (
-      document.getElementById("operationEndpointIdOrPath")
-    );
+    const pathInput = document.getElementById("operationEndpointIdOrPath") as HTMLInputElement;
     const path = pathInput.value.trim();
     const result = await this.store.getOperationRecursive(id, path);
     this.log(result);
   }
 
-  /**
-   * @param {Event} e
-   */
-  async actionHandler(e) {
-    const button = /** @type HTMLButtonElement */ (e.target);
+  async actionHandler(e: Event): Promise<void> {
+    const button = e.target as HTMLButtonElement;
     if (typeof this[button.id] === "function") {
       this[button.id]();
       return;
     }
     switch (button.id) {
       case "loadApiGraph":
-        this.loadDemoApi(button.dataset.src, button.dataset.type);
+        this.loadDemoApi(button.dataset.src!, button.dataset.type as ParserVendors);
         break;
       case "loadEmptyApi":
         this.latestOutput = await this.store.createWebApi();
@@ -167,9 +151,7 @@ class ComponentPage extends DemoPage {
         break;
       case "addEndpoint":
         {
-          const input = /** @type HTMLInputElement */ (
-            document.getElementById("endpointIdPath")
-          );
+          const input = document.getElementById("endpointIdPath") as HTMLInputElement;
           const path = input.value.trim();
           if (!path) {
             return;
@@ -181,9 +163,7 @@ class ComponentPage extends DemoPage {
         break;
       case "readEndpoint":
         {
-          const input = /** @type HTMLInputElement */ (
-            document.getElementById("endpointIdPath")
-          );
+          const input = document.getElementById("endpointIdPath") as HTMLInputElement;
           const path = input.value.trim();
           if (!path) {
             return;
@@ -195,9 +175,7 @@ class ComponentPage extends DemoPage {
         break;
       case "deleteEndpoint":
         {
-          const input = /** @type HTMLInputElement */ (
-            document.getElementById("endpointIdPath")
-          );
+          const input = document.getElementById("endpointIdPath") as HTMLInputElement;
           const id = input.value.trim();
           if (!id) {
             return;
@@ -209,14 +187,16 @@ class ComponentPage extends DemoPage {
         break;
       case "deleteOperation":
         {
-          const input = /** @type HTMLInputElement */ (
-            document.getElementById("operationId")
-          );
+          const input = document.getElementById("operationId") as HTMLInputElement;
           const id = input.value.trim();
           if (!id) {
             return;
           }
           const endpoint = await this.store.getOperationParent(id);
+          if (!endpoint) {
+            this.log(`The endpoint was not found: ${id}`);
+            return;
+          }
           const result = await this.store.deleteOperation(id, endpoint.id);
           this.log(result);
           this.render();
@@ -224,12 +204,8 @@ class ComponentPage extends DemoPage {
         break;
       case "addOperation":
         {
-          const input = /** @type HTMLInputElement */ (
-            document.getElementById("operationId")
-          );
-          const eInput = /** @type HTMLInputElement */ (
-            document.getElementById("operationEndpointIdOrPath")
-          );
+          const input = document.getElementById("operationId") as HTMLInputElement;
+          const eInput = document.getElementById("operationEndpointIdOrPath") as HTMLInputElement;
           const method = input.value.trim();
           const endpoint = eInput.value.trim();
           if (!method || !endpoint) {
@@ -272,9 +248,7 @@ class ComponentPage extends DemoPage {
         break;
       case "readType":
         {
-          const input = /** @type HTMLInputElement */ (
-            document.getElementById("typeId")
-          );
+          const input = document.getElementById("typeId") as HTMLInputElement;
           const id = input.value.trim();
           if (!id) {
             return;
@@ -288,26 +262,20 @@ class ComponentPage extends DemoPage {
     }
   }
 
-  /**
-   * @param {HTMLButtonElement} button
-   */
-  async loadApiGraph(button) {
-    this.loadDemoApi(button.dataset.src, button.dataset.type);
+  async loadApiGraph(button: HTMLButtonElement): Promise<void> {
+    this.loadDemoApi(button.dataset.src!, button.dataset.type as ParserVendors);
   }
 
-  /**
-   * @param {any} message
-   */
-  log(message) {
+  log(message: unknown): void {
     if (typeof message === "object") {
       this.latestOutput = JSON.stringify(message, null, 2);
     } else {
-      this.latestOutput = message;
+      this.latestOutput = message as string;
     }
     console.log(message);
   }
 
-  async loadDemoApi(file, type) {
+  async loadDemoApi(file: string, type: ParserVendors): Promise<void> {
     this.loaded = false;
     const rsp = await fetch(`./${file}`);
     const model = await rsp.text();
@@ -316,15 +284,13 @@ class ComponentPage extends DemoPage {
     this.log("void");
   }
 
-  async selectApiDirectory() {
-    // @ts-ignore
+  async selectApiDirectory(): Promise<void> {
     const dirHandle = await window.showDirectoryPicker();
     if (!dirHandle) {
       return;
     }
-    const files = [];
+    const files: ApiResource[] = [];
     await this.listDirectory(dirHandle, files, "");
-    // @ts-ignore
     const [mainHandle] = await window.showOpenFilePicker({
       types: [
         {
@@ -358,13 +324,13 @@ class ComponentPage extends DemoPage {
     this.loaded = true;
   }
 
-  async listDirectory(handle, result, parent) {
+  async listDirectory(handle: FileSystemDirectoryHandle, result: ApiResource[], parent?: string): Promise<void> {
     for await (const entry of handle.values()) {
       await this.listContent(entry, result, parent);
     }
   }
 
-  async listContent(handle, result, parent = "/") {
+  async listContent(handle: FileSystemDirectoryHandle | FileSystemFileHandle, result: ApiResource[], parent = "/"): Promise<void> {
     if (handle.kind === "file") {
       const file = await handle.getFile();
       const contents = await file.text();
@@ -372,22 +338,22 @@ class ComponentPage extends DemoPage {
       result.push({
         contents,
         path: fPath,
-        parent,
-        name: handle.name,
+        // parent,
+        // name: handle.name,
       });
     } else {
       await this.listDirectory(handle, result, `${parent}${handle.name}/`);
     }
   }
 
-  contentTemplate() {
+  contentTemplate(): TemplateResult {
     return html`
       <h2>Amf store proxy (web worker)</h2>
       ${this._demoTemplate()}
     `;
   }
 
-  _demoTemplate() {
+  _demoTemplate(): TemplateResult {
     const { loaded, initialized, latestOutput } = this;
     return html`
       <section class="documentation-section">

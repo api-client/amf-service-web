@@ -1,11 +1,4 @@
-/* eslint-disable class-methods-use-this */
-
-/** @typedef {import('../types').ProxyStatusResponse} ProxyStatusResponse */
-/** @typedef {import('../types').ProxyErrorResponse} ProxyErrorResponse */
-/** @typedef {import('../types').ProxyRequest} ProxyRequest */
-/** @typedef {import('../types').ProxyResponse} ProxyResponse */
-/** @typedef {import('../types').WorkerMessage} WorkerMessage */
-/** @typedef {import('../types').WorkerResponse} WorkerResponse */
+import { ProxyErrorResponse, ProxyRequest, ProxyStatusResponse, WorkerMessage, WorkerResponse } from "../types.js";
 
 export const baseUriValue = Symbol('baseUriValue');
 
@@ -13,47 +6,50 @@ const baseEndpoint = 'store'
 const initSessionEndpoint = `${baseEndpoint}/start-session`;
 
 export class HttpWorker extends EventTarget {
-  get baseUri() {
+  [baseUriValue]: string;
+
+  /**
+   * The process id on the server. To be set when known.
+   */
+  pid?: string;
+
+  get baseUri(): string {
     return this[baseUriValue];
   }
 
   /**
-   * @param {string} baseUri The API base URI.
-   * @param {string=} pid The process id, if known.
+   * @param baseUri The API base URI.
+   * @param pid The process id, if known.
    */
-  constructor(baseUri, pid) {
+  constructor(baseUri: string, pid?: string) {
     super();
     this[baseUriValue] = baseUri;
-    /**
-     * The process id on the server. To be set when known.
-     */
     this.pid = pid;
   }
 
   /**
-   * @param {string} route The path relative to the base URI.
-   * @returns {string} The full API endpoint URL.
+   * @param route The path relative to the base URI.
+   * @returns The full API endpoint URL.
    */
-  getApiUrl(route) {
+  getApiUrl(route: string): string {
     const endpointUrl = new URL(route, this.baseUri);
     return endpointUrl.toString();
   }
 
   /**
    * Sends a message to the API worker.
-   * @param {WorkerMessage} message 
    */
-  async postMessage(message) {
+  async postMessage(message: WorkerMessage): Promise<void> {
     if (!this.pid) {
       throw new Error('THe process id is not set.');
     }
     const { id } = message;
     const url = this.getApiUrl(baseEndpoint);
-    const data = /** @type ProxyRequest */ ({
+    const data: ProxyRequest = {
       id: this.pid,
       type: message.type,
       args: message.arguments,
-    });
+    };
     const response = await fetch(url, {
       credentials: "include",
       mode: 'cors',
@@ -63,19 +59,30 @@ export class HttpWorker extends EventTarget {
         'content-type': 'application/json',
       },
     });
-    if (!response.headers.get('content-type').startsWith('application/json')) {
-      this.dispatchEvent(new CustomEvent('message', { 
+    const ct = response.headers.get('content-type');
+    if (!ct) {
+      this.dispatchEvent(new CustomEvent('message', {
         detail: {
           error: true,
-          message: 'Invalid response from the server.',
-        } 
+          message: 'Invalid response from the server. Missing content-type header.',
+        }
+      }));
+      return;
+    }
+    if (!ct.startsWith('application/json')) {
+      this.dispatchEvent(new CustomEvent('message', {
+        detail: {
+          error: true,
+          message: 'Invalid response from the server. Unknown content-type.',
+        }
       }));
       return;
     }
     const apiResponse = await response.json();
-    const result = /** @type WorkerResponse */({
+    const result: WorkerResponse = {
       id,
-    });
+      result: undefined,
+    };
     if (apiResponse.error) {
       result.error = apiResponse.error;
       result.message = apiResponse.message;
@@ -90,16 +97,19 @@ export class HttpWorker extends EventTarget {
 
   /**
    * Initializes the session on the server.
-   * @returns {Promise<ProxyStatusResponse|ProxyErrorResponse>}
    */
-  async initSession() {
+  async initSession(): Promise<ProxyStatusResponse | ProxyErrorResponse> {
     const url = this.getApiUrl(initSessionEndpoint);
     const response = await fetch(url, {
       credentials: "include",
       mode: 'cors',
     });
-    if (!response.headers.get('content-type').startsWith('application/json')) {
-      throw new Error('Invalid response from the server.');
+    const ct = response.headers.get('content-type');
+    if (!ct) {
+      throw new Error('Invalid response from the server. Missing content-type header.');
+    }
+    if (!ct.startsWith('application/json')) {
+      throw new Error('Invalid response from the server. Unknown content-type.');
     }
     return response.json();
   }

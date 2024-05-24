@@ -1,5 +1,5 @@
 import { assert } from '@open-wc/testing';
-import { ns } from '../../src/Namespace.js';
+import { AmfNamespace as ns } from "@api-client/core/build/esm/browser.js";
 import { isShape } from '../../src/Utils.js';
 
 describe('Utils', () => {

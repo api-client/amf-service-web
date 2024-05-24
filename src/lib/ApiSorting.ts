@@ -1,4 +1,4 @@
-import { ApiDefinitions } from '@api-client/core';
+import { ApiDefinitions } from '@api-client/core/build/esm/browser.js';
 
 export class ApiSorting {
   /**

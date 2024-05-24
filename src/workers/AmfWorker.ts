@@ -1,18 +1,18 @@
-/* eslint-disable class-methods-use-this */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* global amf */
-import { AmfService } from '../AmfService.js';
-
-/** @typedef {import('../types').WorkerMessage} WorkerMessage */
-/** @typedef {import('../types').WorkerResponse} WorkerResponse */
+import type { WorkerMessage, WorkerResponse } from '../types.js';
+import { AmfService } from '../service/AmfService.js';
 
 let initialized = false;
 
 class AmfWorker {
-  /**
-   * @param {MessageEvent} e 
-   */
-  messageHandler(e) {
-    const message = /** @type WorkerMessage */ (e.data);
+  service?: AmfService;
+
+  messageHandler(e: MessageEvent): void {
+    if (!process || !process.send) {
+      return;
+    }
+    const message = e.data as WorkerMessage;
     if (!message.type || typeof message.id !== 'number') {
       process.send({
         error: true,
@@ -21,25 +21,33 @@ class AmfWorker {
       });
       return;
     }
+    const { service } = this;
     const args = message.arguments;
     if (message.type === 'init') {
-      this.processTaskResult(this.init(args[0]), message.id);
+      this.processTaskResult(this.init(args[0] as string), message.id);
       return;
     }
-    if (message.type === 'hasApi' && !this.service) {
+    if (message.type === 'hasApi' && !service) {
       this.processTaskResult(Promise.resolve(false), message.id);
       return;
     }
-    if (typeof this.service[message.type] !== 'function') {
+    if (!service) {
+      this.processTaskResult(Promise.reject(new Error(
+        'The service is not initialized',
+      )), message.id);
+      return;
+    }
+
+    if (typeof (service as any)[message.type] !== 'function') {
       process.send({
         error: true,
         message: `The ${message.type} is not callable in the store instance`,
       });
       return;
     }
-    let promise;
+    let promise: Promise<any>;
     try {
-      promise = this.service[message.type].call(this.service, ...args);
+      promise = (service as any)[message.type].call(this.service, ...args);
     } catch (cause) {
       promise = Promise.reject(cause);
     }
@@ -48,41 +56,37 @@ class AmfWorker {
 
   /**
    * Initializes the AMF by importing the AMF script and initializing the library.
-   * @param {string=} amfLocation 
    */
-  async init(amfLocation='/amf-bundle.js') {
+  async init(amfLocation = '/amf-bundle.js'): Promise<void> {
     if (initialized) {
       return;
     }
     initialized = true;
     await import(amfLocation);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     this.service = new AmfService(amf);
   }
 
-  /**
-   * @param {Promise} promise 
-   * @param {number} id 
-   */
-  async processTaskResult(promise, id) {
-    const response = /** @type WorkerResponse */({
+  async processTaskResult(promise: Promise<any>, id: number): Promise<void> {
+    const response: WorkerResponse = {
       id,
-    });
+      result: undefined,
+    };
     try {
       response.result = await promise;
     } catch (e) {
+      const error = e as Error;
       response.error = true;
-      response.message = e.message;
-      response.stack = e.stack;
+      response.message = error.message;
+      response.stack = error.stack;
       
       // eslint-disable-next-line no-console
       console.error(e);
     }
-    // eslint-disable-next-line no-restricted-globals
     self.postMessage(response);
   }
 }
 
 const worker = new AmfWorker();
-// eslint-disable-next-line no-restricted-globals
 self.addEventListener('message', worker.messageHandler.bind(worker));

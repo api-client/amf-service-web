@@ -1,15 +1,15 @@
-/* eslint-disable class-methods-use-this */
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { AmfStoreProxy } from '../service/AmfStoreProxy.js';
 import { EventTypes } from '../events/EventTypes.js';
 
-/** @typedef {import('../AmfStoreProxy').AmfStoreProxy} AmfStoreProxy */
-/** @typedef {import('../AmfService').AmfService} AmfService */
-
 export const eventHandler = Symbol('eventHandler');
+export const eventsTarget = Symbol('eventsTarget');
+export const oldEventsTarget = Symbol('oldEventsTarget');
 
-/**
- * @type {Record<string, { target: string, args?: string[], eventProperties?: boolean }>}
- */
-const eventsMap = {
+// type AmfStoreServiceMethods = Extract<AmfStoreProxy, Function>;
+
+const eventsMap: Record<string, { target: keyof AmfStoreProxy, args?: string[], eventProperties?: boolean }> = {
   [EventTypes.Store.init]: { target: 'init', },
   [EventTypes.Store.loadGraph]: { args: ['model', 'vendor'], target: 'loadGraph', },
   [EventTypes.Store.loadApi]: { args: ['contents', 'vendor', 'mediaType', 'main'], target: 'loadApi' },
@@ -105,126 +105,9 @@ const eventsMap = {
 };
 
 /**
- * @param {*} base
- */
-const mxFunction = base => {
-  class AmfStoreDomEventsMixin extends base {
-    /**
-     * @return {EventTarget} Currently registered events target,
-     */
-    get eventsTarget() {
-      return this._eventsTarget;
-    }
-
-    /**
-     * By default the element listens on the `window` object. If this value is set,
-     * then all events listeners will be attached to this object instead of `window`.
-     * @param {EventTarget} value Events handlers target.
-     */
-    set eventsTarget(value) {
-      const old = this._eventsTarget;
-      if (old === value) {
-        return;
-      }
-      this._eventsTarget = value;
-      this._eventsTargetChanged(value);
-      // @ts-ignore
-      if (this.requestUpdate) {
-        // @ts-ignore
-        this.requestUpdate("eventsTarget", old);
-      }
-    }
-
-    /**
-     * @param {...any} args Base class arguments
-     */
-    constructor(...args) {
-      super(...args);
-      this[eventHandler] = this[eventHandler].bind(this);
-      this._eventsTarget = null;
-      this._oldEventsTarget = null;
-    }
-
-    connectedCallback() {
-      super.connectedCallback();
-      this._eventsTargetChanged(this.eventsTarget);
-    }
-
-    disconnectedCallback() {
-      super.disconnectedCallback();
-      if (this._oldEventsTarget) {
-        this._detachListeners(this._oldEventsTarget);
-      }
-    }
-
-    /**
-     * Removes old handlers (if any) and attaches listeners on new event
-     * event target.
-     *
-     * @param {EventTarget=} eventsTarget Event target to set handlers on. If not set it
-     * will set handlers on the `window` object.
-     */
-    _eventsTargetChanged(eventsTarget) {
-      if (this._oldEventsTarget) {
-        this._detachListeners(this._oldEventsTarget);
-      }
-      this._oldEventsTarget = eventsTarget || window;
-      this._attachListeners(this._oldEventsTarget);
-    }
-
-    /**
-     * @param {EventTarget=} node
-     */
-    _attachListeners(node = window) {
-      if (super._attachListeners) {
-        super._attachListeners(node);
-      }
-      Object.keys(eventsMap).forEach((type) =>
-        node.addEventListener(type, this[eventHandler])
-      );
-    }
-
-    /**
-     * @param {EventTarget=} node
-     */
-    _detachListeners(node = window) {
-      super._detachListeners(node);
-      Object.keys(eventsMap).forEach((type) =>
-        node.removeEventListener(type, this[eventHandler])
-      );
-    }
-
-    /**
-     * @param {CustomEvent} e
-     */
-    [eventHandler](e) {
-      if (e.defaultPrevented) {
-        return;
-      }
-      e.preventDefault();
-      const info = eventsMap[e.type];
-      if (!info) {
-        // eslint-disable-next-line no-console
-        console.warn(`Incorrectly handled event ${e.type}`);
-        return;
-      }
-      const { args, target } = info;
-      if (!Array.isArray(args) || !args.length) {
-        e.detail.result = this[target]();
-      } else {
-        const params = [];
-        args.forEach((n) => {
-          const value = info.eventProperties ? e[n] : e.detail[n];
-          params.push(value);
-        });
-        e.detail.result = this[target](...params);
-      }
-    }
-  }
-  return AmfStoreDomEventsMixin;
-}
-
-/**
+ * A class that register event listeners for the store and calls the function associated 
+ * with each event on the passed object.
+ * 
  * This mixin adds events listeners for DOM events related to the AMF store.
  * It does not provide implementations for the functions called by each handler.
  * This to be mixed in with an instance of the `AmfStoreService`.
@@ -232,6 +115,111 @@ const mxFunction = base => {
  * The implementation by default listens on the `window` object.
  * Set `eventsTarget` property to listen to the events on a specific node.
  * 
+ * Usage
+ * 
+ * ```
+ * class Abc extends AmfStoreProxy {
+ *   constructor() {
+ *     super();
+ *     this.handler = new StoreDomEventsHandler(this, document.body);
+ *     // ...
+ *     this.handler.eventsTarget = window;
+ *   }
+ * 
+ *   ...
+ * }
+ * ```
+ * 
  * @mixin
  */
-export const AmfStoreDomEventsMixin = mxFunction;
+export class StoreDomEventsHandler {
+  [eventsTarget]?: EventTarget;
+  [oldEventsTarget]?: EventTarget;
+
+  /**
+   * The currently registered events target,
+   */
+  get eventsTarget(): EventTarget | undefined {
+    return this[eventsTarget];
+  }
+
+  /**
+   * By default the element listens on the `window` object. If this value is set,
+   * then all events listeners will be attached to this object instead of `window`.
+   * @param value Events handlers target.
+   */
+  set eventsTarget(value: EventTarget | undefined) {
+    const old = this[eventsTarget];
+    if (old === value) {
+      return;
+    }
+    this[eventsTarget] = value;
+    this._eventsTargetChanged(value);
+  }
+
+  /**
+   * The target class.
+   */
+  target: InstanceType<typeof AmfStoreProxy>;
+
+  /**
+   * @param target The target class that has implemented all functions
+   */
+  constructor(target: InstanceType<typeof AmfStoreProxy>, eventsTarget: EventTarget = window || globalThis) {
+    this.target = target;
+    this[eventHandler] = this[eventHandler].bind(this);
+    this.eventsTarget = eventsTarget;
+  }
+
+  /**
+   * Removes old handlers (if any) and attaches listeners on new event
+   * event target.
+   *
+   * @param eventsTarget Event target to set handlers on. If not set it
+   * will set handlers on the `window` object.
+   */
+  _eventsTargetChanged(eventsTarget?: EventTarget): void {
+    if (this[oldEventsTarget]) {
+      this._detachListeners(this[oldEventsTarget]);
+    }
+    this[oldEventsTarget] = eventsTarget || window;
+    this._attachListeners(this[oldEventsTarget]);
+  }
+
+  _attachListeners(node: EventTarget = window): void {
+    Object.keys(eventsMap).forEach((type) =>
+      node.addEventListener(type, this[eventHandler])
+    );
+  }
+
+  _detachListeners(node: EventTarget = window): void {
+    Object.keys(eventsMap).forEach((type) =>
+      node.removeEventListener(type, this[eventHandler])
+    );
+  }
+
+  [eventHandler](e: Event): void {
+    if (e.defaultPrevented) {
+      return;
+    }
+    e.preventDefault();
+    const event = e as CustomEvent
+    const info = eventsMap[e.type];
+    if (!info) {
+      // eslint-disable-next-line no-console
+      console.warn(`Incorrectly handled event ${e.type}`);
+      return;
+    }
+    const { args, target } = info;
+    if (!Array.isArray(args) || !args.length) {
+      event.detail.result = (this.target as any)[target]();
+    } else {
+      const params: any[] = [];
+      args.forEach((n) => {
+        const value = info.eventProperties ? (event as any)[n] : event.detail[n];
+        params.push(value);
+      });
+      event.detail.result = (this.target as any)[target](...params);
+    }
+  }
+}

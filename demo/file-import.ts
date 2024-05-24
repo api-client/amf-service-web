@@ -1,40 +1,45 @@
-/* eslint-disable lit-a11y/click-events-have-key-events */
-import { html } from 'lit-html';
-import { DemoPage } from '@advanced-rest-client/arc-demo-helper';
-import { AmfStoreService } from '../worker.index.js';
+import { html, TemplateResult } from 'lit';
+import { DemoPage } from './lib/DemoPage.js';
+import { AmfStoreService } from '../src/worker.index.js';
 import { ApiSearch } from '../src/lib/ApiSearch.js';
-import { ApiSorting } from '../src/ApiSorting.js';
-import { EndpointsTree } from '../src/EndpointsTree.js';
+import { ApiSorting } from '../src/lib/ApiSorting.js';
+import { EndpointsTree } from '../src/lib/EndpointsTree.js';
+import { ApiResource } from '../src/types.js';
+import { DemoPersistance } from './lib/DemoPersistance.js';
 
 class ComponentPage extends DemoPage {
+  loaded: boolean;
+  initialized: boolean;
+  latestOutput: string;
+  store: AmfStoreService;
+
   constructor() {
     super();
     this.initObservableProperties(['loaded', 'initialized', 'latestOutput']);
     this.loaded = false;
     this.initialized = false;
     this.latestOutput = '';
-    this.store = new AmfStoreService();
+    const persistance = new DemoPersistance('demo.file');
+    this.store = new AmfStoreService(persistance);
     this.componentName = 'AmfStoreProxy';
     this.actionHandler = this.actionHandler.bind(this);
 
     this.init();
   }
 
-  async init() {
+  async init(): Promise<void> {
     await this.store.init();
     this.log('void');
     this.initialized = true;
   }
 
-  async selectApiDirectory() {
-    // @ts-ignore
+  async selectApiDirectory(): Promise<void> {
     const dirHandle = await window.showDirectoryPicker();
     if (!dirHandle) {
       return;
     }
-    const files = [];
+    const files: ApiResource[] = [];
     await this.listDirectory(dirHandle, files, '');
-    // @ts-ignore
     const [mainHandle] = await window.showOpenFilePicker({
       types: [
         {
@@ -63,13 +68,13 @@ class ComponentPage extends DemoPage {
     this.loaded = true;
   }
 
-  async listDirectory(handle, result, parent) {
+  async listDirectory(handle: FileSystemDirectoryHandle, result: ApiResource[], parent?: string): Promise<void> {
     for await (const entry of handle.values()) {
       await this.listContent(entry, result, parent);
     }
   }
 
-  async listContent(handle, result, parent='/') {
+  async listContent(handle: FileSystemDirectoryHandle | FileSystemFileHandle, result: ApiResource[], parent='/'): Promise<void> {
     if (handle.kind === 'file') {
       const file = await handle.getFile();
       const contents = await file.text();
@@ -77,19 +82,16 @@ class ComponentPage extends DemoPage {
       result.push({
         contents,
         path: fPath,
-        parent,
-        name: handle.name,
+        // parent,
+        // name: handle.name,
       });
     } else {
       await this.listDirectory(handle, result, `${parent}${handle.name}/`);
     }
   }
 
-  /**
-   * @param {Event} e 
-   */
-  async actionHandler(e) {
-    const button = /** @type HTMLButtonElement */ (e.target);
+  async actionHandler(e: Event): Promise<void> {
+    const button = e.target as HTMLButtonElement;
     if (typeof this[button.id] === 'function') {
       this[button.id]();
       return;
@@ -99,44 +101,41 @@ class ComponentPage extends DemoPage {
     }
   }
 
-  async listEndpoints() {
+  async listEndpoints(): Promise<void> {
     const result = await this.store.listEndpoints();
     this.log(result);
   }
 
-  async listEndpointsWithOperations() {
+  async listEndpointsWithOperations(): Promise<void> {
     const result = await this.store.listEndpointsWithOperations();
     const sorted = ApiSorting.sortEndpointsByPath(result);
     const items = new EndpointsTree().create(sorted); 
     this.log(items);
   }
 
-  async listTypes() {
+  async listTypes(): Promise<void> {
     const result = await this.store.listTypes(); 
     this.log(result);
   }
 
-  async listSecurity() {
+  async listSecurity(): Promise<void> {
     const result = await this.store.listSecurity(); 
     this.log(result);
   }
 
-  /**
-   * @param {any} message 
-   */
-  log(message) {
+  log(message: unknown): void {
     this.latestOutput = JSON.stringify(message, null, 2);
     console.log(message);
   }
 
-  contentTemplate() {
+  contentTemplate(): TemplateResult {
     return html`
       <h2>Amf store proxy (web worker)</h2>
       ${this._demoTemplate()}
     `;
   }
 
-  _demoTemplate() {
+  _demoTemplate(): TemplateResult {
     const { initialized, latestOutput, loaded } = this;
     return html`
     <section class="documentation-section">

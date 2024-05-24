@@ -1,5 +1,4 @@
-/* eslint-disable class-methods-use-this */
-import { ns } from './Namespace.js';
+import { AmfBase, AmfShapes, ApiDefinitions, AmfNamespace as ns } from '@api-client/core/build/esm/browser.js';
 import {
   AmfStoreProxy,
   workerValue,
@@ -12,896 +11,828 @@ import {
   readWorkerUrl,
   processResponse,
 } from './AmfStoreProxy.js';
-import { AmfStoreDomEventsMixin } from './mixins/AmfStoreDomEventsMixin.js';
-import { StorePersistenceMixin } from './mixins/StorePersistenceMixin.js';
-import { ApiStoreStateCreateEvent, ApiStoreStateDeleteEvent, ApiStoreStateUpdateEvent } from './events/BaseEvents.js';
-import { EventTypes } from './events/EventTypes.js';
-
-/** @typedef {import('./types').WorkerMessage} WorkerMessage */
-/** @typedef {import('./types').WorkerResponse} WorkerResponse */
-/** @typedef {import('./types').AmfWorkerStoreInit} AmfWorkerStoreInit */
-/** @typedef {import('./types').EndPointInit} EndPointInit */
-/** @typedef {import('./types').OperationInit} OperationInit */
-/** @typedef {import('./types').DocumentationInit} DocumentationInit */
-/** @typedef {import('./types').ApiDocumentation} ApiDocumentation */
-/** @typedef {import('./types').ShapeInit} ShapeInit */
-/** @typedef {import('./types').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('./types').ApiEndPoint} ApiEndPoint */
-/** @typedef {import('./types').ApiOperation} ApiOperation */
-/** @typedef {import('./types').OperationResponseInit} OperationResponseInit */
-/** @typedef {import('./types').ApiResponse} ApiResponse */
-/** @typedef {import('./types').OperationRequestInit} OperationRequestInit */
-/** @typedef {import('./types').ApiRequest} ApiRequest */
-/** @typedef {import('./types').ApiParameter} ApiParameter */
-/** @typedef {import('./types').ExampleInit} ExampleInit */
-/** @typedef {import('./types').ApiExample} ApiExample */
-/** @typedef {import('./types').ApiServerInit} ApiServerInit */
-/** @typedef {import('./types').ApiServer} ApiServer */
-/** @typedef {import('./types').ParameterInit} ParameterInit */
-/** @typedef {import('./types').ApiPayload} ApiPayload */
-/** @typedef {import('./types').PayloadInit} PayloadInit */
-/** @typedef {import('./types').CustomDomainPropertyInit} CustomDomainPropertyInit */
-/** @typedef {import('./types').ApiCustomDomainProperty} ApiCustomDomainProperty */
-/** @typedef {import('./types').PropertyShapeInit} PropertyShapeInit */
-/** @typedef {import('./types').ApiPropertyShape} ApiPropertyShape */
-/** @typedef {import('./events/BaseEvents').ApiStoreCreateRecord} ApiStoreCreateRecord */
-/** @typedef {import('./events/BaseEvents').ApiStoreDeleteRecord} ApiStoreDeleteRecord */
-/** @typedef {import('./events/BaseEvents').ApiStoreChangeRecord} ApiStoreChangeRecord */
-
-/** @typedef {import('amf-client-js').model.document.Document} Document */
-/** @typedef {import('amf-client-js').model.domain.WebApi} WebApi */
-/** @typedef {import('amf-client-js').model.domain.EndPoint} EndPoint */
-/** @typedef {import('amf-client-js').model.domain.Operation} Operation */
-/** @typedef {import('amf-client-js').model.domain.CreativeWork} CreativeWork */
-/** @typedef {import('amf-client-js').model.domain.Parameter} Parameter */
-/** @typedef {import('amf-client-js').model.domain.Response} Response */
-/** @typedef {import('amf-client-js').model.domain.Request} Request */
-/** @typedef {import('amf-client-js').model.domain.Payload} Payload */
-/** @typedef {import('amf-client-js').model.domain.Example} Example */
-/** @typedef {import('amf-client-js').model.domain.PropertyShape} PropertyShape */
-/** @typedef {import('amf-client-js').model.domain.CustomDomainProperty} CustomDomainProperty */
+import { StoreDomEventsHandler } from '../lib/StoreDomEventsHandler.js';
+import { StorePersistence } from '../lib/StorePersistence.js';
+import { ApiStoreChangeRecord, ApiStoreCreateRecord, ApiStoreDeleteRecord, ApiStoreStateCreateEvent, ApiStoreStateDeleteEvent, ApiStoreStateUpdateEvent } from '../events/BaseEvents.js';
+import { EventTypes } from '../events/EventTypes.js';
+import type { AmfWorkerStoreInit, ApiServerInit, CustomDomainPropertyInit, DocumentationInit, EndPointInit, ExampleInit, OperationInit, OperationRequestInit, OperationResponseInit, ParameterInit, PayloadInit, PropertyShapeInit, ShapeInit, WorkerMessage, WorkerResponse } from '../types.js';
 
 export const optionsValue = Symbol('options');
 
-export class AmfStoreService extends AmfStoreDomEventsMixin(StorePersistenceMixin(AmfStoreProxy)) {
-  /**
-   * @type {Worker}
-   */
-  get worker() {
+export class AmfStoreService extends AmfStoreProxy {
+  override get worker(): Worker {
     if (!this[workerValue]) {
       this[workerValue] = this[createWorker]();
     }
-    return this[workerValue];
+    return this[workerValue] as Worker;
   }
+
+  [optionsValue]: AmfWorkerStoreInit;
 
   /**
    * Options used to initialize this class.
    */
-  get options() {
+  get options(): AmfWorkerStoreInit {
     return this[optionsValue];
   }
 
+  events: StoreDomEventsHandler;
+  eventsTarget: EventTarget;
+  persistance: StorePersistence;
+
   /**
-   * @param {EventTarget=} [target=window] Events target.
-   * @param {AmfWorkerStoreInit=} [opts={}] Class initialization options.
+   * @param target Events target.
+   * @param opts Class initialization options.
    */
-  constructor(target = window, opts = {}) {
+  constructor(persistance: StorePersistence, target: EventTarget = window, opts: AmfWorkerStoreInit = {}) {
     super();
-    /**
-     * @type {AmfWorkerStoreInit}
-     */
     this[optionsValue] = Object.freeze(opts);
-    /**
-     * @type {Worker}
-     */
-    this[workerValue] = undefined;
+    this.events = new StoreDomEventsHandler(this, target);
     this.eventsTarget = target;
+    this.persistance = persistance;
   }
 
   /**
    * Initializes the backend store.
-   * @return {Promise<void>}
    */
-  async init() {
+  override async init(): Promise<void> {
     await this[sendMessage]('init', this.options.amfLocation);
   }
 
   /**
    * Adds a server definition to the API.
-   * @param {ApiServerInit} init 
-   * @returns {Promise<ApiServer>} The instance of the created server
+   * @returns The instance of the created server
    */
-  async addServer(init) {
+  override async addServer(init: ApiServerInit): Promise<ApiDefinitions.IApiServer> {
     const result = await super.addServer(init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<ApiDefinitions.IApiServer> = {
       graphId: result.id,
       domainType: ns.aml.vocabularies.apiContract.Server,
       item: result,
-    });
+    };
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Server.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Adds a new endpoint to the API and returns generated id for the endpoint.
-   * @param {EndPointInit} init EndPoint init parameters
-   * @returns {Promise<ApiEndPoint>}
+   * @param init EndPoint init parameters
    */
-  async addEndpoint(init) {
+  override async addEndpoint(init: EndPointInit): Promise<ApiDefinitions.IApiEndPoint> {
     const endpoint = await super.addEndpoint(init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<ApiDefinitions.IApiEndPoint> = ({
       graphId: endpoint.id,
       domainType: ns.aml.vocabularies.apiContract.EndPoint,
       item: endpoint,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Endpoint.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return endpoint;
   }
 
   /**
    * Removes endpoint from the API.
-   * @param {string} id The endpoint domain id.
-   * @returns {Promise<void>}
+   * @param id The endpoint domain id.
    */
-  async deleteEndpoint(id) {
+  override async deleteEndpoint(id: string): Promise<void> {
     await super.deleteEndpoint(id);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: id,
       domainType: ns.aml.vocabularies.apiContract.EndPoint,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Endpoint.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
   }
 
   /**
    * Updates a scalar property of an endpoint.
-   * @param {string} id The domain id of the endpoint.
-   * @param {string} property The property name to update
+   * @param id The domain id of the endpoint.
+   * @param property The property name to update
    * @param {any} value The new value to set.
-   * @returns {Promise<ApiEndPoint>}
    */
-  async updateEndpointProperty(id, property, value) {
+  override async updateEndpointProperty(id: string, property: keyof ApiDefinitions.IApiEndPoint, value: unknown): Promise<ApiDefinitions.IApiEndPoint> {
     const endpoint = await super.updateEndpointProperty(id, property, value);
-    const record = /** @type ApiStoreChangeRecord */ ({
+    const record: ApiStoreChangeRecord<ApiDefinitions.IApiEndPoint> = ({
       graphId: id,
       domainType: ns.aml.vocabularies.apiContract.EndPoint,
       item: endpoint,
       property,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Endpoint.State.updated, record));
-    this.persist();
+    this.persistance.persist();
     return endpoint;
   }
 
   /**
    * Adds an empty operation to an endpoint.
-   * @param {string} pathOrId The path or domain id of the endpoint that is the parent of the operation.
-   * @param {OperationInit} init The operation initialize options
-   * @returns {Promise<ApiOperation>}
+   * @param pathOrId The path or domain id of the endpoint that is the parent of the operation.
+   * @param init The operation initialize options
    */
-  async addOperation(pathOrId, init) {
+  override async addOperation(pathOrId: string, init: OperationInit): Promise<ApiDefinitions.IApiOperation> {
     const operation = await super.addOperation(pathOrId, init);
     const endpoint = await this.getEndpoint(pathOrId);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<ApiDefinitions.IApiOperation> = ({
       graphId: operation.id,
       domainType: ns.aml.vocabularies.apiContract.Operation,
       item: operation,
       domainParent: endpoint.id,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Operation.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return operation;
   }
 
   /**
    * Removes an operation from the graph.
-   * @param {string} id The operation id to remove.
-   * @param {string} endpointId The domain id of the parent endpoint.
-   * @returns {Promise<string|undefined>} The id of the affected endpoint. Undefined when operation or endpoint cannot be found.
+   * @param id The operation id to remove.
+   * @param endpointId The domain id of the parent endpoint.
+   * @returns The id of the affected endpoint. Undefined when operation or endpoint cannot be found.
    */
-  async deleteOperation(id, endpointId) {
+  override async deleteOperation(id: string, endpointId: string): Promise<string | undefined> {
     const result = await super.deleteOperation(id, endpointId);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: id,
       domainType: ns.aml.vocabularies.apiContract.Operation,
       domainParent: endpointId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Operation.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Updates a scalar property of an operation.
-   * @param {string} id The domain id of the operation.
-   * @param {string} property The property name to update
-   * @param {any} value The new value to set.
-   * @returns {Promise<ApiOperation>}
+   * @param id The domain id of the operation.
+   * @param property The property name to update
+   * @param value The new value to set.
    */
-  async updateOperationProperty(id, property, value) {
+  override async updateOperationProperty(id: string, property: keyof ApiDefinitions.IApiOperation, value: unknown): Promise<ApiDefinitions.IApiOperation> {
     const updated = await super.updateOperationProperty(id, property, value);
-    const record = /** @type ApiStoreChangeRecord */ ({
+    const record: ApiStoreChangeRecord<ApiDefinitions.IApiOperation> = ({
       graphId: id,
       domainType: ns.aml.vocabularies.apiContract.Operation,
       item: updated,
       property,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Operation.State.updated, record));
-    this.persist();
+    this.persistance.persist();
     return updated;
   }
 
   /**
-   * @param {string} operationId The operation domain id
+   * @param operationId The operation domain id
    * @param {OperationResponseInit} init The response init options.
-   * @returns {Promise<ApiResponse>} The domain id of the created response
+   * @returns The domain id of the created response
    */
-  async addResponse(operationId, init) {
+  override async addResponse(operationId: string, init: OperationResponseInit): Promise<ApiDefinitions.IApiResponse> {
     const result = await super.addResponse(operationId, init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<ApiDefinitions.IApiResponse> = ({
       graphId: result.id,
       domainType: ns.aml.vocabularies.apiContract.Response,
       item: result,
       domainParent: operationId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Response.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Adds a header to the response.
-   * @param {string} responseId The response domain id
+   * @param responseId The response domain id
    * @param {ParameterInit} init The Parameter init options.
-   * @returns {Promise<ApiParameter>}
    */
-  async addResponseHeader(responseId, init) {
+  override async addResponseHeader(responseId: string, init: ParameterInit): Promise<ApiDefinitions.IApiParameter> {
     const result = await super.addResponseHeader(responseId, init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<ApiDefinitions.IApiParameter> = ({
       graphId: result.id,
       domainType: ns.aml.vocabularies.apiContract.Parameter,
       item: result,
       domainParent: responseId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Parameter.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Removes a header from a response
-   * @param {string} responseId The response id to remove the header from
-   * @param {string} headerId The header id to remove.
-   * @returns {Promise<ApiResponse>} Updated response
+   * @param responseId The response id to remove the header from
+   * @param headerId The header id to remove.
+   * @returns Updated response
    */
-  async removeResponseHeader(responseId, headerId) {
+  override async removeResponseHeader(responseId: string, headerId: string): Promise<ApiDefinitions.IApiResponse> {
     const result = await super.removeResponseHeader(responseId, headerId);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: headerId,
       domainType: ns.aml.vocabularies.apiContract.Parameter,
       domainParent: responseId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Parameter.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Creates a new payload in the response.
-   * @param {string} responseId The response domain id
-   * @param {PayloadInit} init The payload init options
-   * @returns {Promise<ApiPayload>} Created payload object.
+   * @param responseId The response domain id
+   * @param init The payload init options
+   * @returns Created payload object.
    */
-  async addResponsePayload(responseId, init) {
+  override async addResponsePayload(responseId: string, init: PayloadInit): Promise<ApiDefinitions.IApiPayload> {
     const result = await super.addResponsePayload(responseId, init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<ApiDefinitions.IApiPayload> = ({
       graphId: result.id,
       domainType: ns.aml.vocabularies.apiContract.Payload,
       item: result,
       domainParent: responseId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Payload.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Removes a payload from a response object.
-   * @param {string} responseId The response domain id
-   * @param {string} payloadId The payload domain id.
-   * @returns {Promise<void>}
+   * @param responseId The response domain id
+   * @param payloadId The payload domain id.
    */
-  async removeResponsePayload(responseId, payloadId) {
+  override async removeResponsePayload(responseId: string, payloadId: string): Promise<void> {
     await super.removeResponsePayload(responseId, payloadId);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: payloadId,
       domainType: ns.aml.vocabularies.apiContract.Payload,
       domainParent: responseId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Payload.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
   }
 
   /**
    * Updates a scalar property of a Response.
-   * @param {string} id The domain id of the response.
-   * @param {keyof Response} property The property name to update
-   * @param {any} value The new value to set.
-   * @returns {Promise<ApiResponse>} The updated response
+   * @param id The domain id of the response.
+   * @param property The property name to update
+   * @param value The new value to set.
+   * @returns The updated response
    */
-  async updateResponseProperty(id, property, value) {
+  override async updateResponseProperty(id: string, property: keyof ApiDefinitions.IApiResponse, value: unknown): Promise<ApiDefinitions.IApiResponse> {
     const updated = await super.updateResponseProperty(id, property, value);
-    const record = /** @type ApiStoreChangeRecord */ ({
+    const record: ApiStoreChangeRecord<ApiDefinitions.IApiResponse> = ({
       graphId: id,
       domainType: ns.aml.vocabularies.apiContract.Response,
       item: updated,
       property,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Response.State.updated, record));
-    this.persist();
+    this.persistance.persist();
     return updated;
   }
 
   /**
-   * @param {string} responseId The response id to delete
-   * @param {string} operationId The id of the parent operation that has the response
-   * @returns {Promise<void>}
+   * @param responseId The response id to delete
+   * @param operationId The id of the parent operation that has the response
    */
-  async deleteResponse(responseId, operationId) {
+  override async deleteResponse(responseId: string, operationId: string): Promise<void> {
     await super.deleteResponse(responseId, operationId);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: responseId,
       domainType: ns.aml.vocabularies.apiContract.Response,
       domainParent: operationId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Response.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
   }
 
   /**
    * Updates a scalar property of an Example.
-   * @param {string} id The domain id of the response.
-   * @param {keyof Example} property The property name to update
-   * @param {any} value The new value to set.
-   * @returns {Promise<ApiExample>} The updated example
+   * @param id The domain id of the response.
+   * @param property The property name to update
+   * @param value The new value to set.
+   * @returns The updated example
    */
-  async updateExampleProperty(id, property, value) {
+  override async updateExampleProperty(id: string, property: keyof AmfShapes.IApiDataExample, value: unknown): Promise<AmfShapes.IApiDataExample> {
     const updated = await super.updateExampleProperty(id, property, value);
-    const record = /** @type ApiStoreChangeRecord */ ({
+    const record: ApiStoreChangeRecord<AmfShapes.IApiDataExample> = ({
       graphId: id,
       domainType: ns.aml.vocabularies.apiContract.Example,
       item: updated,
       property,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Example.State.updated, record));
-    this.persist();
+    this.persistance.persist();
     return updated;
   }
 
   /**
    * Adds an example to a Payload
-   * @param {string} id The if of the Payload to add the example to
-   * @param {ExampleInit} init The example init options
-   * @returns {Promise<ApiExample>}
+   * @param id The if of the Payload to add the example to
+   * @param init The example init options
    */
-  async addPayloadExample(id, init) {
+  override async addPayloadExample(id: string, init: ExampleInit): Promise<AmfShapes.IApiDataExample> {
     const result = await super.addPayloadExample(id, init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<AmfShapes.IApiDataExample> = ({
       graphId: result.id,
       domainType: ns.aml.vocabularies.apiContract.Example,
       item: result,
       domainParent: id,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Example.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Removes an example from the Payload.
-   * @param {string} payloadId The domain id of the Payload
-   * @param {string} exampleId The domain id of the Example to remove.
+   * @param payloadId The domain id of the Payload
+   * @param exampleId The domain id of the Example to remove.
    */
-  async removePayloadExample(payloadId, exampleId) {
+  override async removePayloadExample(payloadId: string, exampleId: string): Promise<void> {
     await super.removePayloadExample(payloadId, exampleId);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: exampleId,
       domainType: ns.aml.vocabularies.apiContract.Example,
       domainParent: payloadId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Example.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
   }
 
   /**
    * Updates a scalar property of a Payload.
-   * @param {string} id The domain id of the payload.
-   * @param {keyof Payload} property The property name to update
-   * @param {any} value The new value to set.
-   * @returns {Promise<ApiPayload>} The updated Payload
+   * @param id The domain id of the payload.
+   * @param property The property name to update
+   * @param value The new value to set.
+   * @returns The updated Payload
    */
-  async updatePayloadProperty(id, property, value) {
+  override async updatePayloadProperty(id: string, property: keyof ApiDefinitions.IApiPayload, value: unknown): Promise<ApiDefinitions.IApiPayload> {
     const result = await super.updatePayloadProperty(id, property, value);
-    const record = /** @type ApiStoreChangeRecord */ ({
+    const record: ApiStoreChangeRecord<ApiDefinitions.IApiPayload> = ({
       graphId: id,
       domainType: ns.aml.vocabularies.apiContract.Payload,
       item: result,
       property,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Payload.State.updated, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Creates a new type in the API.
    * @param {CustomDomainPropertyInit=} init The Shape init options.
-   * @returns {Promise<ApiCustomDomainProperty>}
    */
-  async addCustomDomainProperty(init) {
+  override async addCustomDomainProperty(init: CustomDomainPropertyInit | undefined): Promise<AmfBase.IApiCustomDomainProperty> {
     const result = await super.addCustomDomainProperty(init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<AmfBase.IApiCustomDomainProperty> = ({
       graphId: result.id,
-      domainType: ns.aml.vocabularies.document.DomainProperty,
+      domainType: ns.aml.vocabularies.document.DomainElement, // DomainProperty
       item: result,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.CustomProperty.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Removes a CustomDomainProperty from the API.
-   * @param {string} id The domain id of the CustomDomainProperty to remove
+   * @param id The domain id of the CustomDomainProperty to remove
    * @returns {Promise<boolean>} True when the property was found and removed.
    */
-  async deleteCustomDomainProperty(id) {
+  override async deleteCustomDomainProperty(id: string): Promise<boolean> {
     const result = await super.deleteCustomDomainProperty(id);
     if (result) {
-      const record = /** @type ApiStoreDeleteRecord */ ({
+      const record: ApiStoreDeleteRecord = ({
         graphId: id,
-        domainType: ns.aml.vocabularies.document.DomainProperty,
+        domainType: ns.aml.vocabularies.document.DomainElement, // DomainProperty
       });
       this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.CustomProperty.State.deleted, record));
-      this.persist();
+      this.persistance.persist();
     }
     return result;
   }
 
   /**
    * Updates a scalar property of a CustomDomainProperty.
-   * @param {string} id The domain id of the object.
-   * @param {keyof CustomDomainProperty} property The property name to update
-   * @param {any} value The new value to set.
-   * @returns {Promise<ApiCustomDomainProperty>} The updated custom domain property
+   * @param id The domain id of the object.
+   * @param property The property name to update
+   * @param value The new value to set.
+   * @returns The updated custom domain property
    */
-  async updateCustomDomainProperty(id, property, value) {
+  override async updateCustomDomainProperty(id: string, property: keyof AmfBase.IApiCustomDomainProperty, value: unknown): Promise<AmfBase.IApiCustomDomainProperty> {
     const result = await super.updateCustomDomainProperty(id, property, value);
-    const record = /** @type ApiStoreChangeRecord */ ({
+    const record: ApiStoreChangeRecord<AmfBase.IApiCustomDomainProperty> = ({
       graphId: id,
-      domainType: ns.aml.vocabularies.document.DomainProperty,
+      domainType: ns.aml.vocabularies.document.DomainElement, // DomainProperty
       item: result,
       property,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.CustomProperty.State.updated, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
-   * @param {string} operationId The operation domain id
+   * @param operationId The operation domain id
    * @param {OperationRequestInit=} init The request init options. Optional.
-   * @returns {Promise<ApiRequest>} The domain id of the created request
+   * @returns The domain id of the created request
    */
-  async addRequest(operationId, init={}) {
+  override async addRequest(operationId: string, init: OperationRequestInit | undefined={}): Promise<ApiDefinitions.IApiRequest> {
     const result = await super.addRequest(operationId, init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<ApiDefinitions.IApiRequest> = ({
       graphId: result.id,
       domainType: ns.aml.vocabularies.apiContract.Request,
       item: result,
       domainParent: operationId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Request.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Adds a header to the request.
-   * @param {string} requestId The request domain id
+   * @param requestId The request domain id
    * @param {ParameterInit} init The Parameter init options.
-   * @returns {Promise<ApiParameter>}
    */
-  async addRequestHeader(requestId, init) {
+  override async addRequestHeader(requestId: string, init: ParameterInit): Promise<ApiDefinitions.IApiParameter> {
     const result = await super.addRequestHeader(requestId, init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<ApiDefinitions.IApiParameter> = ({
       graphId: result.id,
       domainType: ns.aml.vocabularies.apiContract.Parameter,
       item: result,
       domainParent: requestId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Parameter.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Removes a header from a request
-   * @param {string} requestId The request id to remove the header from
-   * @param {string} headerId The header id to remove.
-   * @returns {Promise<ApiRequest>} Updated request
+   * @param requestId The request id to remove the header from
+   * @param headerId The header id to remove.
+   * @returns Updated request
    */
-  async removeRequestHeader(requestId, headerId) {
+  override async removeRequestHeader(requestId: string, headerId: string): Promise<ApiDefinitions.IApiRequest> {
     const result = await super.removeRequestHeader(requestId, headerId);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: headerId,
       domainType: ns.aml.vocabularies.apiContract.Parameter,
       domainParent: requestId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Parameter.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Adds a query parameter to the request.
-   * @param {string} requestId The request domain id
+   * @param requestId The request domain id
    * @param {ParameterInit} init The Parameter init options.
-   * @returns {Promise<ApiParameter>}
    */
-  async addRequestQueryParameter(requestId, init) {
+  override async addRequestQueryParameter(requestId: string, init: ParameterInit): Promise<ApiDefinitions.IApiParameter> {
     const result = await super.addRequestQueryParameter(requestId, init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<ApiDefinitions.IApiParameter> = ({
       graphId: result.id,
       domainType: ns.aml.vocabularies.apiContract.Parameter,
       item: result,
       domainParent: requestId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Parameter.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Removes a query parameter from a request
-   * @param {string} requestId The request id to remove the parameter from
-   * @param {string} paramId The parameter id to remove.
-   * @returns {Promise<ApiRequest>} Updated request
+   * @param requestId The request id to remove the parameter from
+   * @param paramId The parameter id to remove.
+   * @returns Updated request
    */
-  async removeRequestQueryParameter(requestId, paramId) {
+  override async removeRequestQueryParameter(requestId: string, paramId: string): Promise<ApiDefinitions.IApiRequest> {
     const result = await super.removeRequestQueryParameter(requestId, paramId);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: paramId,
       domainType: ns.aml.vocabularies.apiContract.Parameter,
       domainParent: requestId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Parameter.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Adds a cookie to the request.
-   * @param {string} requestId The request domain id
+   * @param requestId The request domain id
    * @param {ParameterInit} init The Parameter init options.
-   * @returns {Promise<ApiParameter>}
    */
-  async addRequestCookieParameter(requestId, init) {
+  override async addRequestCookieParameter(requestId: string, init: ParameterInit): Promise<ApiDefinitions.IApiParameter> {
     const result = await super.addRequestCookieParameter(requestId, init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<ApiDefinitions.IApiParameter> = ({
       graphId: result.id,
       domainType: ns.aml.vocabularies.apiContract.Parameter,
       item: result,
       domainParent: requestId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Parameter.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Removes a cookie parameter from a request
-   * @param {string} requestId The request id to remove the parameter from
-   * @param {string} paramId The parameter id to remove.
-   * @returns {Promise<ApiRequest>} Updated request
+   * @param requestId The request id to remove the parameter from
+   * @param paramId The parameter id to remove.
+   * @returns Updated request
    */
-  async removeRequestCookieParameter(requestId, paramId) {
+  override async removeRequestCookieParameter(requestId: string, paramId: string): Promise<ApiDefinitions.IApiRequest> {
     const result = await super.removeRequestCookieParameter(requestId, paramId);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: paramId,
       domainType: ns.aml.vocabularies.apiContract.Parameter,
       domainParent: requestId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Parameter.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Creates a new payload in the request.
-   * @param {string} requestId The request domain id
-   * @param {PayloadInit} init The payload init options
-   * @returns {Promise<ApiPayload>} Created payload object.
+   * @param requestId The request domain id
+   * @param init The payload init options
+   * @returns Created payload object.
    */
-  async addRequestPayload(requestId, init) {
+  override async addRequestPayload(requestId: string, init: PayloadInit): Promise<ApiDefinitions.IApiPayload> {
     const result = await super.addRequestPayload(requestId, init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<ApiDefinitions.IApiPayload> = ({
       graphId: result.id,
       domainType: ns.aml.vocabularies.apiContract.Payload,
       item: result,
       domainParent: requestId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Payload.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Removes a payload from a request object.
-   * @param {string} requestId The request domain id
-   * @param {string} payloadId The payload domain id.
-   * @returns {Promise<void>}
+   * @param requestId The request domain id
+   * @param payloadId The payload domain id.
    */
-  async removeRequestPayload(requestId, payloadId) {
+  override async removeRequestPayload(requestId: string, payloadId: string): Promise<void> {
     await super.removeRequestPayload(requestId, payloadId);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: payloadId,
       domainType: ns.aml.vocabularies.apiContract.Payload,
       domainParent: requestId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Payload.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
   }
 
   /**
-   * @param {string} requestId The request id to delete
-   * @param {string} operationId The id of the parent operation that has the request
-   * @returns {Promise<void>}
+   * @param requestId The request id to delete
+   * @param operationId The id of the parent operation that has the request
    */
-  async deleteRequest(requestId, operationId) {
+  override async deleteRequest(requestId: string, operationId: string): Promise<void> {
     await super.deleteRequest(requestId, operationId);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: requestId,
       domainType: ns.aml.vocabularies.apiContract.Request,
       domainParent: operationId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Request.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
   }
 
   /**
    * Updates a scalar property of a Request.
-   * @param {string} id The domain id of the request.
-   * @param {keyof Request} property The property name to update
-   * @param {any} value The new value to set.
-   * @returns {Promise<ApiRequest>} The updated request
+   * @param id The domain id of the request.
+   * @param property The property name to update
+   * @param value The new value to set.
+   * @returns The updated request
    */
-  async updateRequestProperty(id, property, value) {
+  override async updateRequestProperty(id: string, property: keyof ApiDefinitions.IApiRequest, value: unknown): Promise<ApiDefinitions.IApiRequest> {
     const updated = await super.updateRequestProperty(id, property, value);
-    const record = /** @type ApiStoreChangeRecord */ ({
+    const record: ApiStoreChangeRecord<ApiDefinitions.IApiRequest> = ({
       graphId: id,
       domainType: ns.aml.vocabularies.apiContract.Request,
       item: updated,
       property,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Request.State.updated, record));
-    this.persist();
+    this.persistance.persist();
     return updated;
   }
 
   /**
    * Updates a scalar property of a Parameter.
-   * @param {string} id The domain id of the parameter.
-   * @param {keyof Parameter} property The property name to update
-   * @param {any} value The new value to set.
-   * @returns {Promise<ApiParameter>} The updated Parameter
+   * @param id The domain id of the parameter.
+   * @param property The property name to update
+   * @param value The new value to set.
+   * @returns The updated Parameter
    */
-  async updateParameterProperty(id, property, value) {
+  override async updateParameterProperty(id: string, property: keyof ApiDefinitions.IApiParameter, value: unknown): Promise<ApiDefinitions.IApiParameter> {
     const updated = await super.updateParameterProperty(id, property, value);
-    const record = /** @type ApiStoreChangeRecord */ ({
+    const record: ApiStoreChangeRecord<ApiDefinitions.IApiParameter> = ({
       graphId: id,
       domainType: ns.aml.vocabularies.apiContract.Parameter,
       item: updated,
       property,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Parameter.State.updated, record));
-    this.persist();
+    this.persistance.persist();
     return updated;
   }
 
   /**
    * Adds an example to a Parameter
-   * @param {string} id The if of the Parameter to add the example to
-   * @param {ExampleInit} init The example init options
-   * @returns {Promise<ApiExample>}
+   * @param id The if of the Parameter to add the example to
+   * @param init The example init options
    */
-  async addParameterExample(id, init) {
+  override async addParameterExample(id: string, init: ExampleInit): Promise<AmfShapes.IApiDataExample> {
     const result = await super.addParameterExample(id, init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<AmfShapes.IApiDataExample> = ({
       graphId: result.id,
       domainType: ns.aml.vocabularies.apiContract.Example,
       item: result,
       domainParent: id,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Example.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Removes an example from the parameter.
-   * @param {string} paramId The domain id of the Parameter
-   * @param {string} exampleId The domain id of the Example to remove.
+   * @param paramId The domain id of the Parameter
+   * @param exampleId The domain id of the Example to remove.
    */
-  async removeParameterExample(paramId, exampleId) {
+  override async removeParameterExample(paramId: string, exampleId: string): Promise<void> {
     await super.removeParameterExample(paramId, exampleId);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: exampleId,
       domainType: ns.aml.vocabularies.apiContract.Example,
       domainParent: paramId,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Example.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
   }
 
   /**
    * Adds a new documentation object to the graph.
-   * @param {DocumentationInit} init The initialization properties
-   * @returns {Promise<ApiDocumentation>} The created documentation.
+   * @param init The initialization properties
+   * @returns The created documentation.
    */
-  async addDocumentation(init) {
+  override async addDocumentation(init: DocumentationInit): Promise<ApiDefinitions.IApiDocumentation> {
     const doc = await super.addDocumentation(init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<ApiDefinitions.IApiDocumentation> = ({
       graphId: doc.id,
       domainType: ns.aml.vocabularies.core.CreativeWork,
       item: doc,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Documentation.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return doc;
   }
 
   /**
    * Updates a scalar property of a documentation.
-   * @param {string} id The domain id of the documentation.
+   * @param id The domain id of the documentation.
    * @param {keyof CreativeWork} property The property name to update
    * @param {any} value The new value to set.
-   * @returns {Promise<ApiDocumentation>}
    */
-  async updateDocumentationProperty(id, property, value) {
+  override async updateDocumentationProperty(id: string, property: keyof ApiDefinitions.IApiDocumentation, value: unknown): Promise<ApiDefinitions.IApiDocumentation> {
     const updated = await super.updateDocumentationProperty(id, property, value);
-    const record = /** @type ApiStoreChangeRecord */ ({
+    const record: ApiStoreChangeRecord<ApiDefinitions.IApiDocumentation> = ({
       graphId: id,
       domainType: ns.aml.vocabularies.core.CreativeWork,
       item: updated,
       property,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Documentation.State.updated, record));
-    this.persist();
+    this.persistance.persist();
     return updated;
   }
 
   /**
    * Removes the documentation from the graph.
-   * @param {string} id The domain id of the documentation object
+   * @param id The domain id of the documentation object
    */
-  async deleteDocumentation(id) {
+  override async deleteDocumentation(id: string): Promise<void> {
     await super.deleteDocumentation(id);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: id,
       domainType: ns.aml.vocabularies.core.CreativeWork,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Documentation.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
   }
 
   /**
    * Creates a new type in the API.
-   * @param {ShapeInit=} init The Shape init options.
-   * @returns {Promise<ApiShapeUnion>}
+   * @param init The Shape init options.
    */
-  async addType(init) {
+  override async addType(init?: ShapeInit): Promise<AmfShapes.IShapeUnion> {
     const result = await super.addType(init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<AmfShapes.IShapeUnion> = ({
       graphId: result.id,
       domainType: result.types[0],
       item: result,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Type.State.created, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Removes a type for a given domain id.
-   * @param {string} id The type domain id.
+   * @param id The type domain id.
    */
-  async deleteType(id) {
+  override async deleteType(id: string): Promise<boolean> {
     const type = await this.getType(id);
     const result = await super.deleteType(id);
     if (!result) {
       return false;
     }
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: id,
       domainType: type.types[0],
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Type.State.deleted, record));
-    this.persist();
+    this.persistance.persist();
     return true;
   }
 
   /**
    * Updates a scalar property of a type.
-   * @param {string} id The domain id of the type.
-   * @param {string} property The property name to update
-   * @param {any} value The new value to set.
-   * @returns {Promise<ApiShapeUnion>}
+   * @param id The domain id of the type.
+   * @param property The property name to update
+   * @param value The new value to set.
    */
-  async updateTypeProperty(id, property, value) {
+  override async updateTypeProperty(id: string, property: string, value: unknown): Promise<AmfShapes.IShapeUnion> {
     const type = await super.updateTypeProperty(id, property, value);
-    const record = /** @type ApiStoreChangeRecord */ ({
+    const record: ApiStoreChangeRecord<AmfShapes.IShapeUnion> = ({
       graphId: id,
       domainType: type.types[0],
       item: type,
       property,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Type.State.updated, record));
-    this.persist();
+    this.persistance.persist();
     return type;
   }
 
   /**
    * Creates a new property on a type.
-   * @param {string} id The id of the type to add the property to.
-   * @param {PropertyShapeInit} init The property initialization configuration.
-   * @returns {Promise<ApiPropertyShape>}
+   * @param id The id of the type to add the property to.
+   * @param init The property initialization configuration.
    * @throws {Error} An error when the type couldn't be find.
    * @throws {Error} An error when the type is not a NodeShape.
    */
-  async addPropertyShape(id, init) {
+  override async addPropertyShape(id: string, init: PropertyShapeInit): Promise<AmfShapes.IApiPropertyShape> {
     const result = await super.addPropertyShape(id, init);
-    const record = /** @type ApiStoreCreateRecord */ ({
+    const record: ApiStoreCreateRecord<AmfShapes.IApiPropertyShape> = ({
       graphId: result.id,
       domainType: ns.w3.shacl.PropertyShape,
       item: result,
       domainParent: id,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.Type.State.propertyCreated, record));
-    this.persist();
+    this.persistance.persist();
     return result;
   }
 
   /**
    * Removes a property from a node shape.
-   * @param {string} typeId The domain id of a parent type
-   * @param {string} propertyId The id of the property to remove.
+   * @param typeId The domain id of a parent type
+   * @param propertyId The id of the property to remove.
    * @throws {Error} An error when the type couldn't be find.
    */
-  async deletePropertyShape(typeId, propertyId) {
+  override async deletePropertyShape(typeId: string, propertyId: string): Promise<void> {
     await super.deletePropertyShape(typeId, propertyId);
-    const record = /** @type ApiStoreDeleteRecord */ ({
+    const record: ApiStoreDeleteRecord = ({
       graphId: propertyId,
       domainParent: typeId,
       domainType: ns.w3.shacl.PropertyShape,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.Type.State.propertyDeleted, record));
-    this.persist();
+    this.persistance.persist();
   }
 
   /**
    * Updates a scalar property of a property of a NodeShape.
-   * @param {string} parent The domain id of the parent type.
-   * @param {string} id The domain id of the type.
-   * @param {keyof PropertyShape} property The property name to update
-   * @param {any} value The new value to set.
-   * @returns {Promise<ApiPropertyShape>}
+   * @param parent The domain id of the parent type.
+   * @param id The domain id of the type.
+   * @param property The property name to update
+   * @param value The new value to set.
    */
-  async updatePropertyShapeProperty(parent, id, property, value) {
+  override async updatePropertyShapeProperty(parent: string, id: string, property: keyof AmfShapes.IApiPropertyShape, value: unknown): Promise<AmfShapes.IApiPropertyShape> {
     const type = await super.updatePropertyShapeProperty(parent, id, property, value);
-    const record = /** @type ApiStoreChangeRecord */ ({
+    const record: ApiStoreChangeRecord<AmfShapes.IApiPropertyShape> = ({
       graphId: id,
       domainType: ns.w3.shacl.PropertyShape,
       item: type,
@@ -909,14 +840,14 @@ export class AmfStoreService extends AmfStoreDomEventsMixin(StorePersistenceMixi
       domainParent: parent,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateUpdateEvent(EventTypes.Type.State.propertyUpdated, record));
-    this.persist();
+    this.persistance.persist();
     return type;
   }
 
   /**
    * Creates an instance of the web worker.
    */
-  [createWorker]() {
+  [createWorker](): Worker {
     const { options } = this;
     let worker;
     if (typeof options.createWebWorker === 'function') {
@@ -938,35 +869,33 @@ export class AmfStoreService extends AmfStoreDomEventsMixin(StorePersistenceMixi
 
   /**
    * The worker location in the final build of the app may be anywhere.
-   * @returns {string}
    */
-  [readWorkerUrl]() {
+  [readWorkerUrl](): string {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const cnf = /** @type any */ (window.AmfService);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cnf = window.AmfService as any;
     if (cnf && cnf.workers && cnf.workers.workerStore) {
       return cnf.workers.workerStore;
     }
-    return new URL('workers/AmfWorker.js', import.meta.url).toString();
+    return new URL('../workers/AmfWorker.js', import.meta.url).toString();
   }
 
-  /**
-   * @param {MessageEvent} e
-   */
-  [responseHandler](e) {
-    const result = /** @type WorkerResponse */ (e.data);
+  [responseHandler](e: MessageEvent): void {
+    const result = e.data as WorkerResponse;
     this[processResponse](result);
   }
 
   /**
    * Sends a message to the worker.
-   * @param {string} type The type of the message
-   * @param {...any} args A list of optional arguments.
+   * @param type The type of the message
+   * @param args A list of optional arguments.
    */
-  [sendMessage](type, ...args) {
+  [sendMessage](type: string, ...args: unknown[]): Promise<unknown> {
     const { worker } = this;
     const id = this[getId]();
     const result = this[createResponsePromise](id);
-    const message = /** @type WorkerMessage */ ({
+    const message: WorkerMessage = ({
       id,
       type,
       arguments: args,

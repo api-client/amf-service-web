@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { ApiDefinitions, AmfShapes } from '@api-client/core';
+import { ApiDefinitions, AmfShapes } from '@api-client/core/build/esm/browser.js';
 
 
 import { ExampleInit, ParameterInit, PayloadInit } from "../types.js";

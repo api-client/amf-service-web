@@ -1,5 +1,5 @@
-import { AmfStoreDomEventsMixin } from './mixins/AmfStoreDomEventsMixin.js';
-import { StorePersistenceMixin } from './mixins/StorePersistenceMixin.js';
+import { StoreDomEventsHandler } from '../lib/StoreDomEventsHandler.js';
+import { StorePersistence } from '../lib/StorePersistence.js';
 import {
   AmfStoreProxy,
   workerValue,
@@ -11,13 +11,9 @@ import {
   errorHandler,
   processResponse,
 } from './AmfStoreProxy.js';
-import { HttpWorker } from './workers/HttpWorker.js';
-import { EventTypes } from './events/EventTypes.js';
-
-/** @typedef {import('./types').AmfHttpWorkerInit} AmfHttpWorkerInit */
-/** @typedef {import('./types').ProxyStatusResponse} ProxyStatusResponse */
-/** @typedef {import('./types').ProxyErrorResponse} ProxyErrorResponse */
-/** @typedef {import('./types').WorkerResponse} WorkerResponse */
+import { HttpWorker } from '../workers/HttpWorker.js';
+import { EventTypes } from '../events/EventTypes.js';
+import type { AmfHttpWorkerInit, ProxyErrorResponse, ProxyStatusResponse, WorkerMessage, WorkerResponse } from '../types.js';
 
 export const optionsValue = Symbol('optionsValue');
 export const pidValue = Symbol('pidValue');
@@ -26,46 +22,53 @@ export const eventSourceValue = Symbol('eventSourceValue');
 export const registerSocketListeners = Symbol('registerSocketListeners');
 export const socketMessageHandler = Symbol('socketMessageHandler');
 
-export class AmfStoreHttpService extends AmfStoreDomEventsMixin(StorePersistenceMixin(AmfStoreProxy)) {
-  /**
-   * @type {HttpWorker}
-   */
-  get worker() {
+export class AmfStoreHttpService extends AmfStoreProxy {
+  events: StoreDomEventsHandler;
+  eventsTarget: EventTarget;
+  persistance: StorePersistence;
+
+  [eventSourceValue]?: EventSource;
+
+  [workerValue]?: HttpWorker;
+
+  override get worker(): HttpWorker {
     if (!this[workerValue]) {
       this[workerValue] = this[createWorker]();
     }
     return this[workerValue];
   }
 
+  [optionsValue]: AmfHttpWorkerInit;
+
+
   /**
-   * @returns {AmfHttpWorkerInit} Options used to initialize this class.
+   * Options used to initialize this class.
    */
-  get options() {
+  get options(): AmfHttpWorkerInit {
     return this[optionsValue];
   }
 
+  [pidValue]: string|undefined;
+
   /**
-   * @returns {string|undefined} The current process id for the backend service.
+   * The current process id for the backend service.
    * This either comes from the class init options or from calling the `init()` function.
    */
-  get pid() {
+  get pid(): string|undefined {
     return this[pidValue];
   }
 
   /**
-   * @param {AmfHttpWorkerInit} opts Class initialization options.
+   * @param opts Class initialization options.
    */
-  constructor(opts) {
+  constructor(persistance: StorePersistence, opts: AmfHttpWorkerInit) {
     super();
-    /**
-     * @type {AmfHttpWorkerInit}
-     */
     this[optionsValue] = Object.freeze(opts);
-    /**
-     * @type {HttpWorker}
-     */
-    this[workerValue] = undefined;
+    
     this.eventsTarget = opts.eventsTarget || window;
+    this.persistance = persistance;
+    this.events = new StoreDomEventsHandler(this, this.eventsTarget);
+
     if (opts.pid) {
       this[pidValue] = opts.pid;
     }
@@ -76,7 +79,7 @@ export class AmfStoreHttpService extends AmfStoreDomEventsMixin(StorePersistence
   /**
    * Creates an instance of the web worker.
    */
-  [createWorker]() {
+  [createWorker](): HttpWorker {
     const { options } = this;
     const { baseUri } = options;
     const worker = new HttpWorker(baseUri, this[pidValue]);
@@ -90,21 +93,19 @@ export class AmfStoreHttpService extends AmfStoreDomEventsMixin(StorePersistence
    * It creates a new session in the store. Do not call this function when the application
    * should connect to an existing process. Instead initialize the store with the 
    * process id and call the `registerSocket()` function instead.
-   * 
-   * @return {Promise<void>}
    */
-  async init() {
+  override async init(): Promise<void> {
     const result = await this.worker.initSession();
-    const typedError = /** @type ProxyErrorResponse */ (result);
+    const typedError = result as ProxyErrorResponse;
     if (typedError.error) {
       throw new Error(typedError.message);
     }
-    const typedResponse = /** @type ProxyStatusResponse */ (result);
+    const typedResponse = result as ProxyStatusResponse;
     if (!typedResponse.id) {
       throw new Error('The sever did not return the process id.');
     }
     this[pidValue] = typedResponse.id;
-    this[workerValue].pid = typedResponse.id;
+    this.worker.pid = typedResponse.id;
     this[registerSocket](typedResponse.id);
   }
 
@@ -117,7 +118,7 @@ export class AmfStoreHttpService extends AmfStoreDomEventsMixin(StorePersistence
    * This function throws an error when the `pid` has not been set either by providing it
    * through the init object or through calling the `init()` function.
    */
-  registerSocket() {
+  registerSocket(): void {
     const { pid } = this;
     if (!pid) {
       throw new Error('The server process id is not set. Call the init() function first.');
@@ -129,9 +130,9 @@ export class AmfStoreHttpService extends AmfStoreDomEventsMixin(StorePersistence
   }
 
   /**
-   * @param {string} pid The API server process id.
+   * @param pid The API server process id.
    */
-  [registerSocket](pid) {
+  [registerSocket](pid: string): void {
     const { options } = this;
     const { baseUri } = options;
     const endpointUrl = new URL(`store/events/${pid}`, baseUri);
@@ -149,11 +150,7 @@ export class AmfStoreHttpService extends AmfStoreDomEventsMixin(StorePersistence
     this[registerSocketListeners](EventTypes.Type.State, source);
   }
 
-  /**
-   * @param {object} base 
-   * @param {EventSource} es 
-   */
-  [registerSocketListeners](base, es) {
+  [registerSocketListeners](base: Record<string, string>, es: EventSource): void {
     Object.keys(base).forEach((key) => {
       if (typeof key === 'string') {
         es.addEventListener(base[key], this[socketMessageHandler]);
@@ -161,10 +158,7 @@ export class AmfStoreHttpService extends AmfStoreDomEventsMixin(StorePersistence
     });
   }
 
-  /**
-   * @param {MessageEvent} event 
-   */
-  [socketMessageHandler](event) {
+  [socketMessageHandler](event: MessageEvent): void {
     const changeRecord = JSON.parse(event.data);
     const e = new CustomEvent(event.type, {
       bubbles: true,
@@ -177,14 +171,14 @@ export class AmfStoreHttpService extends AmfStoreDomEventsMixin(StorePersistence
 
   /**
    * Sends a message to the worker.
-   * @param {string} type The type of the message
-   * @param {...any} args A list of optional arguments.
+   * @param type The type of the message
+   * @param args A list of optional arguments.
    */
-  [sendMessage](type, ...args) {
+  [sendMessage](type: string, ...args: unknown[]): Promise<unknown> {
     const { worker } = this;
     const id = this[getId]();
     const result = this[createResponsePromise](id);
-    const message = /** @type WorkerMessage */ ({
+    const message: WorkerMessage = ({
       id,
       type,
       arguments: args,
@@ -193,11 +187,8 @@ export class AmfStoreHttpService extends AmfStoreDomEventsMixin(StorePersistence
     return result;
   }
 
-  /**
-   * @param {any} e
-   */
-  [responseHandler](e) {
-    const result = /** @type WorkerResponse */ (e.detail);
-    this[processResponse](result);
+  [responseHandler](e: Event): void {
+    const event = e as CustomEvent<WorkerResponse>;
+    this[processResponse](event.detail);
   }
 }

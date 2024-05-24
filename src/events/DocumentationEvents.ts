@@ -1,4 +1,4 @@
-import { ApiDefinitions } from '@api-client/core';
+import { ApiDefinitions } from '@api-client/core/build/esm/browser.js';
 import { EventTypes } from './EventTypes.js';
 import { ApiStoreContextEvent, ApiStoreCreateEvent, ApiStoreReadEvent, ApiStoreUpdateScalarEvent, ApiStoreDeleteEvent } from './BaseEvents.js';
 import { DocumentationInit } from '../types.js';
