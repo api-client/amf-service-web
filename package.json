@@ -43,6 +43,7 @@
     "@web/test-runner-playwright": "^0.11.0",
     "amf-client-js": "^5.5.1",
     "browserify": "^17.0.0",
+    "concurrently": "^8.2.2",
     "eslint": "^8.9.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-import-resolver-typescript": "^3.5.1",
@@ -61,7 +62,8 @@
     "fs-extra": "^11.2.0"
   },
   "scripts": {
-    "start": "web-dev-server --app-index demo/index.html --node-resolve --open --watch --root-dir .",
+    "start": "concurrently --raw \"tsc --watch --preserveWatchOutput\" \"wds --watch\"",
+    "start:old": "web-dev-server --app-index demo/index.html --node-resolve --open --watch --root-dir .",
     "build:ts": "tsc --project tsconfig.json",
     "build": "npm run build:ts && npm run lint",
     "tsc:watch": "tsc --watch",

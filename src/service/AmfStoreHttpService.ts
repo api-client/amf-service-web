@@ -84,7 +84,7 @@ export class AmfStoreHttpService extends AmfStoreProxy {
     const { baseUri } = options;
     const worker = new HttpWorker(baseUri, this[pidValue]);
     worker.addEventListener('message', this[responseHandler]);
-    worker.addEventListener('error', this[errorHandler]);
+    worker.addEventListener('error', this[errorHandler] as unknown as EventListenerOrEventListenerObject);
     return worker;
   }
 

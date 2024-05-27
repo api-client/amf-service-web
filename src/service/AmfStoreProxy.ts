@@ -945,8 +945,10 @@ export class AmfStoreProxy {
     }
   }
 
-  [errorHandler](): Error {
-    const e = new Error("Modeling data store worker general error");
+  [errorHandler](info: ErrorEvent): Error {
+    const { lineno, colno, message, filename } = info;
+    const print = `Worker Error:\n${message} [at ${lineno}:${colno} ${filename}]`;
+    const e = new Error(print); // "Modeling data store worker general error"
     // eslint-disable-next-line no-console
     console.error(e);
     if (this[queueValue].size === 1) {

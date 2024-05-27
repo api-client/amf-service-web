@@ -1455,9 +1455,10 @@ export class ApiSerializer {
   static objectNode(object: AMF.ObjectNode): AmfShapes.IApiObjectNode {
     const result = this.dataNode(object) as AmfShapes.IApiObjectNode;
     result.properties = {};
-    const { properties } = object;
+    // this is AMF's invalid typings.
+    const properties = object.properties as unknown as Record<string, AMF.DataNode>;
     Object.keys(properties).forEach((key) => {
-      const node = properties.get(key);
+      const node = properties[key];
       if (!node) {
         return;
       }

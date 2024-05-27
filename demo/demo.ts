@@ -20,7 +20,9 @@ class ComponentPage extends DemoPage {
     this.initialized = false;
     this.latestOutput = "";
     const persistance = new DemoPersistance('demo.page');
-    this.store = new AmfStoreService(persistance);
+    this.store = new AmfStoreService(persistance, undefined, {
+      workerLocation: new URL('../build/workers/AmfWorker.js', import.meta.url).toString()
+    });
     this.componentName = "AmfStoreProxy";
     this.actionHandler = this.actionHandler.bind(this);
 
@@ -136,13 +138,13 @@ class ComponentPage extends DemoPage {
   async actionHandler(e: Event): Promise<void> {
     const button = e.target as HTMLButtonElement;
     if (typeof this[button.id] === "function") {
-      this[button.id]();
+      this[button.id](button);
       return;
     }
     switch (button.id) {
-      case "loadApiGraph":
-        this.loadDemoApi(button.dataset.src!, button.dataset.type as ParserVendors);
-        break;
+      // case "loadApiGraph":
+      //   this.loadDemoApi(button.dataset.src!, button.dataset.type as ParserVendors);
+      //   break;
       case "loadEmptyApi":
         this.latestOutput = await this.store.createWebApi();
         this.loaded = true;
@@ -433,7 +435,7 @@ class ComponentPage extends DemoPage {
           <h4>Endpoints</h4>
           <div>
             <label for="endpointIdPath">Endpoint path or id</label>
-            <input type="text" id="endpointIdPath" value="/annotable" />
+            <input type="text" id="endpointIdPath" value="/one" />
             <button
               id="addEndpoint"
               ?disabled="${!loaded}"
@@ -471,7 +473,7 @@ class ComponentPage extends DemoPage {
               <input
                 type="text"
                 id="operationEndpointIdOrPath"
-                value="/people"
+                value="/one"
               />
             </div>
             <div class="form-field">
