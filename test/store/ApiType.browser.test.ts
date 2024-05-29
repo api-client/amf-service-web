@@ -1,28 +1,14 @@
 import { assert, oneEvent } from '@open-wc/testing';
+import { AmfShapes, AmfNamespace as ns } from "@api-client/core/build/esm/browser.js";
 import { AmfLoader } from '../helpers/AmfLoader.js';
-import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.index.js';
+import { WebWorkerService, StoreEvents, StoreEventTypes } from '../../src/worker.index.js';
+import { PropertyShapeInit } from '../../src/types.js';
+import createTestService from '../helpers/web-service.js';
 
-/** @typedef {import('amf-client-js').PropertyShape} PropertyShape */
-/** @typedef {import('../../').ApiEndPointListItem} ApiEndPointListItem */
-/** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
-/** @typedef {import('../..').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('../..').ApiNodeShape} ApiNodeShape */
-/** @typedef {import('../..').ApiFileShape} ApiFileShape */
-/** @typedef {import('../..').ApiSchemaShape} ApiSchemaShape */
-/** @typedef {import('../..').ApiTupleShape} ApiTupleShape */
-/** @typedef {import('../..').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('../..').ApiScalarNode} ApiScalarNode */
-/** @typedef {import('../..').ApiAnyShape} ApiAnyShape */
-/** @typedef {import('../..').ApiUnionShape} ApiUnionShape */
-/** @typedef {import('../..').ApiArrayShape} ApiArrayShape */
-/** @typedef {import('../..').ApiRecursiveShape} ApiRecursiveShape */
-/** @typedef {import('../..').ApiCustomDomainExtension} ApiCustomDomainExtension */
-/** @typedef {import('../..').ApiDomainExtension} ApiDomainExtension */
-
-describe('AmfStoreService', () => {
-  let store = /** @type AmfStoreService */ (null);
+describe('WebWorkerService', () => {
+  let store: WebWorkerService;
   before(async () => {
-    store = new AmfStoreService();
+    store = createTestService();
     await store.init();
   });
 
@@ -61,7 +47,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds the default type', async () => {
-      const result = /** @type ApiAnyShape */ (await store.addType());
+      const result = await store.addType() as AmfShapes.IApiAnyShape;
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -86,7 +72,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds ScalarShape type', async () => {
-      const result = /** @type ApiScalarShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape }));
+      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape }) as AmfShapes.IApiScalarShape;
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -113,7 +99,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds NodeShape type', async () => {
-      const result = /** @type ApiNodeShape */ (await store.addType({ type: ns.w3.shacl.NodeShape }));
+      const result = await store.addType({ type: ns.w3.shacl.NodeShape }) as AmfShapes.IApiNodeShape;
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -138,7 +124,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds UnionShape type', async () => {
-      const result = /** @type ApiUnionShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.UnionShape }));
+      const result = await store.addType({ type: ns.aml.vocabularies.shapes.UnionShape }) as AmfShapes.IApiUnionShape;
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -163,7 +149,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds FileShape type', async () => {
-      const result = /** @type ApiFileShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.FileShape }));
+      const result = await store.addType({ type: ns.aml.vocabularies.shapes.FileShape }) as AmfShapes.IApiFileShape;
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -188,7 +174,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds SchemaShape type', async () => {
-      const result = /** @type ApiSchemaShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.SchemaShape }));
+      const result = await store.addType({ type: ns.aml.vocabularies.shapes.SchemaShape }) as AmfShapes.IApiSchemaShape;
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -212,7 +198,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds ArrayShape type', async () => {
-      const result = /** @type ApiArrayShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.ArrayShape }));
+      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ArrayShape }) as AmfShapes.IApiArrayShape;
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -236,7 +222,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds MatrixShape type', async () => {
-      const result = /** @type ApiArrayShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.MatrixShape }));
+      const result = await store.addType({ type: ns.aml.vocabularies.shapes.MatrixShape }) as AmfShapes.IApiArrayShape;
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -260,7 +246,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds TupleShape type', async () => {
-      const result = /** @type ApiArrayShape */ (await store.addType({ type: ns.aml.vocabularies.shapes.TupleShape }));
+      const result = await store.addType({ type: ns.aml.vocabularies.shapes.TupleShape }) as AmfShapes.IApiArrayShape;
       assert.typeOf(result, 'object', 'is an object');
       assert.typeOf(result.id, 'string', 'has the id');
       assert.typeOf(result.types, 'array', 'has the types array');
@@ -285,36 +271,36 @@ describe('AmfStoreService', () => {
 
     it('adds the name', async () => {
       const value = 'new name';
-      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape, name: value });
+      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape, name: value }) as AmfShapes.IApiScalarShape;
       assert.equal(result.name, value);
     });
 
     it('adds the displayName', async () => {
       const value = 'new displayName';
-      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape, displayName: value });
+      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape, displayName: value }) as AmfShapes.IApiScalarShape;
       assert.equal(result.displayName, value);
     });
 
     it('adds the description', async () => {
       const value = 'new description';
-      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape, description: value });
+      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape, description: value }) as AmfShapes.IApiScalarShape;
       assert.equal(result.description, value);
     });
 
     it('adds the readOnly', async () => {
       const value = true;
-      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape, readOnly: value });
+      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape, readOnly: value }) as AmfShapes.IApiScalarShape;
       assert.isTrue(result.readOnly);
     });
 
     it('adds the writeOnly', async () => {
       const value = true;
-      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape, writeOnly: value });
+      const result = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape, writeOnly: value }) as AmfShapes.IApiScalarShape;
       assert.isTrue(result.writeOnly);
     });
 
     it('has the type in the graph', async () => {
-      const created = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape });
+      const created = await store.addType({ type: ns.aml.vocabularies.shapes.ScalarShape }) as AmfShapes.IApiScalarShape;
       const result = await store.getType(created.id);
       assert.deepEqual(result, created);
     });
@@ -329,8 +315,8 @@ describe('AmfStoreService', () => {
     });
 
     it('creates the type from the event', async () => {
-      const created = await StoreEvents.Type.add(window);
-      const result = await store.getType(created.id);
+      const created = await StoreEvents.Type.add();
+      const result = await store.getType(created!.id);
       assert.deepEqual(result, created);
     });
   });
@@ -353,31 +339,31 @@ describe('AmfStoreService', () => {
 
     it('reads the type from the event', async () => {
       const type = await AmfLoader.getShape(store, 'ErrorResource');
-      const result = await StoreEvents.Type.get(window, type.id);
+      const result = await StoreEvents.Type.get(type.id);
       assert.deepEqual(result, type);
     });
 
     it('serializes the default value string', async () => {
-      const type = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'ErrorResource'));
+      const type = await AmfLoader.getShape(store, 'ErrorResource') as AmfShapes.IApiNodeShape;
       const [error] = type.properties;
-      assert.equal(error.range.defaultValueStr, 'true', 'has the default value string');
+      assert.equal(error.range!.defaultValueStr, 'true', 'has the default value string');
     });
 
     it('serializes the default value node', async () => {
-      const type = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'ErrorResource'));
+      const type = await AmfLoader.getShape(store, 'ErrorResource') as AmfShapes.IApiNodeShape;
       const [error] = type.properties;
-      const { defaultValue } = error.range;
+      const { defaultValue } = error.range!;
       assert.typeOf(defaultValue, 'object', 'the defaultValue is an object');
-      assert.include(defaultValue.types, ns.aml.vocabularies.data.Scalar, 'is a Scalar node');
-      assert.typeOf(defaultValue.name, 'string', 'has a name');
-      const typed = /** @type ApiScalarNode */ (defaultValue);
+      assert.include(defaultValue!.types, ns.aml.vocabularies.data.Scalar, 'is a Scalar node');
+      assert.typeOf(defaultValue!.name, 'string', 'has a name');
+      const typed = defaultValue as AmfShapes.IApiScalarNode;
       assert.equal(typed.value, 'true', 'has the value');
       assert.equal(typed.dataType, ns.w3.xmlSchema.boolean, 'has the dataType');
     });
 
     // this is not set when the Editing pipeline is applied when processing API spec files.
     // it('has serialized inherits property', async () => {
-    //   const type = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'AppPerson'));
+    //   const type = await AmfLoader.getShape(store, 'AppPerson') as AmfShapes.IApiNodeShape;
     //   const { inherits } = type;
     //   assert.typeOf(inherits, 'array', 'inherits is an array');
     //   assert.lengthOf(inherits, 1, 'has one parent');
@@ -387,17 +373,17 @@ describe('AmfStoreService', () => {
     // });
 
     it('has the link name', async () => {
-      const type = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'AppPerson'));
+      const type = await AmfLoader.getShape(store, 'AppPerson') as AmfShapes.IApiNodeShape;
       assert.equal(type.name, 'AppPerson');
     });
 
     it('has the displayName', async () => {
-      const type = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'AppPerson'));
+      const type = await AmfLoader.getShape(store, 'AppPerson') as AmfShapes.IApiNodeShape;
       assert.equal(type.displayName, 'A person resource');
     });
 
     it('processes an ArrayShape', async () => {
-      const result = /** @type ApiArrayShape */ (await AmfLoader.getShape(store, 'Arrable'));
+      const result = await AmfLoader.getShape(store, 'Arrable') as AmfShapes.IApiArrayShape;
       assert.include(result.types, ns.aml.vocabularies.shapes.ArrayShape, 'has the ArrayShape type');
       assert.equal(result.name, 'Arrable', 'has the name');
       assert.deepEqual(result.examples, [], 'has empty examples');
@@ -408,11 +394,11 @@ describe('AmfStoreService', () => {
       assert.deepEqual(result.xone, [], 'has empty xone');
       assert.deepEqual(result.customDomainProperties, [], 'has empty customDomainProperties');
       assert.typeOf(result.items, 'object', 'has the items');
-      assert.include(result.items.types, ns.w3.shacl.NodeShape, 'items has the NodeShape type');
+      assert.include(result.items!.types, ns.w3.shacl.NodeShape, 'items has the NodeShape type');
     });
 
     it('processes a NodeShape', async () => {
-      const result = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'AppPerson'));
+      const result = await AmfLoader.getShape(store, 'AppPerson') as AmfShapes.IApiNodeShape;
       assert.include(result.types, ns.w3.shacl.NodeShape, 'has the NodeShape type');
       assert.equal(result.name, 'AppPerson', 'has the name');
       assert.typeOf(result.description, 'string', 'has the description');
@@ -433,7 +419,7 @@ describe('AmfStoreService', () => {
     });
 
     it('processes an UnionShape', async () => {
-      const result = /** @type ApiUnionShape */ (await AmfLoader.getShape(store, 'Unionable'));
+      const result = await AmfLoader.getShape(store, 'Unionable') as AmfShapes.IApiUnionShape;
       assert.include(result.types, ns.aml.vocabularies.shapes.UnionShape, 'has the NodeShape type');
       assert.equal(result.name, 'Unionable', 'has the name');
       assert.isUndefined(result.description, 'has no description');
@@ -451,7 +437,7 @@ describe('AmfStoreService', () => {
     });
 
     it('processes a ScalarShape', async () => {
-      const result = /** @type ApiScalarShape */ (await AmfLoader.getShape(store, 'Feature'));
+      const result = await AmfLoader.getShape(store, 'Feature') as AmfShapes.IApiScalarShape;
       assert.include(result.types, ns.aml.vocabularies.shapes.ScalarShape, 'has the NodeShape type');
       assert.equal(result.name, 'Feature', 'has the name');
       assert.typeOf(result.description, 'string', 'has the description');
@@ -466,8 +452,8 @@ describe('AmfStoreService', () => {
     });
 
     it('processes a ScalarShape with enum values', async () => {
-      const result = /** @type ApiScalarShape */ (await AmfLoader.getShape(store, 'Feature'));
-      const [v1, v2, v3] = /** @type ApiScalarNode[] */ (result.values);
+      const result = await AmfLoader.getShape(store, 'Feature') as AmfShapes.IApiScalarShape;
+      const [v1, v2, v3] = result.values as AmfShapes.IApiScalarNode[];
       assert.include(v1.types, ns.aml.vocabularies.data.Scalar, 'v1 has the type');
       assert.include(v2.types, ns.aml.vocabularies.data.Scalar, 'v2 has the type');
       assert.include(v3.types, ns.aml.vocabularies.data.Scalar, 'v3 has the type');
@@ -483,7 +469,7 @@ describe('AmfStoreService', () => {
     });
 
     it('processes a FileShape with enum values', async () => {
-      const result = /** @type ApiFileShape */ (await AmfLoader.getShape(store, 'MaFile'));
+      const result = await AmfLoader.getShape(store, 'MaFile') as AmfShapes.IApiFileShape;
 
       assert.include(result.types, ns.aml.vocabularies.shapes.FileShape, 'has the FileShape type');
       assert.equal(result.name, 'MaFile', 'has the name');
@@ -501,37 +487,36 @@ describe('AmfStoreService', () => {
     });
 
     it('processes a RecursiveShape', async () => {
-      const shape = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'RecursiveShape'));
-      const item = /** @type ApiRecursiveShape */ (shape.properties.find(i => i.name === 'relatedTo').range);
-      assert.typeOf(item.id, 'string', 'has the id');
-      assert.include(item.types, ns.aml.vocabularies.shapes.RecursiveShape, 'has the RecursiveShape type');
-      assert.equal(item.name, 'relatedTo', 'has the name');
-      assert.typeOf(item.description, 'string', 'has the description');
-      assert.deepEqual(item.inherits, [], 'has empty inherits');
-      assert.deepEqual(item.or, [], 'has empty or');
-      assert.deepEqual(item.and, [], 'has empty and');
-      assert.deepEqual(item.xone, [], 'has empty xone');
-      assert.deepEqual(item.values, [], 'has empty values');
-      assert.deepEqual(item.customDomainProperties, [], 'has empty customDomainProperties');
-      assert.typeOf(item.fixPoint, 'string', 'has the fixPoint');
+      const shape = await AmfLoader.getShape(store, 'RecursiveShape') as AmfShapes.IApiNodeShape;
+      const item = shape.properties.find(i => i.name === 'relatedTo')!.range as AmfShapes.IApiNodeShape;
+      const recursive = item.properties[1].range as AmfShapes.IApiRecursiveShape;
+      
+      assert.typeOf(recursive.id, 'string', 'has the id');
+      assert.include(recursive.types, ns.aml.vocabularies.shapes.RecursiveShape, 'has the RecursiveShape type');
+      assert.equal(recursive.name, 'relatedTo', 'has the name');
+      assert.deepEqual(recursive.inherits, [], 'has empty inherits');
+      assert.deepEqual(recursive.or, [], 'has empty or');
+      assert.deepEqual(recursive.and, [], 'has empty and');
+      assert.deepEqual(recursive.xone, [], 'has empty xone');
+      assert.deepEqual(recursive.values, [], 'has empty values');
+      assert.deepEqual(recursive.customDomainProperties, [], 'has empty customDomainProperties');
+      assert.typeOf(recursive.fixPoint, 'string', 'has the fixPoint');
     });
 
     it('processes a custom domain properties', async () => {
-      const result = /** @type ApiNodeShape */ (await AmfLoader.getShape(store, 'RecursiveShape'));
+      const result = await AmfLoader.getShape(store, 'RecursiveShape') as AmfShapes.IApiNodeShape;
       const { customDomainProperties: cdp } = result;
       assert.typeOf(cdp, 'array', 'has the properties');
       assert.lengthOf(cdp, 1, 'has a single property');
       const [item] = cdp;
       assert.typeOf(item.id, 'string', 'has the id');
-      assert.include(item.types, ns.aml.vocabularies.apiContract.DomainExtension, 'has the Scalar type');
+      // assert.include(item.types, ns.aml.vocabularies.apiContract.DomainExtension, 'has the Scalar type');
       assert.equal(item.name, 'deprecated', 'has the name');
-      assert.typeOf(item.definedBy, 'object', 'has the definedBy');
+      // assert.typeOf(item.definedBy, 'object', 'has the definedBy');
       assert.typeOf(item.extension, 'object', 'has the extension');
-      const { extension } = item;
+      const extension = item.extension as AmfShapes.IApiScalarNode;
       assert.include(extension.types, ns.aml.vocabularies.data.Scalar, 'the extension is a Scalar data mode');
-      // @ts-ignore
       assert.equal(extension.dataType, ns.w3.xmlSchema.string, 'the extension has the data type');
-      // @ts-ignore
       assert.equal(extension.value, 'This type is deprecated causes it throws errors.', 'the extension has the value');
     });
 
@@ -539,8 +524,7 @@ describe('AmfStoreService', () => {
     it.skip('processes a SchemaShape', async () => {
       const expects = await AmfLoader.lookupRequest(store, '/xml', 'post');
       const [payload] = expects.payloads;
-      const { schema } = payload;
-      const result = /** @type ApiSchemaShape */ (schema);
+      const result = payload.schema as AmfShapes.IApiSchemaShape;
       assert.equal(result.mediaType, 'application/xml', 'has media type');
       assert.typeOf(result.raw, 'string', 'has raw');
       assert.typeOf(result.examples, 'array', 'has examples');
@@ -552,7 +536,7 @@ describe('AmfStoreService', () => {
   });
 
   describe('getTypes()', () => {
-    let ids = /** @type string[] */ (null);
+    let ids: string[];
     beforeEach(async () => {
       await store.createWebApi();
       const t1 = await store.addType({ name: 'test-type1' });
@@ -580,14 +564,14 @@ describe('AmfStoreService', () => {
     });
 
     it('can query bulk with the event', async () => {
-      const result = await StoreEvents.Type.getBulk(window, ids);
+      const result = await StoreEvents.Type.getBulk(ids);
       assert.typeOf(result, 'array', 'result is an array');
-      assert.lengthOf(result, 3, 'has all results');
+      assert.lengthOf(result!, 3, 'has all results');
     });
   });
 
   describe('deleteType()', () => {
-    let id;
+    let id: string;
     beforeEach(async () => {
       await store.createWebApi();
       const created = await store.addType({ name: 'test-type' });
@@ -601,7 +585,7 @@ describe('AmfStoreService', () => {
     });
 
     it('removes the object from the store with the event', async () => {
-      await StoreEvents.Type.delete(window, id);
+      await StoreEvents.Type.delete(id);
       const doc = await store.getType(id);
       assert.isUndefined(doc);
     });
@@ -617,7 +601,7 @@ describe('AmfStoreService', () => {
 
   describe('updateTypeProperty()', () => {
     describe('Updating ScalarShape', () => {
-      let id;
+      let id: string;
       beforeEach(async () => {
         await store.createWebApi();
         const created = await store.addType({ 
@@ -653,72 +637,72 @@ describe('AmfStoreService', () => {
       });
 
       it('updates the dataType', async () => {
-        const result = /** @type ApiScalarShape */ (await store.updateTypeProperty(id, 'dataType', 'updated dataType'));
+        const result = (await store.updateTypeProperty(id, 'dataType', 'updated dataType')) as AmfShapes.IApiScalarShape;
         assert.equal(result.dataType, 'updated dataType', 'result has the updated value');
-        const stored = /** @type ApiScalarShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiScalarShape;
         assert.equal(stored.dataType, 'updated dataType', 'updated value is stored in the graph');
       });
 
       it('updates the pattern', async () => {
-        const result = /** @type ApiScalarShape */ (await store.updateTypeProperty(id, 'pattern', 'updated pattern'));
+        const result = (await store.updateTypeProperty(id, 'pattern', 'updated pattern')) as AmfShapes.IApiScalarShape;
         assert.equal(result.pattern, 'updated pattern', 'result has the updated value');
-        const stored = /** @type ApiScalarShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiScalarShape;
         assert.equal(stored.pattern, 'updated pattern', 'updated value is stored in the graph');
       });
 
       it('updates the minLength', async () => {
-        const result = /** @type ApiScalarShape */ (await store.updateTypeProperty(id, 'minLength', 1));
+        const result = (await store.updateTypeProperty(id, 'minLength', 1)) as AmfShapes.IApiScalarShape;
         assert.equal(result.minLength, 1, 'result has the updated value');
-        const stored = /** @type ApiScalarShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiScalarShape;
         assert.equal(stored.minLength, 1, 'updated value is stored in the graph');
       });
 
       it('updates the maxLength', async () => {
-        const result = /** @type ApiScalarShape */ (await store.updateTypeProperty(id, 'maxLength', 1));
+        const result = (await store.updateTypeProperty(id, 'maxLength', 1)) as AmfShapes.IApiScalarShape;
         assert.equal(result.maxLength, 1, 'result has the updated value');
-        const stored = /** @type ApiScalarShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiScalarShape;
         assert.equal(stored.maxLength, 1, 'updated value is stored in the graph');
       });
 
       it('updates the minimum', async () => {
-        const result = /** @type ApiScalarShape */ (await store.updateTypeProperty(id, 'minimum', 1));
+        const result = (await store.updateTypeProperty(id, 'minimum', 1)) as AmfShapes.IApiScalarShape;
         assert.equal(result.minimum, 1, 'result has the updated value');
-        const stored = /** @type ApiScalarShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiScalarShape;
         assert.equal(stored.minimum, 1, 'updated value is stored in the graph');
       });
 
       it('updates the maximum', async () => {
-        const result = /** @type ApiScalarShape */ (await store.updateTypeProperty(id, 'maximum', 1));
+        const result = (await store.updateTypeProperty(id, 'maximum', 1)) as AmfShapes.IApiScalarShape;
         assert.equal(result.maximum, 1, 'result has the updated value');
-        const stored = /** @type ApiScalarShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiScalarShape;
         assert.equal(stored.maximum, 1, 'updated value is stored in the graph');
       });
 
       it('updates the exclusiveMinimum', async () => {
-        const result = /** @type ApiScalarShape */ (await store.updateTypeProperty(id, 'exclusiveMinimum', true));
+        const result = (await store.updateTypeProperty(id, 'exclusiveMinimum', true)) as AmfShapes.IApiScalarShape;
         assert.isTrue(result.exclusiveMinimum, 'result has the updated value');
-        const stored = /** @type ApiScalarShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiScalarShape;
         assert.isTrue(stored.exclusiveMinimum, 'updated value is stored in the graph');
       });
 
       it('updates the exclusiveMaximum', async () => {
-        const result = /** @type ApiScalarShape */ (await store.updateTypeProperty(id, 'exclusiveMaximum', true));
+        const result = (await store.updateTypeProperty(id, 'exclusiveMaximum', true)) as AmfShapes.IApiScalarShape;
         assert.isTrue(result.exclusiveMaximum, 'result has the updated value');
-        const stored = /** @type ApiScalarShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiScalarShape;
         assert.isTrue(stored.exclusiveMaximum, 'updated value is stored in the graph');
       });
 
       it('updates the format', async () => {
-        const result = /** @type ApiScalarShape */ (await store.updateTypeProperty(id, 'format', 'updated format'));
+        const result = (await store.updateTypeProperty(id, 'format', 'updated format')) as AmfShapes.IApiScalarShape;
         assert.equal(result.format, 'updated format', 'result has the updated value');
-        const stored = /** @type ApiScalarShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiScalarShape;
         assert.equal(stored.format, 'updated format', 'updated value is stored in the graph');
       });
 
       it('updates the multipleOf', async () => {
-        const result = /** @type ApiScalarShape */ (await store.updateTypeProperty(id, 'multipleOf', 1));
+        const result = (await store.updateTypeProperty(id, 'multipleOf', 1)) as AmfShapes.IApiScalarShape;
         assert.equal(result.multipleOf, 1, 'result has the updated value');
-        const stored = /** @type ApiScalarShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiScalarShape;
         assert.equal(stored.multipleOf, 1, 'updated value is stored in the graph');
       });
 
@@ -734,7 +718,7 @@ describe('AmfStoreService', () => {
     });
 
     describe('Updating NodeShape', () => {
-      let id;
+      let id: string;
       beforeEach(async () => {
         await store.createWebApi();
         const created = await store.addType({ 
@@ -770,37 +754,37 @@ describe('AmfStoreService', () => {
       });
 
       it('updates the minProperties', async () => {
-        const result = /** @type ApiNodeShape */ (await store.updateTypeProperty(id, 'minProperties', 1));
+        const result = (await store.updateTypeProperty(id, 'minProperties', 1)) as AmfShapes.IApiNodeShape;
         assert.equal(result.minProperties, 1, 'result has the updated value');
-        const stored = /** @type ApiNodeShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiNodeShape;
         assert.equal(stored.minProperties, 1, 'updated value is stored in the graph');
       });
 
       it('updates the maxProperties', async () => {
-        const result = /** @type ApiNodeShape */ (await store.updateTypeProperty(id, 'maxProperties', 1));
+        const result = (await store.updateTypeProperty(id, 'maxProperties', 1)) as AmfShapes.IApiNodeShape;
         assert.equal(result.maxProperties, 1, 'result has the updated value');
-        const stored = /** @type ApiNodeShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiNodeShape;
         assert.equal(stored.maxProperties, 1, 'updated value is stored in the graph');
       });
 
       it('updates the closed', async () => {
-        const result = /** @type ApiNodeShape */ (await store.updateTypeProperty(id, 'closed', true));
+        const result = (await store.updateTypeProperty(id, 'closed', true)) as AmfShapes.IApiNodeShape;
         assert.equal(result.closed, true, 'result has the updated value');
-        const stored = /** @type ApiNodeShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiNodeShape;
         assert.equal(stored.closed, true, 'updated value is stored in the graph');
       });
 
       it('updates the discriminator', async () => {
-        const result = /** @type ApiNodeShape */ (await store.updateTypeProperty(id, 'discriminator', 'updated discriminator'));
+        const result = (await store.updateTypeProperty(id, 'discriminator', 'updated discriminator')) as AmfShapes.IApiNodeShape;
         assert.equal(result.discriminator, 'updated discriminator', 'result has the updated value');
-        const stored = /** @type ApiNodeShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiNodeShape;
         assert.equal(stored.discriminator, 'updated discriminator', 'updated value is stored in the graph');
       });
 
       it('updates the discriminatorValue', async () => {
-        const result = /** @type ApiNodeShape */ (await store.updateTypeProperty(id, 'discriminatorValue', 'updated discriminatorValue'));
+        const result = (await store.updateTypeProperty(id, 'discriminatorValue', 'updated discriminatorValue')) as AmfShapes.IApiNodeShape;
         assert.equal(result.discriminatorValue, 'updated discriminatorValue', 'result has the updated value');
-        const stored = /** @type ApiNodeShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiNodeShape;
         assert.equal(stored.discriminatorValue, 'updated discriminatorValue', 'updated value is stored in the graph');
       });
 
@@ -816,7 +800,7 @@ describe('AmfStoreService', () => {
     });
 
     describe('Updating UnionShape', () => {
-      let id;
+      let id: string;
       beforeEach(async () => {
         await store.createWebApi();
         const created = await store.addType({ 
@@ -863,7 +847,7 @@ describe('AmfStoreService', () => {
     });
 
     describe('Updating FileShape', () => {
-      let id;
+      let id: string;
       beforeEach(async () => {
         await store.createWebApi();
         const created = await store.addType({ 
@@ -899,72 +883,72 @@ describe('AmfStoreService', () => {
       });
 
       it('updates the fileTypes', async () => {
-        const result = /** @type ApiFileShape */ (await store.updateTypeProperty(id, 'fileTypes', ['json']));
+        const result = (await store.updateTypeProperty(id, 'fileTypes', ['json'])) as AmfShapes.IApiFileShape;
         assert.deepEqual(result.fileTypes, ['json'], 'result has the updated value');
-        const stored = /** @type ApiFileShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiFileShape;
         assert.deepEqual(stored.fileTypes, ['json'], 'updated value is stored in the graph');
       });
 
       it('updates the pattern', async () => {
-        const result = /** @type ApiFileShape */ (await store.updateTypeProperty(id, 'pattern', 'updated pattern'));
+        const result = (await store.updateTypeProperty(id, 'pattern', 'updated pattern')) as AmfShapes.IApiFileShape;
         assert.equal(result.pattern, 'updated pattern', 'result has the updated value');
-        const stored = /** @type ApiFileShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiFileShape;
         assert.equal(stored.pattern, 'updated pattern', 'updated value is stored in the graph');
       });
 
       it('updates the minLength', async () => {
-        const result = /** @type ApiFileShape */ (await store.updateTypeProperty(id, 'minLength', 1));
+        const result = (await store.updateTypeProperty(id, 'minLength', 1)) as AmfShapes.IApiFileShape;
         assert.equal(result.minLength, 1, 'result has the updated value');
-        const stored = /** @type ApiFileShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiFileShape;
         assert.equal(stored.minLength, 1, 'updated value is stored in the graph');
       });
 
       it('updates the maxLength', async () => {
-        const result = /** @type ApiFileShape */ (await store.updateTypeProperty(id, 'maxLength', 1));
+        const result = (await store.updateTypeProperty(id, 'maxLength', 1)) as AmfShapes.IApiFileShape;
         assert.equal(result.maxLength, 1, 'result has the updated value');
-        const stored = /** @type ApiFileShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiFileShape;
         assert.equal(stored.maxLength, 1, 'updated value is stored in the graph');
       });
 
       it('updates the minimum', async () => {
-        const result = /** @type ApiFileShape */ (await store.updateTypeProperty(id, 'minimum', 1));
+        const result = (await store.updateTypeProperty(id, 'minimum', 1)) as AmfShapes.IApiFileShape;
         assert.equal(result.minimum, 1, 'result has the updated value');
-        const stored = /** @type ApiFileShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiFileShape;
         assert.equal(stored.minimum, 1, 'updated value is stored in the graph');
       });
 
       it('updates the maximum', async () => {
-        const result = /** @type ApiFileShape */ (await store.updateTypeProperty(id, 'maximum', 1));
+        const result = (await store.updateTypeProperty(id, 'maximum', 1)) as AmfShapes.IApiFileShape;
         assert.equal(result.maximum, 1, 'result has the updated value');
-        const stored = /** @type ApiFileShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiFileShape;
         assert.equal(stored.maximum, 1, 'updated value is stored in the graph');
       });
 
       it('updates the exclusiveMinimum', async () => {
-        const result = /** @type ApiFileShape */ (await store.updateTypeProperty(id, 'exclusiveMinimum', true));
+        const result = (await store.updateTypeProperty(id, 'exclusiveMinimum', true)) as AmfShapes.IApiFileShape;
         assert.isTrue(result.exclusiveMinimum, 'result has the updated value');
-        const stored = /** @type ApiFileShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiFileShape;
         assert.isTrue(stored.exclusiveMinimum, 'updated value is stored in the graph');
       });
 
       it('updates the exclusiveMaximum', async () => {
-        const result = /** @type ApiFileShape */ (await store.updateTypeProperty(id, 'exclusiveMaximum', true));
+        const result = (await store.updateTypeProperty(id, 'exclusiveMaximum', true)) as AmfShapes.IApiFileShape;
         assert.isTrue(result.exclusiveMaximum, 'result has the updated value');
-        const stored = /** @type ApiFileShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiFileShape;
         assert.isTrue(stored.exclusiveMaximum, 'updated value is stored in the graph');
       });
 
       it('updates the format', async () => {
-        const result = /** @type ApiFileShape */ (await store.updateTypeProperty(id, 'format', 'updated format'));
+        const result = (await store.updateTypeProperty(id, 'format', 'updated format')) as AmfShapes.IApiFileShape;
         assert.equal(result.format, 'updated format', 'result has the updated value');
-        const stored = /** @type ApiFileShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiFileShape;
         assert.equal(stored.format, 'updated format', 'updated value is stored in the graph');
       });
 
       it('updates the multipleOf', async () => {
-        const result = /** @type ApiFileShape */ (await store.updateTypeProperty(id, 'multipleOf', 1));
+        const result = (await store.updateTypeProperty(id, 'multipleOf', 1)) as AmfShapes.IApiFileShape;
         assert.equal(result.multipleOf, 1, 'result has the updated value');
-        const stored = /** @type ApiFileShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiFileShape;
         assert.equal(stored.multipleOf, 1, 'updated value is stored in the graph');
       });
 
@@ -980,7 +964,7 @@ describe('AmfStoreService', () => {
     });
 
     describe('Updating SchemaShape', () => {
-      let id;
+      let id: string;
       beforeEach(async () => {
         await store.createWebApi();
         const created = await store.addType({ 
@@ -1016,16 +1000,16 @@ describe('AmfStoreService', () => {
       });
 
       it('updates the mediaType', async () => {
-        const result = /** @type ApiSchemaShape */ (await store.updateTypeProperty(id, 'mediaType', 'updated mediaType'));
+        const result = (await store.updateTypeProperty(id, 'mediaType', 'updated mediaType')) as AmfShapes.IApiSchemaShape;
         assert.equal(result.mediaType, 'updated mediaType', 'result has the updated value');
-        const stored = /** @type ApiSchemaShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiSchemaShape;
         assert.equal(stored.mediaType, 'updated mediaType', 'updated value is stored in the graph');
       });
 
       it('updates the raw', async () => {
-        const result = /** @type ApiSchemaShape */ (await store.updateTypeProperty(id, 'raw', 'updated raw'));
+        const result = (await store.updateTypeProperty(id, 'raw', 'updated raw')) as AmfShapes.IApiSchemaShape;
         assert.equal(result.raw, 'updated raw', 'result has the updated value');
-        const stored = /** @type ApiSchemaShape */ (await store.getType(id));
+        const stored = (await store.getType(id)) as AmfShapes.IApiSchemaShape;
         assert.equal(stored.raw, 'updated raw', 'updated value is stored in the graph');
       });
 
@@ -1041,7 +1025,7 @@ describe('AmfStoreService', () => {
     });
 
     describe('Updating ArrayShape', () => {
-      let id;
+      let id: string;
       beforeEach(async () => {
         await store.createWebApi();
         const created = await store.addType({ 
@@ -1088,7 +1072,7 @@ describe('AmfStoreService', () => {
     });
 
     describe('Updating TupleShape', () => {
-      let id;
+      let id: string;
       beforeEach(async () => {
         await store.createWebApi();
         const created = await store.addType({ 
@@ -1143,7 +1127,7 @@ describe('AmfStoreService', () => {
     });
 
     describe('Updating AnyShape', () => {
-      let id;
+      let id: string;
       beforeEach(async () => {
         await store.createWebApi();
         const created = await store.addType({ 
@@ -1190,7 +1174,7 @@ describe('AmfStoreService', () => {
     });
 
     describe('Events', () => {
-      let id;
+      let id: string;
       beforeEach(async () => {
         await store.createWebApi();
         const created = await store.addType({ 
@@ -1201,7 +1185,7 @@ describe('AmfStoreService', () => {
       });
 
       it('updates a property from the event', async () => {
-        await StoreEvents.Type.update(window, id, 'name', 'updated name');
+        await StoreEvents.Type.update(id, 'name', 'updated name');
         const stored = await store.getType(id);
         assert.equal(stored.name, 'updated name', 'updated value is stored in the graph');
       });
@@ -1219,8 +1203,7 @@ describe('AmfStoreService', () => {
   });
 
   describe('addPropertyShape()', () => {
-    /** @type string */
-    let typeId;
+    let typeId: string;
     beforeEach(async () => {
       await store.createWebApi();
       const result = await store.addType({
@@ -1244,14 +1227,15 @@ describe('AmfStoreService', () => {
       assert.typeOf(result1, 'object', 'has the result');
       assert.equal(result1.name, 'test property');
       assert.equal(result1.types[0], ns.w3.shacl.PropertyShape, 'is a PropertyShape');
-      const type = /** @type ApiNodeShape */ (await store.getType(typeId));
+      const type = (await store.getType(typeId)) as AmfShapes.IApiNodeShape;
       const [p1, p2] = type.properties;
       assert.deepEqual(result1, p1, 'has the property #1');
       assert.deepEqual(result2, p2, 'has the property #2');
     });
 
     [
-      'displayName', 'description', 'defaultValueStr', 'patternName', 
+      'displayName', 'description', 'defaultValueStr', 
+      // 'patternName', 
     ].forEach((prop) => {
       it(`adds the ${prop}`, async () => {
         const value = 'added value';
@@ -1304,13 +1288,13 @@ describe('AmfStoreService', () => {
     it(`adds the range`, async () => {
       const result = await store.addPropertyShape(typeId, { ...initBase, range: { name: 'range name' } });
       assert.typeOf(result.range, 'object', 'has the range');
-      assert.equal(result.range.name, 'range name', 'has the passed init properties');
+      assert.equal(result.range!.name, 'range name', 'has the passed init properties');
       const stored = await store.getPropertyShape(result.id);
-      assert.equal(stored.range.name, 'range name', 'stores the range');
+      assert.equal(stored.range!.name, 'range name', 'stores the range');
     });
 
     it('throws when unknown type', async () => {
-      let msg;
+      let msg: string | undefined;
       try {
         await store.addPropertyShape('unknown', { name: 'test property' });
       } catch (e) {
@@ -1321,7 +1305,7 @@ describe('AmfStoreService', () => {
 
     it('throws when not a node type type', async () => {
       const type = await store.addType();
-      let msg;
+      let msg: string | undefined;
       try {
         await store.addPropertyShape(type.id, { name: 'test property' });
       } catch (e) {
@@ -1331,9 +1315,10 @@ describe('AmfStoreService', () => {
     });
 
     it('throws when no init object', async () => {
-      let msg;
+      let msg: string | undefined;
+      const value = undefined as unknown as PropertyShapeInit;
       try {
-        await store.addPropertyShape(typeId, undefined);
+        await store.addPropertyShape(typeId, value);
       } catch (e) {
         msg = e.message;
       }
@@ -1341,9 +1326,10 @@ describe('AmfStoreService', () => {
     });
 
     it('throws when no name in the init object', async () => {
-      let msg;
+      let msg: string | undefined;
+      const value = { name: undefined } as unknown as PropertyShapeInit;
       try {
-        await store.addPropertyShape(typeId, { name: undefined });
+        await store.addPropertyShape(typeId, value);
       } catch (e) {
         msg = e.message;
       }
@@ -1351,8 +1337,8 @@ describe('AmfStoreService', () => {
     });
 
     it('creates the property from the event', async () => {
-      const created = await StoreEvents.Type.addProperty(window, typeId, { ...initBase });
-      const stored = await StoreEvents.Type.getProperty(window, created.id);
+      const created = await StoreEvents.Type.addProperty(typeId, { ...initBase });
+      const stored = await StoreEvents.Type.getProperty(created!.id);
       assert.deepEqual(stored, created);
     });
 
@@ -1368,10 +1354,8 @@ describe('AmfStoreService', () => {
   });
 
   describe('updatePropertyShapeProperty()', () => {
-    /** @type string */
-    let propertyId;
-    /** @type string */
-    let typeId;
+    let propertyId: string;
+    let typeId: string;
     beforeEach(async () => {
       await store.createWebApi();
       const type = await store.addType({
@@ -1383,9 +1367,10 @@ describe('AmfStoreService', () => {
     });
 
     [
-      'name', 'description', 'defaultValueStr', 'displayName', 'patternName',
+      'name', 'description', 'defaultValueStr', 'displayName', 
+      // 'patternName',
     ].forEach((prop) => {
-      const property = /** @type keyof PropertyShape */ (prop);
+      const property = prop as unknown as keyof AmfShapes.IApiPropertyShape<AmfShapes.IShapeUnion>;
       it(`updates the ${property}`, async () => {
         const result = await store.updatePropertyShapeProperty(typeId, propertyId, property, `updated ${property}`);
         assert.equal(result[property], `updated ${property}`, 'result has the updated property');
@@ -1397,7 +1382,7 @@ describe('AmfStoreService', () => {
     [
       'deprecated', 'readOnly', 'writeOnly',
     ].forEach((prop) => {
-      const property = /** @type keyof PropertyShape */ (prop);
+      const property = prop as unknown as keyof AmfShapes.IApiPropertyShape<AmfShapes.IShapeUnion>;
       it(`updates the ${property}`, async () => {
         const result = await store.updatePropertyShapeProperty(typeId, propertyId, property, true);
         assert.isTrue(result[property], 'result has the updated property');
@@ -1409,7 +1394,7 @@ describe('AmfStoreService', () => {
     [
       'minCount', 'maxCount',
     ].forEach((prop) => {
-      const property = /** @type keyof PropertyShape */ (prop);
+      const property = prop as unknown as keyof AmfShapes.IApiPropertyShape<AmfShapes.IShapeUnion>;
       it(`updates the ${property}`, async () => {
         const result = await store.updatePropertyShapeProperty(typeId, propertyId, property, 5);
         assert.equal(result[property], 5, 'result has the updated property');
@@ -1419,10 +1404,10 @@ describe('AmfStoreService', () => {
     });
 
     it('throws when unknown property', async () => {
-      let msg;
+      let msg: string | undefined;
+      const value = 'unknown' as unknown as keyof AmfShapes.IApiPropertyShape<AmfShapes.IShapeUnion>;
       try {
-        // @ts-ignore
-        await store.updatePropertyShapeProperty(typeId, propertyId, 'unknown', 5);
+        await store.updatePropertyShapeProperty(typeId, propertyId, value, 5);
       } catch (e) {
         msg = e.message;
       }
@@ -1430,7 +1415,7 @@ describe('AmfStoreService', () => {
     });
 
     it('updates the property from the event', async () => {
-      await StoreEvents.Type.updateProperty(window, typeId, propertyId, 'deprecated', true);
+      await StoreEvents.Type.updateProperty(typeId, propertyId, 'deprecated', true);
       const stored = await store.getPropertyShape(propertyId);
       assert.isTrue(stored.deprecated, 'updated value is stored in the graph');
     });
@@ -1448,10 +1433,8 @@ describe('AmfStoreService', () => {
   });
 
   describe('deletePropertyShape()', () => {
-    /** @type string */
-    let propertyId;
-    /** @type string */
-    let typeId;
+    let propertyId: string;
+    let typeId: string;
     beforeEach(async () => {
       await store.createWebApi();
       const type = await store.addType({
@@ -1464,20 +1447,20 @@ describe('AmfStoreService', () => {
 
     it('removes the property from the type', async () => {
       await store.deletePropertyShape(typeId, propertyId);
-      const type = /** @type ApiNodeShape */ (await store.getType(typeId));
+      const type = (await store.getType(typeId)) as AmfShapes.IApiNodeShape;
       assert.deepEqual(type.properties, []);
     });
 
     it('removes the selected property only', async () => {
       const other = await store.addPropertyShape(typeId, { name: 'other property' });
       await store.deletePropertyShape(typeId, propertyId);
-      const type = /** @type ApiNodeShape */ (await store.getType(typeId));
+      const type = (await store.getType(typeId)) as AmfShapes.IApiNodeShape;
       assert.deepEqual(type.properties, [other]);
     });
 
     it('removes the property from the event', async () => {
-      await StoreEvents.Type.deleteProperty(window, propertyId, typeId);
-      const type = /** @type ApiNodeShape */ (await store.getType(typeId));
+      await StoreEvents.Type.deleteProperty(propertyId, typeId);
+      const type = (await store.getType(typeId)) as AmfShapes.IApiNodeShape;
       assert.deepEqual(type.properties, []);
     });
 

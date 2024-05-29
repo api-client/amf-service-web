@@ -16,19 +16,6 @@ export const SecurityEvents = {
     target.dispatchEvent(e);
     return e.detail.result;
   },
-  /**
-   * Reads a Security definition from the store and returns the full (recursive) model.
-   * Note, do not use this method to read the definition of a security scheme applied to an endpoint or operation.
-   * For that use `getRequirement()` instead.
-   * 
-   * @param target The node on which to dispatch the event
-   * @param id The id of the Payload to read.
-   */
-  getRecursive: async (id: string, target: EventTarget = window): Promise<ApiDefinitions.IApiSecurityScheme | undefined> => {
-    const e = new ApiStoreReadEvent(EventTypes.Security.getRecursive, id);
-    target.dispatchEvent(e);
-    return e.detail.result;
-  },
 
   /**
    * Reads a security requirement for an endpoint or operation.
@@ -38,18 +25,6 @@ export const SecurityEvents = {
    */
   getRequirement: async (id: string, target: EventTarget = window): Promise<ApiDefinitions.IApiSecurityRequirement | undefined> => {
     const e = new ApiStoreReadEvent(EventTypes.Security.getRequirement, id);
-    target.dispatchEvent(e);
-    return e.detail.result;
-  },
-
-  /**
-   * Reads a security requirement for an endpoint or operation and returns the full (recursive) model.
-   * 
-   * @param target The node on which to dispatch the event
-   * @param id The id of the Payload to read.
-   */
-  getRequirementRecursive: async (id: string, target: EventTarget = window): Promise<ApiDefinitions.IApiSecurityRequirement | undefined> => {
-    const e = new ApiStoreReadEvent(EventTypes.Security.getRequirementRecursive, id);
     target.dispatchEvent(e);
     return e.detail.result;
   },

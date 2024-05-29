@@ -8,7 +8,9 @@ const filteredLogs = ["Running in dev mode", "Lit is in dev mode"];
 export default /** @type TestRunnerConfig */ ({
   nodeResolve: true,
   files: [
-    'test/**/*.browser.test.ts'
+    'test/**/*.browser.test.ts',
+    // 'test/store/ApiExample.browser.test.ts',
+    // 'test/tree-builder/EndpointsTree.browser.test.ts',
   ],
 
   /** Filter out lit dev mode logs */

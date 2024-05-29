@@ -1,20 +1,14 @@
 import { assert, oneEvent } from '@open-wc/testing';
-// import { AmfLoader } from '../helpers/AmfLoader.js';
-import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.index.js';
+import { AmfNamespace as ns } from "@api-client/core/build/esm/browser.js";
+import { WebWorkerService, StoreEvents, StoreEventTypes } from '../../src/worker.index.js';
 import { AmfLoader } from '../helpers/AmfLoader.js';
+import createTestService from '../helpers/web-service.js';
+import type { OperationRequestInit } from '../../src/types.js';
 
-/** @typedef {import('../../').ApiEndPointListItem} ApiEndPointListItem */
-/** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
-/** @typedef {import('../..').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('../..').ApiNodeShape} ApiNodeShape */
-/** @typedef {import('../..').ApiFileShape} ApiFileShape */
-/** @typedef {import('../..').ApiSchemaShape} ApiSchemaShape */
-/** @typedef {import('../..').ApiTupleShape} ApiTupleShape */
-
-describe('AmfStoreService', () => {
-  let store = /** @type AmfStoreService */ (null);
+describe('WebWorkerService', () => {
+  let store: WebWorkerService;
   before(async () => {
-    store = new AmfStoreService();
+    store = createTestService();
     await store.init();
   });
 
@@ -23,14 +17,14 @@ describe('AmfStoreService', () => {
   });
 
   describe('getOperation()', () => {
-    let id = /** @type string */ (null);
+    let id: string;
     const path = '/test';
 
     beforeEach(async () => {
       await store.createWebApi();
       const ep = await store.addEndpoint({ path });
       const op = await store.addOperation(ep.id, { 
-        method: 'get',
+        method: 'post',
         accepts: ['application/json'],
         contentType: ['application/xml'],
         deprecated: true,
@@ -39,16 +33,34 @@ describe('AmfStoreService', () => {
         schemes: ['HTTPS'],
         summary: 'op summary',
       });
+      const request = await store.addRequest(op.id, {
+        description: 'test request',
+        headers: ['h1', 'h2'],
+        queryParameters: ['q1', 'q2'],
+        cookieParameters: ['c1', 'c2'],
+        payloads: ['application/json'],
+      });
+      await store.addPayloadExample(request.payloads[0].id, {
+        name: 'payload example',
+        description: 'test request payload',
+        value: 'test'
+      });
+      const response = await store.addResponse(op.id, {
+        name: 'success',
+        headers: ['h1', 'h2'],
+        statusCode: '200',
+        payloads: ['application/json'],
+      });
+      await store.addPayloadExample(response.payloads[0].id, {
+        name: 'payload example 2',
+        description: 'test response payload',
+        value: 'test'
+      });
       id = op.id;
     });
 
-    it('returns an object for the id parameter', async () => {
+    it('returns an object', async () => {
       const result = await store.getOperation(id);
-      assert.typeOf(result, 'object');
-    });
-
-    it('returns an object for the path and method parameter', async () => {
-      const result = await store.getOperation('get', '/test');
       assert.typeOf(result, 'object');
     });
 
@@ -59,7 +71,7 @@ describe('AmfStoreService', () => {
 
     it('has the method', async () => {
       const result = await store.getOperation(id);
-      assert.equal(result.method, 'get');
+      assert.equal(result.method, 'post');
     });
 
     it('has the accepts', async () => {
@@ -102,62 +114,8 @@ describe('AmfStoreService', () => {
       assert.typeOf(result.types, 'array');
     });
 
-    it('reads the object from the event', async () => {
-      const result = await StoreEvents.Operation.get(window, id);
-      assert.equal(result.id, id);
-    });
-  });
-
-  describe('getOperationRecursive()', () => {
-    let id = /** @type string */ (null);
-    const path = '/test';
-
-    beforeEach(async () => {
-      await store.createWebApi();
-      const ep = await store.addEndpoint({ path });
-      const op = await store.addOperation(ep.id, { 
-        method: 'post',
-        accepts: ['application/json'],
-        contentType: ['application/xml'],
-        deprecated: true,
-        description: 'test op description',
-        name: 'test name',
-        schemes: ['HTTPS'],
-        summary: 'op summary',
-      });
-      const request = await store.addRequest(op.id, {
-        description: 'test request',
-        headers: ['h1', 'h2'],
-        queryParameters: ['q1', 'q2'],
-        cookieParameters: ['c1', 'c2'],
-        payloads: ['application/json'],
-      });
-      await store.addPayloadExample(request.payloads[0], {
-        name: 'payload example',
-        description: 'test request payload',
-        value: 'test'
-      });
-      const response = await store.addResponse(op.id, {
-        name: 'success',
-        headers: ['h1', 'h2'],
-        statusCode: '200',
-        payloads: ['application/json'],
-      });
-      await store.addPayloadExample(response.payloads[0], {
-        name: 'payload example 2',
-        description: 'test response payload',
-        value: 'test'
-      });
-      id = op.id;
-    });
-
-    it('returns an object', async () => {
-      const result = await store.getOperationRecursive(id);
-      assert.typeOf(result, 'object');
-    });
-
-    it('has the responses recursive', async () => {
-      const result = await store.getOperationRecursive(id);
+    it('has the response', async () => {
+      const result = await store.getOperation(id);
       const { responses } = result;
       assert.typeOf(responses, 'array', 'responses is an array');
       assert.lengthOf(responses, 1, 'has single response');
@@ -178,10 +136,10 @@ describe('AmfStoreService', () => {
     });
 
     it('has the request recursive', async () => {
-      const result = await store.getOperationRecursive(id);
+      const result = await store.getOperation(id);
       const { request } = result;
       assert.typeOf(request, 'object', 'request is an object');
-      const { headers, payloads, queryParameters, cookieParameters,  } = request;
+      const { headers, payloads, queryParameters, cookieParameters,  } = request!;
       
       assert.typeOf(headers, 'array', 'headers is an array');
       assert.lengthOf(headers, 2, 'has all headers');
@@ -208,15 +166,15 @@ describe('AmfStoreService', () => {
     });
 
     it('can be read via the event', async () => {
-      const result = await StoreEvents.Operation.getRecursive(window, id);
-      const { request } = result;
+      const result = await StoreEvents.Operation.get(id);
+      const { request } = result!;
       assert.typeOf(request, 'object', 'has the recursive values')
     });
   });
 
   describe('getOperationParent()', () => {
-    let id = /** @type string */ (null);
-    let epId = /** @type string */ (null);
+    let id: string;
+    let epId: string;
     const path = '/test';
 
     beforeEach(async () => {
@@ -238,30 +196,30 @@ describe('AmfStoreService', () => {
     it('returns an endpoint', async () => {
       const result = await store.getOperationParent(id);
       assert.typeOf(result, 'object', 'is the object');
-      const [type] = result.types;
+      const [type] = result!.types;
       assert.equal(type, ns.aml.vocabularies.apiContract.EndPoint);
     });
 
     it('returns operation parent', async () => {
       const result = await store.getOperationParent(id);
-      assert.equal(result.id, epId, 'has the id of the created endpoint');
+      assert.equal(result!.id, epId, 'has the id of the created endpoint');
     });
 
     it('parent has the operation as child', async () => {
       const result = await store.getOperationParent(id);
-      assert.include(result.operations, id);
+      assert.include(result!.operations.map(i => i.id), id);
     });
 
     it('reads the parent via the event', async () => {
-      const result = await StoreEvents.Operation.getParent(window, id);
+      const result = await StoreEvents.Operation.getParent(id);
       assert.typeOf(result, 'object', 'is the object');
-      const [type] = result.types;
+      const [type] = result!.types;
       assert.equal(type, ns.aml.vocabularies.apiContract.EndPoint);
     });
   });
 
   describe('updateOperationProperty()', () => {
-    let id = /** @type string */ (null);
+    let id: string;
     const path = '/test';
 
     beforeEach(async () => {
@@ -326,7 +284,7 @@ describe('AmfStoreService', () => {
     });
 
     it('updates the object from the event', async () => {
-      await StoreEvents.Operation.update(window, id, 'method', 'post');
+      await StoreEvents.Operation.update(id, 'method', 'post');
       const result = await store.getOperation(id);
       assert.equal(result.method, 'post');
     });
@@ -343,7 +301,7 @@ describe('AmfStoreService', () => {
   });
 
   describe('addResponse()', () => {
-    let opId = /** @type string */ (null);
+    let opId: string;
     const path = '/test';
 
     const init = { name: 'A name' };
@@ -367,7 +325,7 @@ describe('AmfStoreService', () => {
     it('adds the response to the operation responses list', async () => {
       const response = await store.addResponse(opId, init);
       const operation = await store.getOperation(opId);
-      assert.deepEqual(operation.responses, [response.id]);
+      assert.equal(operation.responses[0].id, response.id);
     });
 
     it('adds the name property', async () => {
@@ -388,8 +346,8 @@ describe('AmfStoreService', () => {
     it('adds the headers', async () => {
       const response = await store.addResponse(opId, { ...init, headers: ['h1', 'h2'] });
       assert.lengthOf(response.headers, 2, 'has both headers');
-      const [id] = response.headers;
-      const param = await store.getParameter(id);
+      const [header] = response.headers;
+      const param = await store.getParameter(header.id);
       assert.equal(param.name, 'h1', 'header has the name');
       assert.equal(param.binding, 'header', 'header has the binding');
     });
@@ -397,19 +355,19 @@ describe('AmfStoreService', () => {
     it('adds the payloads', async () => {
       const response = await store.addResponse(opId, { ...init, payloads: ['application/json', 'application/xml'] });
       assert.lengthOf(response.payloads, 2, 'has both payloads');
-      const [id] = response.payloads;
-      const param = await store.getPayload(id);
+      const [payload] = response.payloads;
+      const param = await store.getPayload(payload.id);
       assert.equal(param.mediaType, 'application/json', 'payload has the mediaType');
     });
 
     it('adds the response via the event', async () => {
-      const response = await StoreEvents.Operation.addResponse(window, opId, { ...init });
+      const response = await StoreEvents.Operation.addResponse(opId, { ...init });
       const operation = await store.getOperation(opId);
-      assert.deepEqual(operation.responses, [response.id]);
+      assert.equal(operation.responses[0].id, response!.id);
     });
 
     it('dispatches the response created event', async () => {
-      StoreEvents.Operation.addResponse(window, opId, { ...init });
+      StoreEvents.Operation.addResponse(opId, { ...init });
       const e = await oneEvent(window, StoreEventTypes.Response.State.created);
       const record = e.detail;
       assert.typeOf(record.graphId, 'string', 'has the created id');
@@ -420,8 +378,8 @@ describe('AmfStoreService', () => {
   });
 
   describe('deleteResponse()', () => {
-    let opId = /** @type string */ (null);
-    let responseId = /** @type string */ (null);
+    let opId: string;
+    let responseId: string;
     
     beforeEach(async () => {
       await store.createWebApi();
@@ -449,13 +407,13 @@ describe('AmfStoreService', () => {
     });
 
     it('deletes the response via the event', async () => {
-      await StoreEvents.Operation.removeResponse(window, responseId, opId);
+      await StoreEvents.Operation.removeResponse(responseId, opId);
       const operation = await store.getOperation(opId);
       assert.deepEqual(operation.responses, []);
     });
 
     it('dispatches the delete event', async () => {
-      StoreEvents.Operation.removeResponse(window, responseId, opId);
+      StoreEvents.Operation.removeResponse(responseId, opId);
       const e = await oneEvent(window, StoreEventTypes.Response.State.deleted);
       const record = e.detail;
       assert.equal(record.graphId, responseId, 'has the response id');
@@ -465,8 +423,8 @@ describe('AmfStoreService', () => {
   });
 
   describe('addRequest()', () => {
-    let opId = /** @type string */ (null);
-    const init = { };
+    let opId: string;
+    const init: OperationRequestInit = { };
 
     beforeEach(async () => {
       await store.createWebApi();
@@ -487,7 +445,7 @@ describe('AmfStoreService', () => {
     it('adds the request to the operation definition', async () => {
       const request = await store.addRequest(opId, init);
       const operation = await store.getOperation(opId);
-      assert.deepEqual(operation.request, request.id);
+      assert.equal(operation.request!.id, request.id);
     });
 
     it('adds the description property', async () => {
@@ -503,8 +461,8 @@ describe('AmfStoreService', () => {
     it('adds the headers', async () => {
       const request = await store.addRequest(opId, { ...init, headers: ['h1', 'h2'] });
       assert.lengthOf(request.headers, 2, 'has both headers');
-      const [id] = request.headers;
-      const param = await store.getParameter(id);
+      const [header] = request.headers;
+      const param = await store.getParameter(header.id);
       assert.equal(param.name, 'h1', 'header has the name');
       assert.equal(param.binding, 'header', 'header has the binding');
     });
@@ -512,46 +470,46 @@ describe('AmfStoreService', () => {
     it('adds the payloads', async () => {
       const request = await store.addRequest(opId, { ...init, payloads: ['application/json', 'application/xml'] });
       assert.lengthOf(request.payloads, 2, 'has both payloads');
-      const [id] = request.payloads;
-      const param = await store.getPayload(id);
+      const [payload] = request.payloads;
+      const param = await store.getPayload(payload.id);
       assert.equal(param.mediaType, 'application/json', 'payload has the mediaType');
     });
 
     it('adds the queryParameters', async () => {
-      const request = await store.addRequest(opId, { ...init, queryParameters: ['a', 'b'] });
+      const request = await store.addRequest(opId, { ...init, queryParameters: ['a1', 'b1'] });
       assert.lengthOf(request.queryParameters, 2, 'has all created query parameters');
-      const [id] = request.queryParameters;
-      const param = await store.getParameter(id);
-      assert.equal(param.name, 'a', 'query parameters has the name');
+      const [qp] = request.queryParameters;
+      const param = await store.getParameter(qp.id);
+      assert.equal(param.name, 'a1', 'query parameters has the name');
       assert.equal(param.binding, 'query', 'query parameters has the binding');
     });
 
     it('adds the uriParameters', async () => {
-      const request = await store.addRequest(opId, { ...init, uriParameters: ['c', 'd'] });
+      const request = await store.addRequest(opId, { ...init, uriParameters: ['c1', 'd1'] });
       assert.lengthOf(request.uriParameters, 2, 'has all created query parameters');
-      const [id] = request.uriParameters;
-      const param = await store.getParameter(id);
-      assert.equal(param.name, 'c', 'query parameters has the name');
+      const [up] = request.uriParameters;
+      const param = await store.getParameter(up.id);
+      assert.equal(param.name, 'c1', 'query parameters has the name');
       assert.equal(param.binding, 'url', 'query parameters has the binding');
     });
 
     it('adds the cookieParameters', async () => {
-      const request = await store.addRequest(opId, { ...init, cookieParameters: ['e', 'f'] });
+      const request = await store.addRequest(opId, { ...init, cookieParameters: ['e1', 'f1'] });
       assert.lengthOf(request.cookieParameters, 2, 'has all created query parameters');
-      const [id] = request.cookieParameters;
-      const param = await store.getParameter(id);
-      assert.equal(param.name, 'e', 'query parameters has the name');
+      const [cp] = request.cookieParameters;
+      const param = await store.getParameter(cp.id);
+      assert.equal(param.name, 'e1', 'query parameters has the name');
       assert.equal(param.binding, 'cookie', 'query parameters has the binding');
     });
 
     it('adds the request via the event', async () => {
-      const request = await StoreEvents.Operation.addRequest(window, opId, { ...init });
+      const request = await StoreEvents.Operation.addRequest(opId, { ...init });
       const operation = await store.getOperation(opId);
-      assert.deepEqual(operation.request, request.id);
+      assert.equal(operation.request!.id, request!.id);
     });
 
     it('dispatches the request created event', async () => {
-      StoreEvents.Operation.addRequest(window, opId, { ...init });
+      StoreEvents.Operation.addRequest(opId, { ...init });
       const e = await oneEvent(window, StoreEventTypes.Request.State.created);
       const record = e.detail;
       assert.typeOf(record.graphId, 'string', 'has the created id');
@@ -562,8 +520,8 @@ describe('AmfStoreService', () => {
   });
 
   describe('deleteRequest()', () => {
-    let opId = /** @type string */ (null);
-    let requestId = /** @type string */ (null);
+    let opId: string;
+    let requestId: string;
     
     beforeEach(async () => {
       await store.createWebApi();
@@ -591,13 +549,13 @@ describe('AmfStoreService', () => {
     });
 
     it('deletes the response via the event', async () => {
-      await StoreEvents.Operation.removeRequest(window, requestId, opId);
+      await StoreEvents.Operation.removeRequest(requestId, opId);
       const operation = await store.getOperation(opId);
       assert.isUndefined(operation.request);
     });
 
     it('dispatches the delete event', async () => {
-      StoreEvents.Operation.removeRequest(window, requestId, opId);
+      StoreEvents.Operation.removeRequest(requestId, opId);
       const e = await oneEvent(window, StoreEventTypes.Request.State.deleted);
       const record = e.detail;
       assert.equal(record.graphId, requestId, 'has the request id');
@@ -617,14 +575,14 @@ describe('AmfStoreService', () => {
         const result = await store.getOperation('get', '/people/{personId}');
         assert.ok(result, 'has operation defined in the resource type');
         assert.typeOf(result.responses, 'array', 'has a single response defined in a resource type');
-        const responses = await store.getResponses(result.responses);
+        const responses = await store.getResponses(result.responses.map(i => i.id));
         const rsp = responses.find(i => i.statusCode === '404');
         assert.ok(rsp, 'has the resource type applied');
       });
 
       it('applies a RAML trait', async () => {
         const result = await store.getOperation('get', '/people');
-        const request = await store.getRequestRecursive(result.request);
+        const request = await store.getRequest(result!.request!.id);
         const limitParam = request.queryParameters.find(i => i.name === 'limit');
         assert.ok(limitParam, 'has a query parameter defined in a trait');
       });

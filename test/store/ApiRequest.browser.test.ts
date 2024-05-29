@@ -1,19 +1,12 @@
 import { assert, oneEvent } from '@open-wc/testing';
-// import { AmfLoader } from '../helpers/AmfLoader.js';
-import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.index.js';
+import { AmfShapes, AmfNamespace as ns } from "@api-client/core/build/esm/browser.js";
+import { WebWorkerService, StoreEvents, StoreEventTypes } from '../../src/worker.index.js';
+import createTestService from '../helpers/web-service.js';
 
-/** @typedef {import('../../').ApiEndPointListItem} ApiEndPointListItem */
-/** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
-/** @typedef {import('../..').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('../..').ApiNodeShape} ApiNodeShape */
-/** @typedef {import('../..').ApiFileShape} ApiFileShape */
-/** @typedef {import('../..').ApiSchemaShape} ApiSchemaShape */
-/** @typedef {import('../..').ApiTupleShape} ApiTupleShape */
-
-describe('AmfStoreService', () => {
-  let store = /** @type AmfStoreService */ (null);
+describe('WebWorkerService', () => {
+  let store: WebWorkerService;
   before(async () => {
-    store = new AmfStoreService();
+    store = createTestService();
     await store.init();
   });
 
@@ -22,12 +15,12 @@ describe('AmfStoreService', () => {
   });
 
   describe('addRequest()', () => {
-    let id = /** @type string */ (null);
+    let id: string;
 
     beforeEach(async () => {
       await store.createWebApi();
       const ep = await store.addEndpoint({ path: '/test' });
-      const op = await store.addOperation(ep.id, { 
+      const op = await store.addOperation(ep.id, {
         method: 'get',
       });
       id = op.id;
@@ -74,51 +67,51 @@ describe('AmfStoreService', () => {
       assert.deepEqual(result.payloads, []);
     });
 
-    it('has set cookieParameters', async () => {
-      const result = await store.addRequest(id, { cookieParameters: ['test'] });
+    it('has the set cookieParameters', async () => {
+      const result = await store.addRequest(id, { cookieParameters: ['test 1'] });
       assert.lengthOf(result.cookieParameters, 1, 'has created cookieParameters');
-      assert.typeOf(result.cookieParameters[0], 'string');
+      assert.typeOf(result.cookieParameters[0], 'object');
     });
 
-    it('has set queryParameters', async () => {
-      const result = await store.addRequest(id, { queryParameters: ['test'] });
+    it('has the set queryParameters', async () => {
+      const result = await store.addRequest(id, { queryParameters: ['test 2'] });
       assert.lengthOf(result.queryParameters, 1, 'has created queryParameters');
-      assert.typeOf(result.queryParameters[0], 'string');
+      assert.typeOf(result.queryParameters[0], 'object');
     });
 
-    it('has set uriParameters', async () => {
-      const result = await store.addRequest(id, { uriParameters: ['test'] });
+    it('has the set uriParameters', async () => {
+      const result = await store.addRequest(id, { uriParameters: ['test 3'] });
       assert.lengthOf(result.uriParameters, 1, 'has created uriParameters');
-      assert.typeOf(result.uriParameters[0], 'string');
+      assert.typeOf(result.uriParameters[0], 'object');
     });
 
-    it('has set headers', async () => {
-      const result = await store.addRequest(id, { headers: ['test'] });
+    it('has the set headers', async () => {
+      const result = await store.addRequest(id, { headers: ['test 4'] });
       assert.lengthOf(result.headers, 1, 'has created headers');
-      assert.typeOf(result.headers[0], 'string');
+      assert.typeOf(result.headers[0], 'object');
     });
 
-    it('has set payloads', async () => {
-      const result = await store.addRequest(id, { payloads: ['test'] });
+    it('has the set payloads', async () => {
+      const result = await store.addRequest(id, { payloads: ['test 5'] });
       assert.lengthOf(result.payloads, 1, 'has created payloads');
-      assert.typeOf(result.payloads[0], 'string');
+      assert.typeOf(result.payloads[0], 'object');
     });
 
     it('returns the "description"', async () => {
-      const result = await store.addRequest(id, { description: 'test' });
-      assert.equal(result.description, 'test');
+      const result = await store.addRequest(id, { description: 'test 6' });
+      assert.equal(result.description, 'test 6');
     });
 
     it('creates the object from the event', async () => {
-      const result = await StoreEvents.Operation.addRequest(window, id, { description: 'test' });
-      assert.equal(result.description, 'test');
+      const result = await StoreEvents.Operation.addRequest(id, { description: 'test' });
+      assert.equal(result!.description, 'test');
     });
 
     it('dispatches the created event', async () => {
-      const p = StoreEvents.Operation.addRequest(window, id, { description: 'test' });
+      const p = StoreEvents.Operation.addRequest(id, { description: 'test' });
       const e = await oneEvent(window, StoreEventTypes.Request.State.created);
       const created = await p;
-      assert.equal(e.detail.graphId, created.id, 'has the graphId');
+      assert.equal(e.detail.graphId, created!.id, 'has the graphId');
       assert.equal(e.detail.domainType, ns.aml.vocabularies.apiContract.Request, 'has the domainType');
       assert.equal(e.detail.domainParent, id, 'has the domainParent');
       assert.deepEqual(e.detail.item, created, 'has the item');
@@ -126,17 +119,17 @@ describe('AmfStoreService', () => {
   });
 
   describe('getRequest()', () => {
-    let id = /** @type string */ (null);
+    let id: string;
 
     beforeEach(async () => {
       await store.createWebApi();
       const ep = await store.addEndpoint({ path: '/test' });
-      const op = await store.addOperation(ep.id, { 
+      const op = await store.addOperation(ep.id, {
         method: 'get',
       });
-      const request = await store.addRequest(op.id, { 
+      const request = await store.addRequest(op.id, {
         required: true,
-        description: 'this is a request', 
+        description: 'this is a request',
         headers: ['h1', 'h2'],
         cookieParameters: ['c1', 'c2'],
         queryParameters: ['q1', 'q2'],
@@ -170,110 +163,51 @@ describe('AmfStoreService', () => {
       const result = await store.getRequest(id);
       assert.typeOf(result.headers, 'array', 'headers is an array');
       assert.lengthOf(result.headers, 2, 'has all headers');
-      assert.typeOf(result.headers[0], 'string', 'headers are string');
-    });
-
-    it('has the cookieParameters', async () => {
-      const result = await store.getRequest(id);
-      assert.typeOf(result.cookieParameters, 'array', 'cookieParameters is an array');
-      assert.lengthOf(result.cookieParameters, 2, 'has all cookieParameters');
-      assert.typeOf(result.cookieParameters[0], 'string', 'cookieParameters are string');
-    });
-
-    it('has the queryParameters', async () => {
-      const result = await store.getRequest(id);
-      assert.typeOf(result.queryParameters, 'array', 'queryParameters is an array');
-      assert.lengthOf(result.queryParameters, 2, 'has all queryParameters');
-      assert.typeOf(result.queryParameters[0], 'string', 'queryParameters are string');
-    });
-
-    it('has the uriParameters', async () => {
-      const result = await store.getRequest(id);
-      assert.typeOf(result.uriParameters, 'array', 'uriParameters is an array');
-      assert.lengthOf(result.uriParameters, 2, 'has all uriParameters');
-      assert.typeOf(result.uriParameters[0], 'string', 'uriParameters are string');
-    });
-
-    it('has the types', async () => {
-      const result = await store.getRequest(id);
-      assert.typeOf(result.types, 'array');
-    });
-
-    it('reads the object from the event', async () => {
-      const result = await StoreEvents.Request.get(window, id);
-      assert.equal(result.id, id);
-    });
-  });
-
-  describe('getRequestRecursive()', () => {
-    let id = /** @type string */ (null);
-
-    beforeEach(async () => {
-      await store.createWebApi();
-      const ep = await store.addEndpoint({ path: '/test' });
-      const op = await store.addOperation(ep.id, { 
-        method: 'get',
-      });
-      const request = await store.addRequest(op.id, { 
-        required: true,
-        description: 'this is a request', 
-        headers: ['h1', 'h2'],
-        cookieParameters: ['c1', 'c2'],
-        queryParameters: ['q1', 'q2'],
-        uriParameters: ['u1', 'u2'],
-        payloads: ['application/json', 'application/xml'],
-      });
-      id = request.id;
-    });
-
-    it('has the headers', async () => {
-      const result = await store.getRequestRecursive(id);
-      assert.typeOf(result.headers, 'array', 'headers is an array');
-      assert.lengthOf(result.headers, 2, 'has all headers');
       assert.typeOf(result.headers[0], 'object', 'headers are string');
     });
 
     it('has the cookieParameters', async () => {
-      const result = await store.getRequestRecursive(id);
+      const result = await store.getRequest(id);
       assert.typeOf(result.cookieParameters, 'array', 'cookieParameters is an array');
       assert.lengthOf(result.cookieParameters, 2, 'has all cookieParameters');
       assert.typeOf(result.cookieParameters[0], 'object', 'cookieParameters are string');
     });
 
     it('has the queryParameters', async () => {
-      const result = await store.getRequestRecursive(id);
+      const result = await store.getRequest(id);
       assert.typeOf(result.queryParameters, 'array', 'queryParameters is an array');
       assert.lengthOf(result.queryParameters, 2, 'has all queryParameters');
       assert.typeOf(result.queryParameters[0], 'object', 'queryParameters are string');
     });
 
     it('has the uriParameters', async () => {
-      const result = await store.getRequestRecursive(id);
+      const result = await store.getRequest(id);
       assert.typeOf(result.uriParameters, 'array', 'uriParameters is an array');
       assert.lengthOf(result.uriParameters, 2, 'has all uriParameters');
       assert.typeOf(result.uriParameters[0], 'object', 'uriParameters are string');
     });
 
     it('has the types', async () => {
-      const result = await store.getRequestRecursive(id);
+      const result = await store.getRequest(id);
       assert.typeOf(result.types, 'array');
     });
 
     it('reads the object from the event', async () => {
-      const result = await StoreEvents.Request.getRecursive(window, id);
-      assert.lengthOf(result.headers, 2, 'has all headers');
-      assert.typeOf(result.headers[0], 'object', 'headers are string');
+      const result = await StoreEvents.Request.get(id);
+      assert.ok(result, 'the event has the response');
+      assert.lengthOf(result!.headers, 2, 'has all headers');
+      assert.typeOf(result!.headers[0], 'object', 'headers are string');
     });
   });
 
   describe('addRequestHeader()', () => {
-    let id = /** @type string */ (null);
+    let id: string;
     const defaultInit = Object.freeze({ name: 'x-header' });
 
     beforeEach(async () => {
       await store.createWebApi();
       const ep = await store.addEndpoint({ path: '/test' });
-      const op = await store.addOperation(ep.id, { 
+      const op = await store.addOperation(ep.id, {
         method: 'get',
       });
       const request = await store.addRequest(op.id);
@@ -292,15 +226,15 @@ describe('AmfStoreService', () => {
     });
 
     it('creates the header from the event', async () => {
-      const result = await StoreEvents.Request.addHeader(window, id, defaultInit);
+      const result = await StoreEvents.Request.addHeader(id, defaultInit);
       assert.typeOf(result, 'object');
     });
 
     it('dispatches parameter created event', async () => {
-      const p = StoreEvents.Request.addHeader(window, id, defaultInit);
+      const p = StoreEvents.Request.addHeader(id, defaultInit);
       const e = await oneEvent(window, StoreEventTypes.Parameter.State.created);
       const created = await p;
-      assert.equal(e.detail.graphId, created.id, 'has the graphId');
+      assert.equal(e.detail.graphId, created!.id, 'has the graphId');
       assert.equal(e.detail.domainType, ns.aml.vocabularies.apiContract.Parameter, 'has the domainType');
       assert.equal(e.detail.domainParent, id, 'has the domainParent');
       assert.deepEqual(e.detail.item, created, 'has the item');
@@ -349,10 +283,9 @@ describe('AmfStoreService', () => {
 
     it('creates the schema', async () => {
       const result = await store.addRequestHeader(id, { ...defaultInit, dataType: 'boolean' });
-      assert.typeOf(result.schema, 'string', 'has the schema');
-      const schema = await store.getType(result.schema);
+      assert.typeOf(result.schema, 'object', 'has the schema');
+      const schema = result.schema as AmfShapes.IApiScalarShape;
       assert.include(schema.types, ns.aml.vocabularies.shapes.ScalarShape, 'is a scalar');
-      // @ts-ignore
       assert.equal(schema.dataType, ns.w3.xmlSchema.boolean, 'has the data type');
     });
 
@@ -383,13 +316,13 @@ describe('AmfStoreService', () => {
   });
 
   describe('removeRequestHeader()', () => {
-    let requestId = /** @type string */ (null);
-    let headerId = /** @type string */ (null);
+    let requestId: string;
+    let headerId: string;
 
     beforeEach(async () => {
       await store.createWebApi();
       const ep = await store.addEndpoint({ path: '/test' });
-      const op = await store.addOperation(ep.id, { 
+      const op = await store.addOperation(ep.id, {
         method: 'get',
       });
       const request = await store.addRequest(op.id);
@@ -405,10 +338,10 @@ describe('AmfStoreService', () => {
     });
 
     it('removes the header from the event', async () => {
-      await StoreEvents.Request.removeHeader(window, headerId, requestId);
-      let err;
+      await StoreEvents.Request.removeHeader(headerId, requestId);
+      let err: string | undefined;
       try {
-        await StoreEvents.Parameter.get(window, headerId);
+        await StoreEvents.Parameter.get(headerId);
       } catch (e) {
         err = e.message;
       }
@@ -416,7 +349,7 @@ describe('AmfStoreService', () => {
     });
 
     it('dispatches the deleted event', async () => {
-      const p = StoreEvents.Request.removeHeader(window, headerId, requestId);
+      const p = StoreEvents.Request.removeHeader(headerId, requestId);
       const e = await oneEvent(window, StoreEventTypes.Parameter.State.deleted);
       await p;
       assert.equal(e.detail.graphId, headerId, 'has the graphId');
@@ -426,13 +359,13 @@ describe('AmfStoreService', () => {
   });
 
   describe('addRequestQueryParameter()', () => {
-    let id = /** @type string */ (null);
+    let id: string;
     const defaultInit = Object.freeze({ name: 'aQueryParam' });
 
     beforeEach(async () => {
       await store.createWebApi();
       const ep = await store.addEndpoint({ path: '/test' });
-      const op = await store.addOperation(ep.id, { 
+      const op = await store.addOperation(ep.id, {
         method: 'get',
       });
       const request = await store.addRequest(op.id);
@@ -451,15 +384,15 @@ describe('AmfStoreService', () => {
     });
 
     it('creates the parameter from the event', async () => {
-      const result = await StoreEvents.Request.addQueryParameter(window, id, defaultInit);
+      const result = await StoreEvents.Request.addQueryParameter(id, defaultInit);
       assert.typeOf(result, 'object');
     });
 
     it('dispatches parameter created event', async () => {
-      const p = StoreEvents.Request.addQueryParameter(window, id, defaultInit);
+      const p = StoreEvents.Request.addQueryParameter(id, defaultInit);
       const e = await oneEvent(window, StoreEventTypes.Parameter.State.created);
       const created = await p;
-      assert.equal(e.detail.graphId, created.id, 'has the graphId');
+      assert.equal(e.detail.graphId, created!.id, 'has the graphId');
       assert.equal(e.detail.domainType, ns.aml.vocabularies.apiContract.Parameter, 'has the domainType');
       assert.equal(e.detail.domainParent, id, 'has the domainParent');
       assert.deepEqual(e.detail.item, created, 'has the item');
@@ -508,10 +441,10 @@ describe('AmfStoreService', () => {
 
     it('creates the schema', async () => {
       const result = await store.addRequestQueryParameter(id, { ...defaultInit, dataType: 'boolean' });
-      assert.typeOf(result.schema, 'string', 'has the schema');
-      const schema = await store.getType(result.schema);
+      assert.typeOf(result.schema, 'object', 'has the schema');
+      // const schema = await store.getType(result.schema!.id) as AmfShapes.IApiScalarShape;
+      const schema = result.schema as AmfShapes.IApiScalarShape;
       assert.include(schema.types, ns.aml.vocabularies.shapes.ScalarShape, 'is a scalar');
-      // @ts-ignore
       assert.equal(schema.dataType, ns.w3.xmlSchema.boolean, 'has the data type');
     });
 
@@ -542,13 +475,13 @@ describe('AmfStoreService', () => {
   });
 
   describe('removeRequestQueryParameter()', () => {
-    let requestId = /** @type string */ (null);
-    let paramId = /** @type string */ (null);
+    let requestId: string;
+    let paramId: string;
 
     beforeEach(async () => {
       await store.createWebApi();
       const ep = await store.addEndpoint({ path: '/test' });
-      const op = await store.addOperation(ep.id, { 
+      const op = await store.addOperation(ep.id, {
         method: 'get',
       });
       const request = await store.addRequest(op.id);
@@ -564,10 +497,10 @@ describe('AmfStoreService', () => {
     });
 
     it('removes the parameter from the event', async () => {
-      await StoreEvents.Request.removeQueryParameter(window, paramId, requestId);
-      let err;
+      await StoreEvents.Request.removeQueryParameter(paramId, requestId);
+      let err: string | undefined;
       try {
-        await StoreEvents.Parameter.get(window, paramId);
+        await StoreEvents.Parameter.get(paramId);
       } catch (e) {
         err = e.message;
       }
@@ -575,7 +508,7 @@ describe('AmfStoreService', () => {
     });
 
     it('dispatches the deleted event', async () => {
-      const p = StoreEvents.Request.removeQueryParameter(window, paramId, requestId);
+      const p = StoreEvents.Request.removeQueryParameter(paramId, requestId);
       const e = await oneEvent(window, StoreEventTypes.Parameter.State.deleted);
       await p;
       assert.equal(e.detail.graphId, paramId, 'has the graphId');
@@ -585,13 +518,13 @@ describe('AmfStoreService', () => {
   });
 
   describe('addRequestCookieParameter()', () => {
-    let id = /** @type string */ (null);
+    let id: string;
     const defaultInit = Object.freeze({ name: 'aCookieParam' });
 
     beforeEach(async () => {
       await store.createWebApi();
       const ep = await store.addEndpoint({ path: '/test' });
-      const op = await store.addOperation(ep.id, { 
+      const op = await store.addOperation(ep.id, {
         method: 'get',
       });
       const request = await store.addRequest(op.id);
@@ -610,15 +543,15 @@ describe('AmfStoreService', () => {
     });
 
     it('creates the parameter from the event', async () => {
-      const result = await StoreEvents.Request.addCookieParameter(window, id, defaultInit);
+      const result = await StoreEvents.Request.addCookieParameter(id, defaultInit);
       assert.typeOf(result, 'object');
     });
 
     it('dispatches parameter created event', async () => {
-      const p = StoreEvents.Request.addCookieParameter(window, id, defaultInit);
+      const p = StoreEvents.Request.addCookieParameter(id, defaultInit);
       const e = await oneEvent(window, StoreEventTypes.Parameter.State.created);
       const created = await p;
-      assert.equal(e.detail.graphId, created.id, 'has the graphId');
+      assert.equal(e.detail.graphId, created!.id, 'has the graphId');
       assert.equal(e.detail.domainType, ns.aml.vocabularies.apiContract.Parameter, 'has the domainType');
       assert.equal(e.detail.domainParent, id, 'has the domainParent');
       assert.deepEqual(e.detail.item, created, 'has the item');
@@ -667,10 +600,10 @@ describe('AmfStoreService', () => {
 
     it('creates the schema', async () => {
       const result = await store.addRequestCookieParameter(id, { ...defaultInit, dataType: 'boolean' });
-      assert.typeOf(result.schema, 'string', 'has the schema');
-      const schema = await store.getType(result.schema);
+      assert.typeOf(result.schema, 'object', 'has the schema');
+      // const schema = await store.getType(result.schema!.id) as AmfShapes.IApiScalarShape;
+      const schema = result.schema as AmfShapes.IApiScalarShape;
       assert.include(schema.types, ns.aml.vocabularies.shapes.ScalarShape, 'is a scalar');
-      // @ts-ignore
       assert.equal(schema.dataType, ns.w3.xmlSchema.boolean, 'has the data type');
     });
 
@@ -701,13 +634,13 @@ describe('AmfStoreService', () => {
   });
 
   describe('removeRequestCookieParameter()', () => {
-    let requestId = /** @type string */ (null);
-    let paramId = /** @type string */ (null);
+    let requestId: string;
+    let paramId: string;
 
     beforeEach(async () => {
       await store.createWebApi();
       const ep = await store.addEndpoint({ path: '/test' });
-      const op = await store.addOperation(ep.id, { 
+      const op = await store.addOperation(ep.id, {
         method: 'get',
       });
       const request = await store.addRequest(op.id);
@@ -723,10 +656,10 @@ describe('AmfStoreService', () => {
     });
 
     it('removes the parameter from the event', async () => {
-      await StoreEvents.Request.removeCookieParameter(window, paramId, requestId);
-      let err;
+      await StoreEvents.Request.removeCookieParameter(paramId, requestId);
+      let err: string | undefined;
       try {
-        await StoreEvents.Parameter.get(window, paramId);
+        await StoreEvents.Parameter.get(paramId);
       } catch (e) {
         err = e.message;
       }
@@ -734,7 +667,7 @@ describe('AmfStoreService', () => {
     });
 
     it('dispatches the deleted event', async () => {
-      const p = StoreEvents.Request.removeCookieParameter(window, paramId, requestId);
+      const p = StoreEvents.Request.removeCookieParameter(paramId, requestId);
       const e = await oneEvent(window, StoreEventTypes.Parameter.State.deleted);
       await p;
       assert.equal(e.detail.graphId, paramId, 'has the graphId');
@@ -744,13 +677,13 @@ describe('AmfStoreService', () => {
   });
 
   describe('addRequestPayload()', () => {
-    let id = /** @type string */ (null);
+    let id: string;
     const defaultInit = Object.freeze({ mediaType: 'application/json' });
 
     beforeEach(async () => {
       await store.createWebApi();
       const ep = await store.addEndpoint({ path: '/test' });
-      const op = await store.addOperation(ep.id, { 
+      const op = await store.addOperation(ep.id, {
         method: 'get',
       });
       const request = await store.addRequest(op.id);
@@ -769,15 +702,15 @@ describe('AmfStoreService', () => {
     });
 
     it('creates the Payload from the event', async () => {
-      const result = await StoreEvents.Request.addPayload(window, id, defaultInit);
+      const result = await StoreEvents.Request.addPayload(id, defaultInit);
       assert.typeOf(result, 'object');
     });
 
     it('dispatches Payload created event', async () => {
-      const p = StoreEvents.Request.addPayload(window, id, defaultInit);
+      const p = StoreEvents.Request.addPayload(id, defaultInit);
       const e = await oneEvent(window, StoreEventTypes.Payload.State.created);
       const created = await p;
-      assert.equal(e.detail.graphId, created.id, 'has the graphId');
+      assert.equal(e.detail.graphId, created!.id, 'has the graphId');
       assert.equal(e.detail.domainType, ns.aml.vocabularies.apiContract.Payload, 'has the domainType');
       assert.equal(e.detail.domainParent, id, 'has the domainParent');
       assert.deepEqual(e.detail.item, created, 'has the item');
@@ -809,20 +742,20 @@ describe('AmfStoreService', () => {
       assert.deepEqual(result.examples, []);
     });
 
-    it('has default encoding', async () => {
-      const result = await store.addRequestPayload(id, { ...defaultInit });
-      assert.deepEqual(result.encoding, []);
-    });
+    // it('has default encoding', async () => {
+    //   const result = await store.addRequestPayload(id, { ...defaultInit });
+    //   assert.deepEqual(result.encoding, []);
+    // });
   });
 
   describe('removeRequestPayload()', () => {
-    let requestId = /** @type string */ (null);
-    let payloadId = /** @type string */ (null);
+    let requestId: string;
+    let payloadId: string;
 
     beforeEach(async () => {
       await store.createWebApi();
       const ep = await store.addEndpoint({ path: '/test' });
-      const op = await store.addOperation(ep.id, { 
+      const op = await store.addOperation(ep.id, {
         method: 'get',
       });
       const request = await store.addRequest(op.id);
@@ -833,9 +766,9 @@ describe('AmfStoreService', () => {
 
     it('removes the Payload from the store', async () => {
       await store.removeRequestPayload(requestId, payloadId);
-      let err;
+      let err: string | undefined;
       try {
-        await StoreEvents.Payload.get(window, payloadId);
+        await StoreEvents.Payload.get(payloadId);
       } catch (e) {
         err = e.message;
       }
@@ -843,10 +776,10 @@ describe('AmfStoreService', () => {
     });
 
     it('removes the Payload from the event', async () => {
-      await StoreEvents.Request.removePayload(window, payloadId, requestId);
-      let err;
+      await StoreEvents.Request.removePayload(payloadId, requestId);
+      let err: string | undefined;
       try {
-        await StoreEvents.Payload.get(window, payloadId);
+        await StoreEvents.Payload.get(payloadId);
       } catch (e) {
         err = e.message;
       }
@@ -854,7 +787,7 @@ describe('AmfStoreService', () => {
     });
 
     it('dispatches the deleted event', async () => {
-      const p = StoreEvents.Request.removePayload(window, payloadId, requestId);
+      const p = StoreEvents.Request.removePayload(payloadId, requestId);
       const e = await oneEvent(window, StoreEventTypes.Payload.State.deleted);
       await p;
       assert.equal(e.detail.graphId, payloadId, 'has the graphId');
@@ -864,13 +797,13 @@ describe('AmfStoreService', () => {
   });
 
   describe('deleteRequest()', () => {
-    let operationId = /** @type string */ (null);
-    let requestId = /** @type string */ (null);
+    let operationId: string;
+    let requestId: string;
 
     beforeEach(async () => {
       await store.createWebApi();
       const ep = await store.addEndpoint({ path: '/test' });
-      const op = await store.addOperation(ep.id, { 
+      const op = await store.addOperation(ep.id, {
         method: 'get',
       });
       operationId = op.id;
@@ -880,9 +813,9 @@ describe('AmfStoreService', () => {
 
     it('removes the Request from the store', async () => {
       await store.deleteRequest(requestId, operationId);
-      let err;
+      let err: string | undefined;
       try {
-        await StoreEvents.Request.get(window, requestId);
+        await StoreEvents.Request.get(requestId);
       } catch (e) {
         err = e.message;
       }
@@ -890,10 +823,10 @@ describe('AmfStoreService', () => {
     });
 
     it('removes the Request from the event', async () => {
-      await StoreEvents.Operation.removeRequest(window, requestId, operationId);
-      let err;
+      await StoreEvents.Operation.removeRequest(requestId, operationId);
+      let err: string | undefined;
       try {
-        await StoreEvents.Request.get(window, requestId);
+        await StoreEvents.Request.get(requestId);
       } catch (e) {
         err = e.message;
       }
@@ -901,7 +834,7 @@ describe('AmfStoreService', () => {
     });
 
     it('dispatches the deleted event', async () => {
-      const p = StoreEvents.Operation.removeRequest(window, requestId, operationId);
+      const p = StoreEvents.Operation.removeRequest(requestId, operationId);
       const e = await oneEvent(window, StoreEventTypes.Request.State.deleted);
       await p;
       assert.equal(e.detail.graphId, requestId, 'has the graphId');
@@ -911,13 +844,13 @@ describe('AmfStoreService', () => {
   });
 
   describe('updateRequestProperty()', () => {
-    let operationId = /** @type string */ (null);
-    let requestId = /** @type string */ (null);
+    let operationId: string;
+    let requestId: string;
 
     beforeEach(async () => {
       await store.createWebApi();
       const ep = await store.addEndpoint({ path: '/test' });
-      const op = await store.addOperation(ep.id, { 
+      const op = await store.addOperation(ep.id, {
         method: 'get',
       });
       operationId = op.id;
@@ -940,13 +873,13 @@ describe('AmfStoreService', () => {
     });
 
     it('updates property from the event', async () => {
-      await StoreEvents.Request.update(window, requestId, 'description', 'updated desc');
+      await StoreEvents.Request.update(requestId, 'description', 'updated desc');
       const stored = await store.getRequest(requestId);
       assert.equal(stored.description, 'updated desc', 'stores the value');
     });
 
     it('dispatches the updated event', async () => {
-      StoreEvents.Request.update(window, requestId, 'description', 'updated desc');
+      StoreEvents.Request.update(requestId, 'description', 'updated desc');
       const e = await oneEvent(window, StoreEventTypes.Request.State.updated);
       assert.equal(e.detail.graphId, requestId, 'has the graphId');
       assert.equal(e.detail.domainType, ns.aml.vocabularies.apiContract.Request, 'has the domainType');

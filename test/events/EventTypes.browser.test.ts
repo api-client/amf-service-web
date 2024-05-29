@@ -1,5 +1,4 @@
 import { assert } from '@open-wc/testing';
-// import { StoreEvents, StoreEventTypes } from  '../../worker.index.js';
 import { EventTypes as StoreEventTypes } from '../../src/events/EventTypes.js';
 import { ensureUnique } from '../helpers/EventHelper.js';
 
@@ -134,7 +133,6 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistoreopget'],
-      ['getRecursive', 'apistoreopgetrecursive'],
       ['update', 'apistoreopupdate'],
       ['addRequest', 'apistoreopaddrequest'],
       ['removeRequest', 'apistoreopremoverequest'],
@@ -193,9 +191,7 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistoreparamget'],
-      ['getRecursive', 'apistoreparamgetrecursive'],
       ['getBulk', 'apistoreparamgetbulk'],
-      ['getBulkRecursive', 'apistoreparamgetbulkrecursive'],
       ['update', 'apistoreparamupdate'],
       ['addExample', 'apistoreparamupdateaddexample'],
       ['removeExample', 'apistoreparamupdateremoveexample'],
@@ -305,9 +301,7 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistorepayloadget'],
-      ['getRecursive', 'apistorepayloadgetrecursive'],
       ['getBulk', 'apistorepayloadgetbulk'],
-      ['getBulkRecursive', 'apistorepayloadgetbulkrecursive'],
       ['update', 'apistorepayloadupdate'],
       ['addExample', 'apistorepayloadaddexample'],
       ['removeExample', 'apistorepayloadremoveexample'],
@@ -363,7 +357,6 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistorerequestget'],
-      ['getRecursive', 'apistorerequestgetrecursive'],
       ['update', 'apistorerequestupdate'],
       ['addPayload', 'apistorerequestaddpayload'],
       ['removePayload', 'apistorerequestremovepayload'],
@@ -425,9 +418,7 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistoreresponseget'],
-      ['getRecursive', 'apistoreresponsegetrecursive'],
       ['getBulk', 'apistoreresponsegetbulk'],
-      ['getBulkRecursive', 'apistoreresponsegetbulkrecursive'],
       ['update', 'apistoreresponseupdate'],
       ['addHeader', 'apistoreresponseaddheader'],
       ['removeHeader', 'apistoreresponseremoveheader'],
@@ -541,9 +532,7 @@ describe('StoreEventTypes', () => {
 
     [
       ['get', 'apistoresecurityget'],
-      ['getRecursive', 'apistoresecuritygetrecursive'],
       ['getRequirement', 'apistoresecuritygetrequirement'],
-      ['getRequirementRecursive', 'apistoresecuritygetrequirementrecursive'],
       ['getSettings', 'apistoresecuritygetsettings'],
       ['list', 'apistoresecuritylist'],
     ].forEach(([prop, value]) => {

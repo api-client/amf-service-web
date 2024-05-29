@@ -1,14 +1,13 @@
 import { assert, oneEvent } from '@open-wc/testing';
 import { AmfLoader } from '../helpers/AmfLoader.js';
-import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.index.js';
+import { AmfNamespace as ns } from "@api-client/core/build/esm/browser.js";
+import { WebWorkerService, StoreEvents, StoreEventTypes } from '../../src/worker.index.js';
+import createTestService from '../helpers/web-service.js';
 
-/** @typedef {import('../../').ApiEndPointListItem} ApiEndPointListItem */
-/** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
-
-describe('AmfStoreService', () => {
-  let store = /** @type AmfStoreService */ (null);
+describe('WebWorkerService', () => {
+  let store: WebWorkerService;
   before(async () => {
-    store = new AmfStoreService();
+    store = createTestService();
     await store.init();
   });
 
@@ -90,9 +89,9 @@ describe('AmfStoreService', () => {
     it('creates documentation from the event', async () => {
       const title = 'A documentation';
       const url = 'https://test';
-      const result = await StoreEvents.Documentation.add(window, { title, url });
-      assert.equal(result.url, url, 'has the URL');
-      assert.equal(result.title, title, 'has the title');
+      const result = await StoreEvents.Documentation.add({ title, url });
+      assert.equal(result!.url, url, 'has the URL');
+      assert.equal(result!.title, title, 'has the title');
     });
   });
 
@@ -115,32 +114,32 @@ describe('AmfStoreService', () => {
 
     it('has the id', async () => {
       const result = await store.getDocumentation(id);
-      assert.equal(result.id, id);
+      assert.equal(result!.id, id);
     });
 
     it('has the title', async () => {
       const result = await store.getDocumentation(id);
-      assert.equal(result.title, title);
+      assert.equal(result!.title, title);
     });
 
     it('has the url', async () => {
       const result = await store.getDocumentation(id);
-      assert.equal(result.url, url);
+      assert.equal(result!.url, url);
     });
 
     it('has the description', async () => {
       const result = await store.getDocumentation(id);
-      assert.equal(result.description, description);
+      assert.equal(result!.description, description);
     });
 
     it('has the types', async () => {
       const result = await store.getDocumentation(id);
-      assert.typeOf(result.types, 'array');
+      assert.typeOf(result!.types, 'array');
     });
 
     it('reads the object from the event', async () => {
-      const result = await StoreEvents.Documentation.get(window, id);
-      assert.equal(result.id, id);
+      const result = await StoreEvents.Documentation.get(id);
+      assert.equal(result!.id, id);
     });
   });
 
@@ -172,9 +171,9 @@ describe('AmfStoreService', () => {
     });
 
     it('updates the value from the event', async () => {
-      await StoreEvents.Documentation.update(window, id, 'url', 'https://updated');
+      await StoreEvents.Documentation.update(id, 'url', 'https://updated');
       const result = await store.getDocumentation(id);
-      assert.equal(result.url, 'https://updated');
+      assert.equal(result!.url, 'https://updated');
     });
 
     it('dispatches the change event', async () => {
@@ -207,7 +206,7 @@ describe('AmfStoreService', () => {
     });
 
     it('removes the object from the store with the event', async () => {
-      await StoreEvents.Documentation.delete(window, id);
+      await StoreEvents.Documentation.delete(id);
       const doc = await store.getDocumentation(id);
       assert.isUndefined(doc);
     });

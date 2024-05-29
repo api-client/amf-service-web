@@ -405,7 +405,10 @@ export class ApiSerializer {
     if (target.isLink) {
       target = object.linkTarget as AMF.Request;
     }
-    const { id, required, description, queryString, headers, queryParameters, payloads, uriParameters, cookieParameters } = target;
+    const { 
+      id, required, description, queryString, headers, 
+      payloads, queryParameters, uriParameters, cookieParameters 
+    } = target;
     const types = target.graph().types();
     const result: ApiDefinitions.IApiRequest = {
       id,
@@ -673,7 +676,7 @@ export class ApiSerializer {
     const { 
       id, method, deprecated, callbacks, responses, servers, security,
       name, description, summary, request, documentation, accepts, schemes, contentType,
-      operationId, tags, extendsNode
+      operationId, tags, extendsNode,
     } = target;
     const result: ApiDefinitions.IApiOperation = {
       id,

@@ -1,6 +1,6 @@
 import { html, TemplateResult } from 'lit';
 import { DemoPage } from './lib/DemoPage.js';
-import { AmfStoreService } from '../src/worker.index.js';
+import { WebWorkerService } from '../src/worker.index.js';
 import { ApiSorting } from '../src/lib/ApiSorting.js';
 import { EndpointsTree } from '../src/lib/EndpointsTree.js';
 import { ApiSearch } from '../src/lib/ApiSearch.js';
@@ -11,7 +11,7 @@ class ComponentPage extends DemoPage {
   loaded: boolean;
   initialized: boolean;
   latestOutput: string;
-  store: AmfStoreService;
+  store: WebWorkerService;
 
   constructor() {
     super();
@@ -20,7 +20,7 @@ class ComponentPage extends DemoPage {
     this.initialized = false;
     this.latestOutput = "";
     const persistance = new DemoPersistance('demo.page');
-    this.store = new AmfStoreService(persistance, undefined, {
+    this.store = new WebWorkerService(persistance, undefined, {
       workerLocation: new URL('../build/workers/AmfWorker.js', import.meta.url).toString()
     });
     this.componentName = "AmfStoreProxy";
@@ -131,7 +131,7 @@ class ComponentPage extends DemoPage {
     }
     const pathInput = document.getElementById("operationEndpointIdOrPath") as HTMLInputElement;
     const path = pathInput.value.trim();
-    const result = await this.store.getOperationRecursive(id, path);
+    const result = await this.store.getOperation(id, path);
     this.log(result);
   }
 

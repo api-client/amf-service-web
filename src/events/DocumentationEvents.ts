@@ -22,7 +22,7 @@ export const DocumentationEvents = {
    * @param target The node on which to dispatch the event
    * @param init The initialization properties
    */
-  add: async (init: DocumentationInit, target: EventTarget = window): Promise<ApiDefinitions.IApiDocumentation[] | undefined> => {
+  add: async (init: DocumentationInit, target: EventTarget = window): Promise<ApiDefinitions.IApiDocumentation | undefined> => {
     const e = new ApiStoreCreateEvent(EventTypes.Documentation.add, init);
     target.dispatchEvent(e);
     return e.detail.result;
@@ -32,7 +32,7 @@ export const DocumentationEvents = {
    * @param target The node on which to dispatch the event
    * @param id The id of the document to read.
    */
-  get: async (id: string, target: EventTarget = window): Promise<ApiDefinitions.IApiDocumentation[] | undefined> => {
+  get: async (id: string, target: EventTarget = window): Promise<ApiDefinitions.IApiDocumentation | undefined> => {
     const e = new ApiStoreReadEvent(EventTypes.Documentation.get, id);
     target.dispatchEvent(e);
     return e.detail.result;

@@ -1,25 +1,22 @@
 import { assert, fixture, html } from '@open-wc/testing';
 import { AmfLoader } from '../helpers/AmfLoader.js';
-import { AmfStoreService, StoreEvents } from '../../worker.index.js';
-import { workerValue, sendMessage } from '../../src/AmfStoreProxy.js';
-import { optionsValue } from '../../src/AmfStoreService.js';
+import { WebWorkerService, StoreEvents } from '../../src/worker.index.js';
+import { workerValue, sendMessage } from '../../src/service/AmfStoreProxy.js';
+import { optionsValue } from '../../src/service/WebWorkerService.js';
+import { TestPersistance } from '../helpers/TestPersistance.js';
+import { WorkerMessage } from '../../src/types.js';
+import createTestService, { getAmfWorkerLocation } from '../helpers/web-service.js';
 
-/** @typedef {import('../../').ApiEndPointListItem} ApiEndPointListItem */
-/** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
-
-describe('AmfStoreService', () => {
-  /**
-   * @return {Promise<HTMLDivElement>}
-   */
-  async function etFixture() {
+describe('WebWorkerService', () => {
+  async function etFixture(): Promise<HTMLDivElement> {
     return fixture(html`<div></div>`);
   }
 
   describe('#worker', () => {
-    let store = /** @type AmfStoreService */ (null);
+    let store: WebWorkerService;
 
     before(() => {
-      store = new AmfStoreService();
+      store = createTestService();
     });
 
     after(() => {
@@ -42,13 +39,13 @@ describe('AmfStoreService', () => {
   });
 
   describe('#options', () => {
-    let store = /** @type AmfStoreService */ (null);
+    let store: WebWorkerService;
 
     it('has the set options', () => {
       const opts = {
         amfLocation: 'test',
       };
-      store = new AmfStoreService(window, opts);
+      store = new WebWorkerService(new TestPersistance('id'), opts);
       assert.isTrue(store.options === opts);
     });
 
@@ -56,39 +53,40 @@ describe('AmfStoreService', () => {
       const opts = {
         amfLocation: 'test',
       };
-      store = new AmfStoreService(window, opts);
+      store = new WebWorkerService(new TestPersistance('id'), opts);
       assert.isTrue(store[optionsValue] === opts);
     });
   });
 
   describe('#eventsTarget', () => {
-    let store = /** @type AmfStoreService */ (null);
+    let store: WebWorkerService;
 
     it('sets the default events target', () => {
-      store = new AmfStoreService();
+      store = createTestService();;
       assert.isTrue(store.eventsTarget === window);
     });
 
     it('sets the passed events target', () => {
-      store = new AmfStoreService(document.body);
+      store = new WebWorkerService(new TestPersistance('id'), {
+        eventsTarget: document.body,
+        workerLocation: getAmfWorkerLocation(),
+      });
       assert.isTrue(store.eventsTarget === document.body);
     });
   });
 
   describe('worker initialization', () => {
-    let store = /** @type AmfStoreService */ (null);
+    let store: WebWorkerService;
     afterEach(() => {
-      // @ts-ignore
-      window.AmfService = undefined;
       store.worker.terminate();
     });
 
     it('uses the createWebWorker() init option', async () => {
       let called = false;
-      store = new AmfStoreService(window, {
+      store = new WebWorkerService(new TestPersistance('id'), {
         createWebWorker: () => {
           called = true;
-          return new Worker('./test/store/MockWorker.js');
+          return new Worker('./test/store/MockWorker.ts');
         }
       });
       await store.init();
@@ -96,34 +94,23 @@ describe('AmfStoreService', () => {
     });
 
     it('uses the #workerLocation init option', async () => {
-      store = new AmfStoreService(window, { workerLocation: './test/store/MockWorker.js' });
-      const result = await store[sendMessage]('test-command', 'a', 'b', 'c');
-      assert.equal(result.type, 'test-command');
-      assert.deepEqual(result.arguments, [ 'a', 'b', 'c' ]);
-    });
-
-    it('uses the window.AmfService configuration', async () => {
-      // @ts-ignore
-      window.AmfService = {
-        workers: {
-          workerStore: './test/store/MockWorker.js',
-        },
-      };
-      store = new AmfStoreService();
-      const result = await store[sendMessage]('test-command', 'a', 'b', 'c');
+      store = new WebWorkerService(new TestPersistance('id'), { workerLocation: './test/store/MockWorker.ts' });
+      const result = await store[sendMessage]('test-command', 'a', 'b', 'c') as WorkerMessage;
       assert.equal(result.type, 'test-command');
       assert.deepEqual(result.arguments, [ 'a', 'b', 'c' ]);
     });
   });
 
   describe('init()', () => {
-    let store = /** @type AmfStoreService */ (null);
-    /** @type EventTarget */
-    let et;
+    let store: WebWorkerService;
+    let et: EventTarget;
 
     before(async () => {
       et = await etFixture();
-      store = new AmfStoreService(et);
+      store = new WebWorkerService(new TestPersistance('id'), {
+        eventsTarget: et,
+        workerLocation: getAmfWorkerLocation(),
+      });
     });
 
     after(() => {
@@ -144,13 +131,15 @@ describe('AmfStoreService', () => {
   });
 
   describe('loadGraph()', () => {
-    let store = /** @type AmfStoreService */ (null);
-    /** @type EventTarget */
-    let et;
+    let store: WebWorkerService;
+    let et: EventTarget;
 
     before(async () => {
       et = await etFixture();
-      store = new AmfStoreService(et);
+      store = new WebWorkerService(new TestPersistance('id'), {
+        eventsTarget: et,
+        workerLocation: getAmfWorkerLocation(),
+      });
       await store.init();
     });
 
@@ -175,20 +164,22 @@ describe('AmfStoreService', () => {
 
     it('initializes the store via the event', async () => {
       const model = await AmfLoader.loadApi('streetlights.json');
-      const result = StoreEvents.Store.loadGraph(et, model, 'ASYNC 2.0');
+      const result = StoreEvents.Store.loadGraph(model, 'ASYNC 2.0', et);
       assert.typeOf(result, 'promise');
       await result;
     });
   });
 
   describe('createWebApi()', () => {
-    let store = /** @type AmfStoreService */ (null);
-    /** @type EventTarget */
-    let et;
+    let store: WebWorkerService;
+    let et: EventTarget;
 
     before(async () => {
       et = await etFixture();
-      store = new AmfStoreService(et);
+      store = new WebWorkerService(new TestPersistance('id'), {
+        eventsTarget: et,
+        workerLocation: getAmfWorkerLocation(),
+      });
       await store.init();
     });
 
@@ -273,32 +264,37 @@ describe('AmfStoreService', () => {
     });
 
     it('creates the web api via the event', async () => {
-      await StoreEvents.Api.createWebApi(et, {
+      await StoreEvents.Api.createWebApi({
         name: 'test-api'
-      });
+      }, et);
       const api = await store.getApi();
       assert.equal(api.name, 'test-api');
     });
   });
 
   describe('getApi()', () => {
-    let demoStore = /** @type AmfStoreService */ (null);
-    let oasStore = /** @type AmfStoreService */ (null);
-    let demoApi;
-    let oasApi;
-    /** @type EventTarget */
-    let et;
+    let demoStore: WebWorkerService;
+    let oasStore: WebWorkerService;
+    let demoApi: string;
+    let oasApi: string;
+    let et: EventTarget;
 
     before(async () => {
       et = await etFixture();
       demoApi = await AmfLoader.loadApi();
-      demoStore = new AmfStoreService(et);
+      demoStore = new WebWorkerService(new TestPersistance('id'), {
+        eventsTarget: et,
+        workerLocation: getAmfWorkerLocation(),
+      });
       await demoStore.init();
       await demoStore.loadGraph(demoApi, 'RAML 1.0');
 
       oasApi = await AmfLoader.loadApi('oas-3-api.json');
       // this has intentionally different event target set so only one store listens on `et`
-      oasStore = new AmfStoreService(document.body);
+      oasStore = new WebWorkerService(new TestPersistance('id'), {
+        eventsTarget: document.body,
+        workerLocation: getAmfWorkerLocation(),
+      });
       await oasStore.init();
       await oasStore.loadGraph(oasApi, 'OAS 3.0');
     });
@@ -313,7 +309,7 @@ describe('AmfStoreService', () => {
       assert.typeOf(api.endPoints, 'array', 'has the endpoints');
       // I am lazy....
       assert.isAbove(api.endPoints.length, 5, 'has more than 5 endpoints');
-      assert.typeOf(api.endPoints[0], 'string', 'has the endPoint id');
+      assert.typeOf(api.endPoints[0], 'object', 'has the endPoint');
     });
 
     it('has servers property', async () => {
@@ -321,7 +317,7 @@ describe('AmfStoreService', () => {
       assert.typeOf(api.servers, 'array', 'has the servers');
       // RAML has only one server
       assert.lengthOf(api.servers, 1, 'has the single server');
-      assert.typeOf(api.servers[0], 'string', 'has the server id');
+      assert.typeOf(api.servers[0], 'object', 'has the server');
     });
 
     it('has the name property', async () => {
@@ -364,14 +360,14 @@ describe('AmfStoreService', () => {
       assert.typeOf(api.documentations, 'array', 'has the documentations');
       // RAML has only one server
       assert.lengthOf(api.documentations, 1, 'has the single documentation');
-      assert.typeOf(api.documentations[0], 'string', 'has the documentation id');
+      assert.typeOf(api.documentations[0], 'object', 'has the documentation');
     });
 
     it('has multiple servers for OAS', async () => {
       const api = await oasStore.getApi();
       assert.typeOf(api.servers, 'array', 'has the servers');
       assert.lengthOf(api.servers, 4, 'has all the servers');
-      assert.typeOf(api.servers[0], 'string', 'has the server id');
+      assert.typeOf(api.servers[0], 'object', 'has the server');
     });
 
     it('has the termsOfService property', async () => {
@@ -381,27 +377,31 @@ describe('AmfStoreService', () => {
 
     it('has the provider property', async () => {
       const api = await oasStore.getApi();
-      assert.typeOf(api.provider, 'string', 'has the property');
+      assert.typeOf(api.provider, 'object', 'has the provider');
     });
 
     it('has the license property', async () => {
       const api = await oasStore.getApi();
-      assert.typeOf(api.license, 'string', 'has the property');
+      assert.typeOf(api.license, 'object', 'has the license');
     });
 
     it('reads the API via the event', async () => {
       const api = await StoreEvents.Api.get(et);
+      assert.ok(api, 'the event returns a value')
       assert.equal(api.name, 'API body demo');
     });
   });
 
   describe('loadApi()', () => {
-    let store = /** @type AmfStoreService */ (null);
-    let et = /** @type EventTarget */ (null);
+    let store: WebWorkerService;
+    let et: EventTarget;
     
     before(async () => {
       et = await etFixture();
-      store = new AmfStoreService(et);
+      store = new WebWorkerService(new TestPersistance('id'), {
+        eventsTarget: et,
+        workerLocation: getAmfWorkerLocation(),
+      });
       await store.init();
     });
 
@@ -504,19 +504,22 @@ version: v1
           path: 'api.yaml',
         },
       ];
-      await StoreEvents.Store.loadApi(et, files, 'api.yaml', 'RAML 1.0', 'application/raml10+yaml');
+      await StoreEvents.Store.loadApi(files, 'api.yaml', 'RAML 1.0', 'application/raml10+yaml', et);
       const project = await store.getApi();
       assert.lengthOf(project.endPoints, 1, 'has the API')
     });
   });
 
   describe('hasApi()', () => {
-    let store = /** @type AmfStoreService */ (null);
-    let et = /** @type EventTarget */ (null);
+    let store: WebWorkerService;
+    let et: EventTarget;
 
     before(async () => {
       et = await etFixture();
-      store = new AmfStoreService(et);
+      store = new WebWorkerService(new TestPersistance('id'), {
+        eventsTarget: et,
+        workerLocation: getAmfWorkerLocation(),
+      });
     });
 
     after(() => {
@@ -547,14 +550,16 @@ version: v1
   });
 
   describe('generateRaml()', () => {
-    let store = /** @type AmfStoreService */ (null);
-    /** @type EventTarget */
-    let et;
+    let store: WebWorkerService;
+    let et: EventTarget;
 
     before(async () => {
       et = await etFixture();
       const demoApi = await AmfLoader.loadApi();
-      store = new AmfStoreService(et);
+      store = new WebWorkerService(new TestPersistance('id'), {
+        eventsTarget: et,
+        workerLocation: getAmfWorkerLocation(),
+      });
       await store.init();
       await store.loadGraph(demoApi, 'RAML 1.0');
     });
@@ -572,14 +577,16 @@ version: v1
   });
 
   describe('generateGraph()', () => {
-    let store = /** @type AmfStoreService */ (null);
-    /** @type EventTarget */
-    let et;
+    let store: WebWorkerService;
+    let et: EventTarget;
 
     before(async () => {
       et = await etFixture();
       const demoApi = await AmfLoader.loadApi();
-      store = new AmfStoreService(et);
+      store = new WebWorkerService(new TestPersistance('id'), {
+        eventsTarget: et,
+        workerLocation: getAmfWorkerLocation(),
+      });
       await store.init();
       await store.loadGraph(demoApi, 'RAML 1.0');
     });

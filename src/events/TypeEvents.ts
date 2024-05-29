@@ -31,7 +31,7 @@ export const TypeEvents = {
    * @param target The node on which to dispatch the event
    * @param init The initialization properties
    */
-  add: async (init: ShapeInit, target: EventTarget = window): Promise<AmfShapes.IShapeUnion | undefined> => {
+  add: async (init?: ShapeInit, target: EventTarget = window): Promise<AmfShapes.IShapeUnion | undefined> => {
     const e = new ApiStoreCreateEvent(EventTypes.Type.add, init);
     target.dispatchEvent(e);
     return e.detail.result;

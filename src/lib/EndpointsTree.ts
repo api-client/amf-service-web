@@ -1,4 +1,4 @@
-import { ApiDefinitions } from "@api-client/core/build/esm/browser.js";
+import type { ApiDefinitions } from "@api-client/core/build/esm/browser.js";
 
 export interface CommonRootInfo {
   index: number;

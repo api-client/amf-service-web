@@ -7,8 +7,6 @@ export const eventHandler = Symbol('eventHandler');
 export const eventsTarget = Symbol('eventsTarget');
 export const oldEventsTarget = Symbol('oldEventsTarget');
 
-// type AmfStoreServiceMethods = Extract<AmfStoreProxy, Function>;
-
 const eventsMap: Record<string, { target: keyof AmfStoreProxy, args?: string[], eventProperties?: boolean }> = {
   [EventTypes.Store.init]: { target: 'init', },
   [EventTypes.Store.loadGraph]: { args: ['model', 'vendor'], target: 'loadGraph', },
@@ -31,7 +29,6 @@ const eventsMap: Record<string, { target: keyof AmfStoreProxy, args?: string[], 
   [EventTypes.Endpoint.addOperation]: { args: ['pathOrId', 'init'], target: 'addOperation' },
   [EventTypes.Endpoint.removeOperation]: { args: ['id', 'parent'], target: 'deleteOperation' },
   [EventTypes.Operation.get]: { args: ['methodOrId', 'pathOrId'], target: 'getOperation' },
-  [EventTypes.Operation.getRecursive]: { args: ['methodOrId', 'pathOrId'], target: 'getOperationRecursive' },
   [EventTypes.Operation.update]: { args: ['id', 'property', 'value'], target: 'updateOperationProperty' },
   [EventTypes.Operation.addRequest]: { args: ['parentId', 'init'], target: 'addRequest' },
   [EventTypes.Operation.removeRequest]: { args: ['id', 'parent'], target: 'deleteRequest' },
@@ -44,9 +41,7 @@ const eventsMap: Record<string, { target: keyof AmfStoreProxy, args?: string[], 
   [EventTypes.Documentation.update]: { args: ['id', 'property', 'value'], target: 'updateDocumentationProperty' },
   [EventTypes.Documentation.delete]: { args: ['id'], target: 'deleteDocumentation' },
   [EventTypes.Security.get]: { args: ['id'], target: 'getSecurityScheme' },
-  [EventTypes.Security.getRecursive]: { args: ['id'], target: 'getSecuritySchemeRecursive' },
   [EventTypes.Security.getRequirement]: { args: ['id'], target: 'getSecurityRequirement' },
-  [EventTypes.Security.getRequirementRecursive]: { args: ['id'], target: 'getSecurityRequirementRecursive' },
   [EventTypes.Security.getSettings]: { args: ['id'], target: 'getSecuritySettings' },
   [EventTypes.Security.list]: { target: 'listSecurity' },
   [EventTypes.Type.list]: { target: 'listTypes' },
@@ -60,21 +55,16 @@ const eventsMap: Record<string, { target: keyof AmfStoreProxy, args?: string[], 
   [EventTypes.Type.deleteProperty]: { args: ['parent', 'id'], target: 'deletePropertyShape' },
   [EventTypes.Type.getProperty]: { args: ['id'], target: 'getPropertyShape' },
   [EventTypes.Parameter.get]: { args: ['id'], target: 'getParameter' },
-  [EventTypes.Parameter.getRecursive]: { args: ['id'], target: 'getParameterRecursive', },
   [EventTypes.Parameter.getBulk]: { args: ['ids'], target: 'getParameters', },
-  [EventTypes.Parameter.getBulkRecursive]: { args: ['ids'], target: 'getParametersRecursive', },
   [EventTypes.Parameter.update]: { args: ['id', 'property', 'value'], target: 'updateParameterProperty', },
   [EventTypes.Parameter.addExample]: { args: ['parentId', 'init'], target: 'addParameterExample', },
   [EventTypes.Parameter.removeExample]: { args: ['parent', 'id'], target: 'removeParameterExample', },
   [EventTypes.Payload.get]: { args: ['id'], target: 'getPayload', },
-  [EventTypes.Payload.getRecursive]: { args: ['id'], target: 'getPayloadRecursive', },
   [EventTypes.Payload.getBulk]: { args: ['ids'], target: 'getPayloads', },
-  [EventTypes.Payload.getBulkRecursive]: { args: ['ids'], target: 'getPayloadsRecursive', },
   [EventTypes.Payload.update]: { args: ['id', 'property', 'value'], target: 'updatePayloadProperty', },
   [EventTypes.Payload.addExample]: { args: ['parentId', 'init'], target: 'addPayloadExample', },
   [EventTypes.Payload.removeExample]: { args: ['parent', 'id'], target: 'removePayloadExample', },
   [EventTypes.Request.get]: { args: ['id'], target: 'getRequest', },
-  [EventTypes.Request.getRecursive]: { args: ['id'], target: 'getRequestRecursive', },
   [EventTypes.Request.update]: { args: ['id', 'property', 'value'], target: 'updateRequestProperty', },
   [EventTypes.Request.addPayload]: { args: ['parentId', 'init'], target: 'addRequestPayload', },
   [EventTypes.Request.removePayload]: { args: ['parent', 'id'], target: 'removeRequestPayload', },
@@ -85,9 +75,7 @@ const eventsMap: Record<string, { target: keyof AmfStoreProxy, args?: string[], 
   [EventTypes.Request.addCookieParameter]: { args: ['parentId', 'init'], target: 'addRequestCookieParameter', },
   [EventTypes.Request.removeCookieParameter]: { args: ['parent', 'id'], target: 'removeRequestCookieParameter', },
   [EventTypes.Response.get]: { args: ['id'], target: 'getResponse', },
-  [EventTypes.Response.getRecursive]: { args: ['id'], target: 'getResponseRecursive', },
   [EventTypes.Response.getBulk]: { args: ['ids'], target: 'getResponses', },
-  [EventTypes.Response.getBulkRecursive]: { args: ['ids'], target: 'getResponsesRecursive', },
   [EventTypes.Response.update]: { args: ['id', 'property', 'value'], target: 'updateResponseProperty', },
   [EventTypes.Response.addHeader]: { args: ['parentId', 'init'], target: 'addResponseHeader', },
   [EventTypes.Response.removeHeader]: { args: ['parent', 'id'], target: 'removeResponseHeader', },
@@ -110,7 +98,7 @@ const eventsMap: Record<string, { target: keyof AmfStoreProxy, args?: string[], 
  * 
  * This mixin adds events listeners for DOM events related to the AMF store.
  * It does not provide implementations for the functions called by each handler.
- * This to be mixed in with an instance of the `AmfStoreService`.
+ * This to be mixed in with an instance of the `WebWorkerService`.
  * 
  * The implementation by default listens on the `window` object.
  * Set `eventsTarget` property to listen to the events on a specific node.

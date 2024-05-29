@@ -68,18 +68,6 @@ export const OperationEvents = {
     target.dispatchEvent(e);
     return e.detail.result;
   },
-  /**
-   * Reads the operation model with all sub-models.
-   * 
-   * @param target The node on which to dispatch the event
-   * @param methodOrId Method name or the domain id of the operation to find
-   * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
-   */
-  getRecursive: async (methodOrId: string, pathOrId?: string, target: EventTarget = window): Promise<ApiDefinitions.IApiOperation | undefined> => {
-    const e = new ApiStoreOperationReadEvent(EventTypes.Operation.getRecursive, methodOrId, pathOrId);
-    target.dispatchEvent(e);
-    return e.detail.result;
-  },
 
   /**
    * Updates a scalar property of the operation.

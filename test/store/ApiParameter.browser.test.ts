@@ -1,10 +1,12 @@
 import { assert, oneEvent } from '@open-wc/testing';
-import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.index.js';
+import { ApiDefinitions, AmfNamespace as ns } from "@api-client/core/build/esm/browser.js";
+import { WebWorkerService, StoreEvents, StoreEventTypes } from '../../src/worker.index.js';
+import createTestService from '../helpers/web-service.js';
 
-describe('AmfStoreService', () => {
-  let store = /** @type AmfStoreService */ (null);
+describe('WebWorkerService', () => {
+  let store: WebWorkerService;
   before(async () => {
-    store = new AmfStoreService();
+    store = createTestService();
     await store.init();
   });
 
@@ -14,40 +16,14 @@ describe('AmfStoreService', () => {
 
   describe('Api Parameters', () => {
     describe('getParameter()', () => {
-      let id = /** @type string */ (null);
+      let id: string;
 
       beforeEach(async () => {
         await store.createWebApi();
         const ep = await store.addEndpoint({ path: '/test' });
         const op = await store.addOperation(ep.id, { method: 'get' });
-        const request = await store.addRequest(op.id, { queryParameters: ['test'] });
-        [id] = request.queryParameters;
-      });
-
-      it('reads a parameter from the store', async () => {
-        const param = await store.getParameter(id);
-        assert.typeOf(param, 'object', 'is the object');
-        const [type] = param.types;
-        assert.equal(type, ns.aml.vocabularies.apiContract.Parameter);
-      });
-
-      it('reads the parameter via the event', async () => {
-        const param = await StoreEvents.Parameter.get(window, id);
-        assert.typeOf(param, 'object', 'is the object');
-        const [type] = param.types;
-        assert.equal(type, ns.aml.vocabularies.apiContract.Parameter);
-      });
-    });
-
-    describe('getParameterRecursive()', () => {
-      let id = /** @type string */ (null);
-
-      beforeEach(async () => {
-        await store.createWebApi();
-        const ep = await store.addEndpoint({ path: '/test' });
-        const op = await store.addOperation(ep.id, { method: 'get' });
-        const request = await store.addRequest(op.id, { queryParameters: ['test'] });
-        [id] = request.queryParameters;
+        const request = await store.addRequest(op.id, { queryParameters: ['test-param 1'] });
+        id = request.queryParameters[0].id;
         await store.addParameterExample(id, {
           name: 'an example',
           value: 'test example',
@@ -55,7 +31,7 @@ describe('AmfStoreService', () => {
       });
 
       it('reads a parameter from the store', async () => {
-        const param = await store.getParameterRecursive(id);
+        const param = await store.getParameter(id);
         assert.typeOf(param, 'object', 'is the object');
         const [example] = param.examples;
         assert.typeOf(example, 'object', 'example is an object');
@@ -63,31 +39,36 @@ describe('AmfStoreService', () => {
       });
 
       it('reads a parameter via the event', async () => {
-        const param = await StoreEvents.Parameter.getRecursive(window, id);
+        const param = await StoreEvents.Parameter.get(id);
         assert.typeOf(param, 'object', 'is the object');
-        const [example] = param.examples;
+        const [example] = param!.examples;
         assert.typeOf(example, 'object', 'example is an object');
         assert.equal(example.value, 'test example', 'has example properties');
       });
     });
 
     describe('getParameters()', () => {
-      let ids = /** @type string[] */ (null);
+      let ids: string[];
 
       beforeEach(async () => {
         await store.createWebApi();
         const ep = await store.addEndpoint({ path: '/test' });
         const op = await store.addOperation(ep.id, { method: 'get' });
         const request = await store.addRequest(op.id, { queryParameters: ['t1', 't2', 't3'] });
-        ids = request.queryParameters;
+        ids = request.queryParameters.map(i => i.id);
+        await store.addParameterExample(ids[0], {
+          name: 'an example',
+          value: 'test example',
+        });
       });
 
       it('reads all parameters from the store', async () => {
         const result = await store.getParameters(ids);
         assert.typeOf(result, 'array', 'result is an array');
         assert.lengthOf(result, 3, 'has all results');
-        const [type] = result[0].types;
-        assert.equal(type, ns.aml.vocabularies.apiContract.Parameter, 'has parameters');
+        const [example] = result[0].examples;
+        assert.typeOf(example, 'object', 'example is an object');
+        assert.equal(example.value, 'test example', 'has example properties');
       });
 
       it('inserts undefined when no parameter', async () => {
@@ -100,64 +81,24 @@ describe('AmfStoreService', () => {
       });
 
       it('can query bulk with the event', async () => {
-        const result = await StoreEvents.Parameter.getBulk(window, ids);
+        const result = await StoreEvents.Parameter.getBulk(ids);
         assert.typeOf(result, 'array', 'result is an array');
-        assert.lengthOf(result, 3, 'has all results');
-      });
-    });
-
-    describe('getParametersRecursive()', () => {
-      let ids = /** @type string[] */ (null);
-
-      beforeEach(async () => {
-        await store.createWebApi();
-        const ep = await store.addEndpoint({ path: '/test' });
-        const op = await store.addOperation(ep.id, { method: 'get' });
-        const request = await store.addRequest(op.id, { queryParameters: ['t1', 't2', 't3'] });
-        ids = request.queryParameters;
-        await store.addParameterExample(ids[0], {
-          name: 'an example',
-          value: 'test example',
-        });
-      });
-
-      it('reads all parameters from the store recursive', async () => {
-        const result = await store.getParametersRecursive(ids);
-        assert.typeOf(result, 'array', 'result is an array');
-        assert.lengthOf(result, 3, 'has all results');
-        const [example] = result[0].examples;
-        assert.typeOf(example, 'object', 'example is an object');
-        assert.equal(example.value, 'test example', 'has example properties');
-      });
-
-      it('inserts undefined when no parameter', async () => {
-        const result = await store.getParametersRecursive([ids[0], 'tUnknown', ids[2]]);
-        assert.typeOf(result, 'array', 'result is an array');
-        assert.lengthOf(result, 3, 'has all results');
-        assert.ok(result[0], 'has first result');
-        assert.isUndefined(result[1], 'has no missing result');
-        assert.ok(result[2], 'has third result');
-      });
-
-      it('can query bulk with the event', async () => {
-        const result = await StoreEvents.Parameter.getBulkRecursive(window, ids);
-        assert.typeOf(result, 'array', 'result is an array');
-        assert.lengthOf(result, 3, 'has all results');
-        const [example] = result[0].examples;
+        assert.lengthOf(result!, 3, 'has all results');
+        const [example] = result![0].examples;
         assert.typeOf(example, 'object', 'example is an object');
         assert.equal(example.value, 'test example', 'has example properties');
       });
     });
 
     describe('updateParameterProperty()', () => {
-      let id = /** @type string */ (null);
+      let id: string;
 
       beforeEach(async () => {
         await store.createWebApi();
         const ep = await store.addEndpoint({ path: '/test' });
         const op = await store.addOperation(ep.id, { method: 'get' });
-        const request = await store.addRequest(op.id, { queryParameters: ['test'] });
-        [id] = request.queryParameters;
+        const request = await store.addRequest(op.id, { queryParameters: ['test qp 1'] });
+        id = request.queryParameters[0].id;
       });
 
       it('updates the name', async () => {
@@ -229,9 +170,9 @@ describe('AmfStoreService', () => {
 
       it('throws for unknown property', async () => {
         let thrown = false;
+        const value = 'unknown' as unknown as keyof ApiDefinitions.IApiParameter;
         try {
-          // @ts-ignore
-          await store.updateParameterProperty(id, 'unknown', true);
+          await store.updateParameterProperty(id, value, true);
         } catch (e) {
           thrown = true;
         }
@@ -240,13 +181,13 @@ describe('AmfStoreService', () => {
 
       it('updates the property via the event', async () => {
         const value = 'updated name';
-        await StoreEvents.Parameter.update(window, id, 'name', value);
+        await StoreEvents.Parameter.update(id, 'name', value);
         const param = await store.getParameter(id);
         assert.equal(param.name, value, 'updates the value in the store');
       });
 
       it('dispatches the updated event', async () => {
-        StoreEvents.Parameter.update(window, id, 'name', 'test');
+        StoreEvents.Parameter.update(id, 'name', 'test');
         const e = await oneEvent(window, StoreEventTypes.Parameter.State.updated);
         const { detail } = e;
         assert.equal(detail.graphId, id, 'has the graphId');
@@ -257,7 +198,7 @@ describe('AmfStoreService', () => {
     });
 
     describe('addParameterExample()', () => {
-      let id = /** @type string */ (null);
+      let id: string;
       const init = { 
         name: 'example name', 
         description: 'ex desc', 
@@ -271,8 +212,8 @@ describe('AmfStoreService', () => {
         await store.createWebApi();
         const ep = await store.addEndpoint({ path: '/test' });
         const op = await store.addOperation(ep.id, { method: 'get' });
-        const request = await store.addRequest(op.id, { queryParameters: ['test'] });
-        [id] = request.queryParameters;
+        const request = await store.addRequest(op.id, { queryParameters: ['test qp 1'] });
+        id = request.queryParameters[0].id;
       });
 
       it('returns the example object', async () => {
@@ -285,7 +226,7 @@ describe('AmfStoreService', () => {
       it('adds the example on the parent object', async () => {
         const result = await store.addParameterExample(id, { ...init });
         const param = await store.getParameter(id);
-        assert.deepEqual(param.examples, [result.id], 'the example is part of the parameter');
+        assert.equal(param.examples[0].id, result.id, 'the example is part of the parameter');
       });
 
       it('adds the name', async () => {
@@ -319,13 +260,13 @@ describe('AmfStoreService', () => {
       });
 
       it('adds the example via the event', async () => {
-        const result = await StoreEvents.Parameter.addExample(window, id, { ...init });
+        const result = await StoreEvents.Parameter.addExample(id, { ...init });
         const param = await store.getParameter(id);
-        assert.deepEqual(param.examples, [result.id], 'the example is part of the parameter');
+        assert.deepEqual(param.examples[0].id, result!.id, 'the example is part of the parameter');
       });
 
       it('dispatches the created event', async () => {
-        StoreEvents.Parameter.addExample(window, id, { ...init });
+        StoreEvents.Parameter.addExample(id, { ...init });
         const e = await oneEvent(window, StoreEventTypes.Example.State.created);
         const record = e.detail;
         assert.typeOf(record.graphId, 'string', 'has the created id');
@@ -336,16 +277,16 @@ describe('AmfStoreService', () => {
     });
 
     describe('removeParameterExample()', () => {
-      let parameterId = /** @type string */ (null);
-      let exampleId = /** @type string */ (null);
+      let parameterId: string;
+      let exampleId: string;
 
       beforeEach(async () => {
         await store.createWebApi();
         const ep = await store.addEndpoint({ path: '/test' });
         const op = await store.addOperation(ep.id, { method: 'get' });
-        const request = await store.addRequest(op.id, { queryParameters: ['test'] });
-        [parameterId] = request.queryParameters;
-        const example = await store.addParameterExample(parameterId, { name: 'test' });
+        const request = await store.addRequest(op.id, { queryParameters: ['test qp 1'] });
+        parameterId = request.queryParameters[0].id;
+        const example = await store.addParameterExample(parameterId, { name: 'ex 1' });
         exampleId = example.id;
       });
 
@@ -367,7 +308,7 @@ describe('AmfStoreService', () => {
       });
   
       it('deletes the example via the event', async () => {
-        await StoreEvents.Parameter.removeExample(window, exampleId, parameterId);
+        await StoreEvents.Parameter.removeExample(exampleId, parameterId);
         const param = await store.getParameter(parameterId);
         assert.deepEqual(param.examples, []);
       });

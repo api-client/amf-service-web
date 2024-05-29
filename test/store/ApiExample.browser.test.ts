@@ -1,10 +1,13 @@
 import { assert, oneEvent } from '@open-wc/testing';
-import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.index.js';
+import { AmfShapes, AmfNamespace as ns } from "@api-client/core/build/esm/browser.js";
+import { WebWorkerService, StoreEvents, StoreEventTypes } from '../../src/worker.index.js';
+import createTestService from '../helpers/web-service.js';
+import type { ExampleInit } from '../../src/types.js';
 
-describe('AmfStoreService', () => {
-  let store = /** @type AmfStoreService */ (null);
+describe('WebWorkerService', () => {
+  let store: WebWorkerService;
   before(async () => {
-    store = new AmfStoreService();
+    store = createTestService();
     await store.init();
   });
 
@@ -14,9 +17,9 @@ describe('AmfStoreService', () => {
 
   describe('Api Examples', () => {
     describe('getExample()', () => {
-      let id = /** @type string */ (null);
-      const init = Object.freeze({
-        name: 'test', 
+      let id: string;
+      const init: ExampleInit = Object.freeze({
+        name: 'example test name', 
         mediaType: 'application/json', 
         description: 'test desc', 
         displayName: 'test dn', 
@@ -29,13 +32,12 @@ describe('AmfStoreService', () => {
         const ep = await store.addEndpoint({ path: '/test' });
         const op = await store.addOperation(ep.id, { method: 'get' });
         const request = await store.addRequest(op.id);
-        const payload = await store.addRequestPayload(request.id, { mediaType: 'application/json' });
-        const example = await store.addParameterExample(payload.id, { ...init });
-        console.log("example", example);
+        const param = await store.addRequestQueryParameter(request.id, { name: 'test param', required: true });
+        const example = await store.addParameterExample(param.id, { ...init });
         id = example.id;
       });
 
-      it.only('reads the example from the store', async () => {
+      it('reads the example from the store', async () => {
         const example = await store.getExample(id);
         assert.typeOf(example, 'object', 'is the object');
         const [type] = example.types;
@@ -73,14 +75,14 @@ describe('AmfStoreService', () => {
       });
 
       it('reads the example via the event', async () => {
-        const example = await StoreEvents.Example.get(window, id);
-        assert.equal(example.name, init.name);
+        const example = await StoreEvents.Example.get(id);
+        assert.equal(example!.name, init.name);
       });
     });
 
     describe('getExamples()', () => {
-      let ids = /** @type string[] */ (null);
-      const init = Object.freeze({
+      let ids: string[];
+      const init: ExampleInit = Object.freeze({
         name: 'test', 
         mediaType: 'application/json', 
         description: 'test desc', 
@@ -94,10 +96,10 @@ describe('AmfStoreService', () => {
         const ep = await store.addEndpoint({ path: '/test' });
         const op = await store.addOperation(ep.id, { method: 'get' });
         const request = await store.addRequest(op.id);
-        const payload = await store.addRequestPayload(request.id, { mediaType: 'application/json' });
-        const example1 = await store.addParameterExample(payload.id, { ...init });
-        const example2 = await store.addParameterExample(payload.id, { ...init, name: 'test 2' });
-        const example3 = await store.addParameterExample(payload.id, { ...init, name: 'test 3' });
+        const param = await store.addRequestQueryParameter(request.id, { name: 'test param', required: true });
+        const example1 = await store.addParameterExample(param.id, { ...init, name: 'test 1' });
+        const example2 = await store.addParameterExample(param.id, { ...init, name: 'test 2' });
+        const example3 = await store.addParameterExample(param.id, { ...init, name: 'test 3' });
         ids = [example1.id, example2.id, example3.id];
       });
 
@@ -119,16 +121,21 @@ describe('AmfStoreService', () => {
       });
 
       it('can query bulk with the event', async () => {
-        const result = await StoreEvents.Example.getBulk(window, ids);
+        const result = await StoreEvents.Example.getBulk(ids);
         assert.typeOf(result, 'array', 'result is an array');
-        assert.lengthOf(result, 3, 'has all results');
+        assert.lengthOf(result!, 3, 'has all results');
       });
     });
 
     describe('updateParameterProperty()', () => {
-      let id = /** @type string */ (null);
-      const init = Object.freeze({
-        name: 'test',
+      let id: string;
+      const init: ExampleInit = Object.freeze({
+        name: 'example test name', 
+        mediaType: 'application/json', 
+        description: 'test desc', 
+        displayName: 'test dn', 
+        strict: true, 
+        value: '{"test":true}',
       });
 
       beforeEach(async () => {
@@ -136,8 +143,8 @@ describe('AmfStoreService', () => {
         const ep = await store.addEndpoint({ path: '/test' });
         const op = await store.addOperation(ep.id, { method: 'get' });
         const request = await store.addRequest(op.id);
-        const payload = await store.addRequestPayload(request.id, { mediaType: 'application/json' });
-        const example = await store.addParameterExample(payload.id, { ...init });
+        const param = await store.addRequestQueryParameter(request.id, { name: 'test param', required: true });
+        const example = await store.addParameterExample(param.id, { ...init });
         id = example.id;
       });
 
@@ -190,9 +197,9 @@ describe('AmfStoreService', () => {
 
       it('throws for unknown property', async () => {
         let thrown = false;
+        const value = 'unknown' as unknown as keyof AmfShapes.IApiDataExample;
         try {
-          // @ts-ignore
-          await store.updateExampleProperty(id, 'unknown', true);
+          await store.updateExampleProperty(id, value, true);
         } catch (e) {
           thrown = true;
         }
@@ -201,13 +208,13 @@ describe('AmfStoreService', () => {
 
       it('updates the property via the event', async () => {
         const value = 'updated name';
-        await StoreEvents.Example.update(window, id, 'name', value);
+        await StoreEvents.Example.update(id, 'name', value);
         const param = await store.getExample(id);
         assert.equal(param.name, value, 'updates the value in the store');
       });
 
       it('dispatches the updated event', async () => {
-        StoreEvents.Example.update(window, id, 'name', 'test');
+        StoreEvents.Example.update(id, 'name', 'test');
         const e = await oneEvent(window, StoreEventTypes.Example.State.updated);
         const { detail } = e;
         assert.equal(detail.graphId, id, 'has the graphId');

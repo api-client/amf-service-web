@@ -1,4 +1,4 @@
-import { AmfBase, AmfShapes, ApiDefinitions, AmfNamespace as ns } from '@api-client/core/build/esm/browser.js';
+import { AmfShapes, ApiDefinitions, AmfNamespace as ns } from '@api-client/core/build/esm/browser.js';
 import {
   AmfStoreProxy,
   workerValue,
@@ -8,7 +8,6 @@ import {
   createWorker,
   responseHandler,
   errorHandler,
-  readWorkerUrl,
   processResponse,
 } from './AmfStoreProxy.js';
 import { StoreDomEventsHandler } from '../lib/StoreDomEventsHandler.js';
@@ -18,8 +17,9 @@ import { EventTypes } from '../events/EventTypes.js';
 import type { AmfWorkerStoreInit, ApiServerInit, CustomDomainPropertyInit, DocumentationInit, EndPointInit, ExampleInit, OperationInit, OperationRequestInit, OperationResponseInit, ParameterInit, PayloadInit, PropertyShapeInit, ShapeInit, WorkerMessage, WorkerResponse } from '../types.js';
 
 export const optionsValue = Symbol('options');
+export const readWorkerUrl = Symbol('readWorkerUrl');
 
-export class AmfStoreService extends AmfStoreProxy {
+export class WebWorkerService extends AmfStoreProxy {
   override get worker(): Worker {
     if (!this[workerValue]) {
       this[workerValue] = this[createWorker]();
@@ -41,12 +41,13 @@ export class AmfStoreService extends AmfStoreProxy {
   persistance: StorePersistence;
 
   /**
-   * @param target Events target.
+   * @param persistance The class that manages the persistance layer.
    * @param opts Class initialization options.
    */
-  constructor(persistance: StorePersistence, target: EventTarget = window, opts: AmfWorkerStoreInit = {}) {
+  constructor(persistance: StorePersistence, opts: AmfWorkerStoreInit = {}) {
     super();
     this[optionsValue] = Object.freeze(opts);
+    const target = opts.eventsTarget || window;
     this.events = new StoreDomEventsHandler(this, target);
     this.eventsTarget = target;
     this.persistance = persistance;
@@ -201,7 +202,7 @@ export class AmfStoreService extends AmfStoreProxy {
   /**
    * Adds a header to the response.
    * @param responseId The response domain id
-   * @param {ParameterInit} init The Parameter init options.
+   * @param init The Parameter init options.
    */
   override async addResponseHeader(responseId: string, init: ParameterInit): Promise<ApiDefinitions.IApiParameter> {
     const result = await super.addResponseHeader(responseId, init);
@@ -380,13 +381,13 @@ export class AmfStoreService extends AmfStoreProxy {
 
   /**
    * Creates a new type in the API.
-   * @param {CustomDomainPropertyInit=} init The Shape init options.
+   * @param init The Shape init options.
    */
-  override async addCustomDomainProperty(init: CustomDomainPropertyInit | undefined): Promise<AmfBase.IApiCustomDomainProperty> {
+  override async addCustomDomainProperty(init?: CustomDomainPropertyInit): Promise<ApiDefinitions.IApiCustomDomainExtension> {
     const result = await super.addCustomDomainProperty(init);
-    const record: ApiStoreCreateRecord<AmfBase.IApiCustomDomainProperty> = ({
+    const record: ApiStoreCreateRecord<ApiDefinitions.IApiCustomDomainExtension> = ({
       graphId: result.id,
-      domainType: ns.aml.vocabularies.document.DomainElement, // DomainProperty
+      domainType: ns.aml.vocabularies.document.DomainProperty,
       item: result,
     });
     this.eventsTarget.dispatchEvent(new ApiStoreStateCreateEvent(EventTypes.CustomProperty.State.created, record));
@@ -397,14 +398,14 @@ export class AmfStoreService extends AmfStoreProxy {
   /**
    * Removes a CustomDomainProperty from the API.
    * @param id The domain id of the CustomDomainProperty to remove
-   * @returns {Promise<boolean>} True when the property was found and removed.
+   * @returns True when the property was found and removed.
    */
   override async deleteCustomDomainProperty(id: string): Promise<boolean> {
     const result = await super.deleteCustomDomainProperty(id);
     if (result) {
       const record: ApiStoreDeleteRecord = ({
         graphId: id,
-        domainType: ns.aml.vocabularies.document.DomainElement, // DomainProperty
+        domainType: ns.aml.vocabularies.document.DomainProperty,
       });
       this.eventsTarget.dispatchEvent(new ApiStoreStateDeleteEvent(EventTypes.CustomProperty.State.deleted, record));
       this.persistance.persist();
@@ -419,11 +420,11 @@ export class AmfStoreService extends AmfStoreProxy {
    * @param value The new value to set.
    * @returns The updated custom domain property
    */
-  override async updateCustomDomainProperty(id: string, property: keyof AmfBase.IApiCustomDomainProperty, value: unknown): Promise<AmfBase.IApiCustomDomainProperty> {
+  override async updateCustomDomainProperty(id: string, property: keyof ApiDefinitions.IApiCustomDomainExtension, value: unknown): Promise<ApiDefinitions.IApiCustomDomainExtension> {
     const result = await super.updateCustomDomainProperty(id, property, value);
-    const record: ApiStoreChangeRecord<AmfBase.IApiCustomDomainProperty> = ({
+    const record: ApiStoreChangeRecord<ApiDefinitions.IApiCustomDomainExtension> = ({
       graphId: id,
-      domainType: ns.aml.vocabularies.document.DomainElement, // DomainProperty
+      domainType: ns.aml.vocabularies.document.DomainProperty,
       item: result,
       property,
     });
@@ -434,7 +435,7 @@ export class AmfStoreService extends AmfStoreProxy {
 
   /**
    * @param operationId The operation domain id
-   * @param {OperationRequestInit=} init The request init options. Optional.
+   * @param init The request init options. Optional.
    * @returns The domain id of the created request
    */
   override async addRequest(operationId: string, init: OperationRequestInit | undefined={}): Promise<ApiDefinitions.IApiRequest> {
@@ -453,7 +454,7 @@ export class AmfStoreService extends AmfStoreProxy {
   /**
    * Adds a header to the request.
    * @param requestId The request domain id
-   * @param {ParameterInit} init The Parameter init options.
+   * @param init The Parameter init options.
    */
   override async addRequestHeader(requestId: string, init: ParameterInit): Promise<ApiDefinitions.IApiParameter> {
     const result = await super.addRequestHeader(requestId, init);
@@ -489,7 +490,7 @@ export class AmfStoreService extends AmfStoreProxy {
   /**
    * Adds a query parameter to the request.
    * @param requestId The request domain id
-   * @param {ParameterInit} init The Parameter init options.
+   * @param init The Parameter init options.
    */
   override async addRequestQueryParameter(requestId: string, init: ParameterInit): Promise<ApiDefinitions.IApiParameter> {
     const result = await super.addRequestQueryParameter(requestId, init);
@@ -525,7 +526,7 @@ export class AmfStoreService extends AmfStoreProxy {
   /**
    * Adds a cookie to the request.
    * @param requestId The request domain id
-   * @param {ParameterInit} init The Parameter init options.
+   * @param init The Parameter init options.
    */
   override async addRequestCookieParameter(requestId: string, init: ParameterInit): Promise<ApiDefinitions.IApiParameter> {
     const result = await super.addRequestCookieParameter(requestId, init);
@@ -853,10 +854,7 @@ export class AmfStoreService extends AmfStoreProxy {
     if (typeof options.createWebWorker === 'function') {
       worker = options.createWebWorker();
     } else {
-      const url =
-        typeof options.workerLocation === 'string'
-          ? options.workerLocation
-          : this[readWorkerUrl]();
+      const url = this[readWorkerUrl]();
       worker = new Worker(url, {
         type: 'module',
         name: 'AmfServiceWorker',
@@ -871,14 +869,9 @@ export class AmfStoreService extends AmfStoreProxy {
    * The worker location in the final build of the app may be anywhere.
    */
   [readWorkerUrl](): string {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const cnf = window.AmfService as any;
-    if (cnf && cnf.workers && cnf.workers.workerStore) {
-      return cnf.workers.workerStore;
-    }
-    return new URL('../workers/AmfWorker.js', import.meta.url).toString();
+    const { workerLocation } = this.options;
+    const url = workerLocation || new URL('../workers/AmfWorker.js', import.meta.url).toString();
+    return url;
   }
 
   [responseHandler](e: MessageEvent): void {

@@ -1,20 +1,26 @@
 import { assert, oneEvent } from '@open-wc/testing';
+import { AmfNamespace as ns } from "@api-client/core/build/esm/browser.js";
 import { AmfLoader } from '../helpers/AmfLoader.js';
-import { AmfStoreService, StoreEvents, StoreEventTypes, ns } from '../../worker.index.js';
+import { WebWorkerService, StoreEvents, StoreEventTypes } from '../../src/worker.index.js';
+import { TestPersistance } from '../helpers/TestPersistance.js';
+import { getAmfWorkerLocation } from '../helpers/web-service.js';
 
-/** @typedef {import('../../').ApiEndPointListItem} ApiEndPointListItem */
-/** @typedef {import('../../').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
-
-describe('AmfStoreService', () => {
-  let demoStore = /** @type AmfStoreService */ (null);
-  let oasStore = /** @type AmfStoreService */ (null);
+describe('WebWorkerService', () => {
+  let demoStore: WebWorkerService;
+  let oasStore: WebWorkerService;
   const demoEt = document.createElement('span');
 
   before(async () => {
-    demoStore = new AmfStoreService(demoEt);
+    demoStore = new WebWorkerService(new TestPersistance('id'), {
+      eventsTarget: demoEt,
+      workerLocation: getAmfWorkerLocation(),
+    });
     await demoStore.init();
     // event target is set intentionally
-    oasStore = new AmfStoreService(document.body);
+    oasStore = new WebWorkerService(new TestPersistance('id'), {
+      eventsTarget: document.body,
+      workerLocation: getAmfWorkerLocation(),
+    });
     await oasStore.init();
   });
 
@@ -45,7 +51,7 @@ describe('AmfStoreService', () => {
       assert.equal(src.url, 'http://{instance}.domain.com/{version}/', 'has the url');
       assert.typeOf(src.variables, 'array', 'has the variables');
       assert.lengthOf(src.variables, 2, 'has listed variables');
-      assert.typeOf(src.variables[0], 'string', 'a variable is a link');
+      assert.typeOf(src.variables[0], 'object', 'a variable is an object');
     });
 
     it('returns servers for OAS', async () => {
@@ -61,7 +67,7 @@ describe('AmfStoreService', () => {
       assert.equal(src.url, 'https://{username}.gigantic-server.com:{port}/{basePath}', 'has the url');
       assert.typeOf(src.variables, 'array', 'has the variables');
       assert.lengthOf(src.variables, 3, 'has listed variables');
-      assert.typeOf(src.variables[0], 'string', 'a variable is a link');
+      assert.typeOf(src.variables[0], 'object', 'a variable is an object');
       assert.equal(src.description, 'The production API server', 'has the description');
     });
 
@@ -98,7 +104,7 @@ describe('AmfStoreService', () => {
     });
 
     it('adds the server via the event', async () => {
-      await StoreEvents.Server.add(demoEt, { url: 'https://test.com' });
+      await StoreEvents.Server.add({ url: 'https://test.com' }, demoEt);
       const [server] = await demoStore.listServers();
       assert.equal(server.url, 'https://test.com', 'has the passed url');
     });
@@ -115,7 +121,7 @@ describe('AmfStoreService', () => {
   });
 
   describe('getServer()', () => {
-    let ids = /** @type string[] */ (null);
+    let ids: string[];
 
     before(async () => {
       const oasApi = await AmfLoader.loadApi('oas-3-api.json');
@@ -151,8 +157,8 @@ describe('AmfStoreService', () => {
     });
 
     it('reads the server via the event', async () => {
-      const srv = await StoreEvents.Server.get(document.body, ids[1]);
-      assert.equal(srv.description, 'Staging server');
+      const srv = await StoreEvents.Server.get(ids[1], document.body);
+      assert.equal(srv!.description, 'Staging server');
     });
   });
 });

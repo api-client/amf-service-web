@@ -14,16 +14,7 @@ export const ResponseEvents = {
     target.dispatchEvent(e);
     return e.detail.result;
   },
-  /**
-   * Reads a Response from the store and returns the full (recursive) model.
-   * @param target The node on which to dispatch the event
-   * @param id The id of the response to read.
-   */
-  getRecursive: async (id: string, target: EventTarget = window): Promise<ApiDefinitions.IApiResponse | undefined> => {
-    const e = new ApiStoreReadEvent(EventTypes.Response.getRecursive, id);
-    target.dispatchEvent(e);
-    return e.detail.result;
-  },
+
   /**
    * Reads a list of Response in a bulk operation.
    * @param target The node on which to dispatch the event
@@ -34,16 +25,7 @@ export const ResponseEvents = {
     target.dispatchEvent(e);
     return e.detail.result;
   },
-  /**
-   * Reads a list of Response in a bulk operation and returns the full (recursive) model.
-   * @param target The node on which to dispatch the event
-   * @param ids The list of ids to read.
-   */
-  getBulkRecursive: async (ids: string[], target: EventTarget = window): Promise<ApiDefinitions.IApiResponse[] | undefined> => {
-    const e = new ApiStoreReadBulkEvent(EventTypes.Response.getBulkRecursive, ids);
-    target.dispatchEvent(e);
-    return e.detail.result;
-  },
+
   /**
    * Updates a scalar property of a Response.
    * @param target The node on which to dispatch the event

@@ -48,6 +48,11 @@ export interface AmfWorkerStoreInit {
    * When not set it imports the file from the root location.
    */
   amfLocation?: string;
+  /**
+   * The target for the DOM events dispatched by the service 
+   * and where the events are received from.
+   */
+  eventsTarget?: EventTarget
 }
 
 export interface AmfHttpWorkerInit {
@@ -220,14 +225,17 @@ export interface OperationRequestInit {
   payloads?: string[];
   /**
    * List of query parameter names to be set as query parameters.
+   * By default the created parameters are not required string scalars.
    */
   queryParameters?: string[];
   /**
    * List of URI parameter names to be set as URI parameters.
+   * By default the created parameters are not required string scalars.
    */
   uriParameters?: string[];
   /**
    * List of cookie names to be set as Cookie parameters.
+   * By default the created parameters are not required string scalars.
    */
   cookieParameters?: string[];
 }

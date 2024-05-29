@@ -1,4 +1,4 @@
-import { AmfBase, ApiDefinitions } from '@api-client/core/build/esm/browser.js';
+import { ApiDefinitions } from '@api-client/core/build/esm/browser.js';
 import { EventTypes } from './EventTypes.js';
 import { ApiStoreContextEvent, ApiStoreReadEvent, ApiStoreDeleteEvent, ApiStoreCreateEvent, ApiStoreUpdateScalarEvent } from './BaseEvents.js';
 import { ApiCustomDomainExtensionListItem, CustomDomainPropertyInit } from '../types.js';
@@ -18,7 +18,7 @@ export const CustomPropertyEvents = {
    * @param target The node on which to dispatch the event
    * @param init The initialization properties
    */
-  add: async (init: CustomDomainPropertyInit, target: EventTarget = window): Promise<AmfBase.IApiCustomDomainProperty | undefined> => {
+  add: async (init: CustomDomainPropertyInit, target: EventTarget = window): Promise<ApiDefinitions.IApiCustomDomainExtension | undefined> => {
     const e = new ApiStoreCreateEvent(EventTypes.CustomProperty.add, init);
     target.dispatchEvent(e);
     return e.detail.result;
@@ -30,7 +30,7 @@ export const CustomPropertyEvents = {
    * @param target The node on which to dispatch the event
    * @param id The id of the object to read.
    */
-  get: async (id: string, target: EventTarget = window): Promise<AmfBase.IApiCustomDomainProperty | undefined> => {
+  get: async (id: string, target: EventTarget = window): Promise<ApiDefinitions.IApiCustomDomainExtension | undefined> => {
     const e = new ApiStoreReadEvent(EventTypes.CustomProperty.get, id);
     target.dispatchEvent(e);
     return e.detail.result;

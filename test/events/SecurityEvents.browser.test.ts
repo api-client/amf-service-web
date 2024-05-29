@@ -1,6 +1,5 @@
 import { assert, fixture, html } from '@open-wc/testing';
 import sinon from 'sinon';
-// import { StoreEvents, StoreEventTypes } from  '../../worker.index.js';
 import { Events as StoreEvents } from '../../src/events/Events.js';
 import { EventTypes as StoreEventTypes } from '../../src/events/EventTypes.js';
 
@@ -40,36 +39,6 @@ describe('StoreEvents', () => {
       });
     });
 
-    describe('getRecursive()', () => {
-      const id = 'amf://id';
-
-      it('dispatches the event', async () => {
-        const et = await etFixture();
-        const spy = sinon.spy();
-        et.addEventListener(StoreEventTypes.Security.getRecursive, spy);
-        StoreEvents.Security.getRecursive(id, et);
-        assert.isTrue(spy.calledOnce);
-      });
-
-      it('the event has the "id" property', async () => {
-        const et = await etFixture();
-        const spy = sinon.spy();
-        et.addEventListener(StoreEventTypes.Security.getRecursive, spy);
-        StoreEvents.Security.getRecursive(id, et);
-        assert.deepEqual(spy.args[0][0].detail.id, id);
-      });
-
-      it('waits until resolved', async () => {
-        const et = await etFixture();
-        const data = /** @type any */ ({ test: true }) as unknown;
-        et.addEventListener(StoreEventTypes.Security.getRecursive, (e) => {
-          (e as CustomEvent).detail.result = Promise.resolve(data);
-        });
-        const result = await StoreEvents.Security.getRecursive(id, et);
-        assert.equal(result, data);
-      });
-    });
-
     describe('getRequirement()', () => {
       const id = 'amf://id';
 
@@ -96,36 +65,6 @@ describe('StoreEvents', () => {
           (e as CustomEvent).detail.result = Promise.resolve(data);
         });
         const result = await StoreEvents.Security.getRequirement(id, et);
-        assert.equal(result, data);
-      });
-    });
-
-    describe('getRequirementRecursive()', () => {
-      const id = 'amf://id';
-
-      it('dispatches the event', async () => {
-        const et = await etFixture();
-        const spy = sinon.spy();
-        et.addEventListener(StoreEventTypes.Security.getRequirementRecursive, spy);
-        StoreEvents.Security.getRequirementRecursive(id, et);
-        assert.isTrue(spy.calledOnce);
-      });
-
-      it('the event has the "id" property', async () => {
-        const et = await etFixture();
-        const spy = sinon.spy();
-        et.addEventListener(StoreEventTypes.Security.getRequirementRecursive, spy);
-        StoreEvents.Security.getRequirementRecursive(id, et);
-        assert.deepEqual(spy.args[0][0].detail.id, id);
-      });
-
-      it('waits until resolved', async () => {
-        const et = await etFixture();
-        const data = /** @type any */ ({ test: true }) as unknown;
-        et.addEventListener(StoreEventTypes.Security.getRequirementRecursive, (e) => {
-          (e as CustomEvent).detail.result = Promise.resolve(data);
-        });
-        const result = await StoreEvents.Security.getRequirementRecursive(id, et);
         assert.equal(result, data);
       });
     });

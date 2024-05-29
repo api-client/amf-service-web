@@ -1,10 +1,8 @@
-/** @typedef {import('../../worker.index').AmfStoreService} AmfStoreService */
-/** @typedef {import('../../worker.index').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('../../worker.index').ApiParameterRecursive} ApiParameterRecursive */
-/** @typedef {import('../../worker.index').ApiRequestRecursive} ApiRequestRecursive */
+import type { AmfShapes, ApiDefinitions } from "@api-client/core/build/esm/browser.js";
+import type { WebWorkerService } from "../../src/worker.index.js";
 
 export class AmfLoader {
-  static async loadApi(file='demo-api.json') {
+  static async loadApi(file = 'demo-api.json') {
     const url = `${window.location.protocol}//${window.location.host}/demo/${file}`;
     const response = await fetch(url);
     if (!response.ok) {
@@ -14,12 +12,7 @@ export class AmfLoader {
     return result;
   }
 
-  /**
-   * @param {AmfStoreService} store
-   * @param {string} name
-   * @returns {Promise<ApiShapeUnion>} 
-   */
-  static async getShape(store, name) {
+  static async getShape(store: WebWorkerService, name: string): Promise<AmfShapes.IShapeUnion> {
     const types = await store.listTypes();
     const item = types.find(t => t.name === name);
     if (!item) {
@@ -31,16 +24,13 @@ export class AmfLoader {
   /**
    * Reads a request parameter from an operation for: URI, query params, headers, and cookies.
    * 
-   * @param {AmfStoreService} store
-   * @param {string} endpoint The endpoint path
-   * @param {string} operation The operation path
-   * @param {string} param The param name
-   * @returns {Promise<ApiParameterRecursive>} 
+   * @param endpoint The endpoint path
+   * @param operation The operation path
+   * @param param The param name
    */
-  static async getParameter(store, endpoint, operation, param) {
+  static async getParameter(store: WebWorkerService, endpoint: string, operation: string, param: string): Promise<ApiDefinitions.IApiParameter> {
     const request = await AmfLoader.lookupRequest(store, endpoint, operation);
-    /** @type ApiParameterRecursive[] */
-    let pool = [];
+    let pool: ApiDefinitions.IApiParameter[] = [];
     if (Array.isArray(request.uriParameters)) {
       pool = pool.concat(request.uriParameters);
     }
@@ -63,13 +53,11 @@ export class AmfLoader {
   /**
    * Reads the request object from the graph
    * 
-   * @param {AmfStoreService} store
-   * @param {string} endpoint The endpoint path
-   * @param {string} operation The operation path
-   * @returns {Promise<ApiRequestRecursive>} 
+   * @param endpoint The endpoint path
+   * @param operation The operation path
    */
-  static async lookupRequest(store, endpoint, operation) {
-    const op = await store.getOperationRecursive(operation, endpoint);
+  static async lookupRequest(store: WebWorkerService, endpoint: string, operation: string): Promise<ApiDefinitions.IApiRequest> {
+    const op = await store.getOperation(operation, endpoint);
     if (!op) {
       throw new Error(`The operation ${operation} of endpoint ${endpoint} does not exist.`);
     }

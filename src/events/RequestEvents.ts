@@ -47,16 +47,7 @@ export const RequestEvents = {
     target.dispatchEvent(e);
     return e.detail.result;
   },
-  /**
-   * Reads a Request from the store and returns the full (recursive) model.
-   * @param target The node on which to dispatch the event
-   * @param id The id of the request to read.
-   */
-  getRecursive: async (id: string, target: EventTarget = window): Promise<ApiDefinitions.IApiRequest | undefined> => {
-    const e = new ApiStoreReadEvent(EventTypes.Request.getRecursive, id);
-    target.dispatchEvent(e);
-    return e.detail.result;
-  },
+
   /**
    * Updates a scalar property of a Request.
    * @param target The node on which to dispatch the event

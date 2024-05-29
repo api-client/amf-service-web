@@ -14,16 +14,7 @@ export const ParameterEvents = {
     target.dispatchEvent(e);
     return e.detail.result;
   },
-  /**
-   * Reads a Parameter from the store with the full schema.
-   * @param target The node on which to dispatch the event
-   * @param id The id of the parameter to read.
-   */
-  getRecursive: async (id: string, target: EventTarget = window): Promise<ApiDefinitions.IApiParameter | undefined> => {
-    const e = new ApiStoreReadEvent(EventTypes.Parameter.getRecursive, id);
-    target.dispatchEvent(e);
-    return e.detail.result;
-  },
+
   /**
    * Reads a list of Parameters in a bulk operation.
    * @param target The node on which to dispatch the event
@@ -34,16 +25,7 @@ export const ParameterEvents = {
     target.dispatchEvent(e);
     return e.detail.result;
   },
-  /**
-   * Reads a list of Parameters in a bulk operation with the full schema.
-   * @param target The node on which to dispatch the event
-   * @param ids The list of ids to read.
-   */
-  getBulkRecursive: async (ids: string[], target: EventTarget = window): Promise<ApiDefinitions.IApiParameter[] | undefined> => {
-    const e = new ApiStoreReadBulkEvent(EventTypes.Parameter.getBulkRecursive, ids);
-    target.dispatchEvent(e);
-    return e.detail.result;
-  },
+
   /**
    * Updates a scalar property of a Parameter.
    * @param target The node on which to dispatch the event

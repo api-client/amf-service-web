@@ -1,6 +1,5 @@
 import { assert, fixture, html } from '@open-wc/testing';
 import sinon from 'sinon';
-// import { StoreEvents, StoreEventTypes } from  '../../worker.index.js';
 import { Events as StoreEvents } from '../../src/events/Events.js';
 import { EventTypes as StoreEventTypes } from '../../src/events/EventTypes.js';
 

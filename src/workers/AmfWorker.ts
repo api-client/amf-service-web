@@ -9,17 +9,9 @@ class AmfWorker {
   service?: AmfService;
 
   messageHandler(e: MessageEvent): void {
-    // if (!process || !process.send) {
-    //   return;
-    // }
     const message = e.data as WorkerMessage;
     if (!message.type || typeof message.id !== 'number') {
       throw new Error(`invalid message`);
-      // process.send({
-      //   error: true,
-      //   message: 'invalid message',
-      //   data: message,
-      // });
       return;
     }
     const { service } = this;
@@ -43,10 +35,6 @@ class AmfWorker {
       this.processTaskResult(Promise.reject(new Error(
         `The ${message.type} is not callable in the store instance`,
       )), message.id);
-      // process.send({
-      //   error: true,
-      //   message: `The ${message.type} is not callable in the store instance`,
-      // });
       return;
     }
     let promise: Promise<any>;

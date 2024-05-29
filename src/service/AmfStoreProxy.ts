@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { AmfShapes, ApiDefinitions, AmfBase } from "@api-client/core/build/esm/browser.js";
+import { AmfShapes, ApiDefinitions } from "@api-client/core/build/esm/browser.js";
 import { ApiCustomDomainExtensionListItem, ApiInit, ApiNodeShapeListItem, ApiResource, ApiServerInit, CustomDomainPropertyInit, DocumentationInit, EndPointInit, ExampleInit, OperationInit, OperationRequestInit, OperationResponseInit, ParameterInit, ParserMediaTypes, ParserVendors, PayloadInit, PropertyShapeInit, ShapeInit, WorkerQueueItem, WorkerResponse } from "../types.js";
 
 export const workerValue = Symbol("workerValue");
@@ -12,22 +12,20 @@ export const createWorker = Symbol("createWorker");
 export const responseHandler = Symbol("responseHandler");
 export const processResponse = Symbol("processResponse");
 export const errorHandler = Symbol("errorHandler");
-export const readWorkerUrl = Symbol("readWorkerUrl");
 
 /**
- * A proxy class that creates a web worker AMF store in it and
- * relays function calls to the store worker.
- *
- * This class provides a framework for workers but has no implementation details of what
- * the worker is so the following methods and getters has to be implemented in the child classes:
- *
- * - #worker
- * - [workerValue] -> #worker
- * - [createWorker]
- * - [readWorkerUrl]
- * - [sendMessage](type, ...args)
+ * AMF does not (should not) work in the main thread of a browser. Above that, it is likely 
+ * that the service is used via an HTTP API and the information is not processed on the device.
+ * 
+ * This class creates a framework to communicate with the service through a consistent API.
+ * Classes extending this class uses a specific architecture to communicate with the process
+ * that runs the AMF service. It can be a web worker, a child process, or a web service.
  */
-export class AmfStoreProxy {
+export abstract class AmfStoreProxy {
+  /**
+   * A reference to the "worker", which can be anything that relays messages
+   * from this machine/thread to another.
+   */
   get worker(): unknown | null {
     return null;
   }
@@ -44,7 +42,7 @@ export class AmfStoreProxy {
   }
 
   /**
-   * Initializes the backend store.
+   * Initializes the store in the target service.
    */
   async init(): Promise<void> {
     return this[sendMessage]('init') as Promise<void>;
@@ -199,16 +197,6 @@ export class AmfStoreProxy {
   }
 
   /**
-   * Reads the operation model with all sub-models.
-   * @param methodOrId Method name or the domain id of the operation to find
-   * @param pathOrId Optional endpoint path or its id. When not set it searches through all endpoints.
-   * @deprecated Remove all "recursive" operations.
-   */
-  async getOperationRecursive(methodOrId: string, pathOrId?: string): Promise<ApiDefinitions.IApiOperation> {
-    return this[sendMessage]('getOperationRecursive', methodOrId, pathOrId) as Promise<ApiDefinitions.IApiOperation>;
-  }
-
-  /**
    * Lists all operations in an endpoint.
    * @param pathOrId The domain id of the endpoint to list operations from or its path.
    */
@@ -263,29 +251,11 @@ export class AmfStoreProxy {
   }
 
   /**
-   * Reads the response data from the graph and returns the full serialized model.
-   * @param id The domain id of the response.
-   * @deprecated Remove all "recursive" operations.
-   */
-  async getResponseRecursive(id: string): Promise<ApiDefinitions.IApiResponse> {
-    return this[sendMessage]('getResponseRecursive', id) as Promise<ApiDefinitions.IApiResponse>;
-  }
-
-  /**
    * Reads Response data in a bulk operation
    * @param ids The ids to read
    */
   async getResponses(ids: string[]): Promise<ApiDefinitions.IApiResponse[]> {
     return this[sendMessage]('getResponses', ids) as Promise<ApiDefinitions.IApiResponse[]>;
-  }
-
-  /**
-   * Reads Response data in a bulk operation and returns the full serialized model.
-   * @param ids The ids to read
-   * @deprecated Remove all "recursive" operations.
-   */
-  async getResponsesRecursive(ids: string[]): Promise<ApiDefinitions.IApiResponse[]> {
-    return this[sendMessage]('getResponsesRecursive', ids) as Promise<ApiDefinitions.IApiResponse[]>;
   }
 
   /**
@@ -381,15 +351,6 @@ export class AmfStoreProxy {
   }
 
   /**
-   * Reads Payload data from the graph and returns the full serialized model.
-   * @param id The domain id of the payload
-   * @deprecated Remove all "recursive" operations.
-   */
-  async getPayloadRecursive(id: string): Promise<ApiDefinitions.IApiPayload> {
-    return this[sendMessage]('getPayloadRecursive', id) as Promise<ApiDefinitions.IApiPayload>;
-  }
-
-  /**
    * Reads Payload data in a bulk operation
    * @param ids The ids to read
    */
@@ -397,14 +358,6 @@ export class AmfStoreProxy {
     return this[sendMessage]('getPayloads', ids) as Promise<ApiDefinitions.IApiPayload[]>;
   }
 
-  /**
-   * Reads Payload data in a bulk operation and returns the full serialized model.
-   * @param ids The ids to read
-   * @deprecated Remove all "recursive" operations.
-   */
-  async getPayloadsRecursive(ids: string[]): Promise<ApiDefinitions.IApiPayload[]> {
-    return this[sendMessage]('getPayloadsRecursive', ids) as Promise<ApiDefinitions.IApiPayload[]>;
-  }
 
   /**
    * Adds an example to a Payload
@@ -454,8 +407,8 @@ export class AmfStoreProxy {
    * Creates a new type in the API.
    * @param init The Shape init options.
    */
-  async addCustomDomainProperty(init?: CustomDomainPropertyInit): Promise<AmfBase.IApiCustomDomainProperty> {
-    return this[sendMessage]('addCustomDomainProperty', init) as Promise<AmfBase.IApiCustomDomainProperty>;
+  async addCustomDomainProperty(init?: CustomDomainPropertyInit): Promise<ApiDefinitions.IApiCustomDomainExtension> {
+    return this[sendMessage]('addCustomDomainProperty', init) as Promise<ApiDefinitions.IApiCustomDomainExtension>;
   }
 
   /**
@@ -464,8 +417,8 @@ export class AmfStoreProxy {
    * 
    * @param id The domain id of the CustomDomainProperty
    */
-  async getCustomDomainProperty(id: string): Promise<AmfBase.IApiCustomDomainProperty> {
-    return this[sendMessage]('getCustomDomainProperty', id) as Promise<AmfBase.IApiCustomDomainProperty>;
+  async getCustomDomainProperty(id: string): Promise<ApiDefinitions.IApiCustomDomainExtension> {
+    return this[sendMessage]('getCustomDomainProperty', id) as Promise<ApiDefinitions.IApiCustomDomainExtension>;
   }
 
   /**
@@ -484,8 +437,8 @@ export class AmfStoreProxy {
    * @param value The new value to set.
    * @returns The updated custom domain property
    */
-  async updateCustomDomainProperty(id: string, property: keyof AmfBase.IApiCustomDomainProperty, value: unknown): Promise<AmfBase.IApiCustomDomainProperty> {
-    return this[sendMessage]('updateCustomDomainProperty', id, property, value) as Promise<AmfBase.IApiCustomDomainProperty>;
+  async updateCustomDomainProperty(id: string, property: keyof ApiDefinitions.IApiCustomDomainExtension, value: unknown): Promise<ApiDefinitions.IApiCustomDomainExtension> {
+    return this[sendMessage]('updateCustomDomainProperty', id, property, value) as Promise<ApiDefinitions.IApiCustomDomainExtension>;
   }
 
   /**
@@ -494,8 +447,8 @@ export class AmfStoreProxy {
    * 
    * @param id The domain id of the CustomDomainExtension
    */
-  async getDomainExtension(id: string): Promise<ApiDefinitions.IApiCustomDomainExtension> {
-    return this[sendMessage]('getDomainExtension', id) as Promise<ApiDefinitions.IApiCustomDomainExtension>;
+  async getDomainExtension(id: string): Promise<ApiDefinitions.IApiDomainExtension> {
+    return this[sendMessage]('getDomainExtension', id) as Promise<ApiDefinitions.IApiDomainExtension>;
   }
 
   /**
@@ -504,15 +457,6 @@ export class AmfStoreProxy {
    */
   async getRequest(id: string): Promise<ApiDefinitions.IApiRequest> {
     return this[sendMessage]('getRequest', id) as Promise<ApiDefinitions.IApiRequest>;
-  }
-
-  /**
-   * Reads the Request object from the graph and returns the full serialized model.
-   * @param id The domain id of the Request
-   * @deprecated Remove all "recursive" operations.
-   */
-  async getRequestRecursive(id: string): Promise<ApiDefinitions.IApiRequest> {
-    return this[sendMessage]('getRequestRecursive', id) as Promise<ApiDefinitions.IApiRequest>;
   }
 
   /**
@@ -612,7 +556,7 @@ export class AmfStoreProxy {
    * Updates a scalar property of a Request.
    * @param id The domain id of the request.
    * @param property The property name to update
-   * @param {any} value The new value to set.
+   * @param value The new value to set.
    * @returns The updated request
    */
   async updateRequestProperty(id: string, property: keyof ApiDefinitions.IApiRequest, value: unknown): Promise<ApiDefinitions.IApiRequest> {
@@ -628,15 +572,6 @@ export class AmfStoreProxy {
   }
 
   /**
-   * Reads the info about a parameter and returns the full schema.
-   * @param id The domain id of the parameter
-   * @deprecated Remove all "recursive" operations.
-   */
-  async getParameterRecursive(id: string): Promise<ApiDefinitions.IApiParameter> {
-    return this[sendMessage]('getParameterRecursive', id) as Promise<ApiDefinitions.IApiParameter>;
-  }
-
-  /**
    * Reads the list of Parameters in a single call.
    */
   async getParameters(ids: string[]): Promise<ApiDefinitions.IApiParameter[]> {
@@ -644,18 +579,10 @@ export class AmfStoreProxy {
   }
 
   /**
-   * Reads the list of Parameters in a single call and returns the full schema.
-   * @deprecated Remove all "recursive" operations.
-   */
-  async getParametersRecursive(ids: string[]): Promise<ApiDefinitions.IApiParameter[]> {
-    return this[sendMessage]('getParametersRecursive', ids) as Promise<ApiDefinitions.IApiParameter[]>;
-  }
-
-  /**
    * Updates a scalar property of a Parameter.
    * @param id The domain id of the parameter.
-   * @param {keyof Parameter} property The property name to update
-   * @param {any} value The new value to set.
+   * @param property The property name to update
+   * @param value The new value to set.
    * @returns The updated Parameter
    */
   async updateParameterProperty(id: string, property: keyof ApiDefinitions.IApiParameter, value: unknown): Promise<ApiDefinitions.IApiParameter> {
@@ -830,15 +757,6 @@ export class AmfStoreProxy {
   }
 
   /**
-   * Reads the SecurityRequirement object from the graph.
-   * @param id The domain id of the SecurityRequirement
-   * @deprecated Remove all "recursive" operations.
-   */
-  async getSecurityRequirementRecursive(id: string): Promise<ApiDefinitions.IApiSecurityRequirement> {
-    return this[sendMessage]('getSecurityRequirementRecursive', id) as Promise<ApiDefinitions.IApiSecurityRequirement>;
-  }
-
-  /**
    * Reads the ParametrizedSecurityScheme object from the graph.
    * @param id The domain id of the ParametrizedSecurityScheme
    */
@@ -847,29 +765,11 @@ export class AmfStoreProxy {
   }
 
   /**
-   * Reads the ParametrizedSecurityScheme object from the graph.
-   * @param id The domain id of the ParametrizedSecurityScheme
-   * @deprecated Remove all "recursive" operations.
-   */
-  async getParametrizedSecuritySchemeRecursive(id: string): Promise<ApiDefinitions.IApiParametrizedSecurityScheme> {
-    return this[sendMessage]('getParametrizedSecuritySchemeRecursive', id) as Promise<ApiDefinitions.IApiParametrizedSecurityScheme>;
-  }
-
-  /**
    * Reads the SecurityScheme object from the graph.
    * @param id The domain id of the SecurityScheme
    */
   async getSecurityScheme(id: string): Promise<ApiDefinitions.IApiSecurityScheme> {
     return this[sendMessage]('getSecurityScheme', id) as Promise<ApiDefinitions.IApiSecurityScheme>;
-  }
-
-  /**
-   * Reads the SecurityScheme object from the graph.
-   * @param id The domain id of the SecurityScheme
-   * @deprecated Remove all "recursive" operations.
-   */
-  async getSecuritySchemeRecursive(id: string): Promise<ApiDefinitions.IApiSecurityScheme> {
-    return this[sendMessage]('getSecuritySchemeRecursive', id) as Promise<ApiDefinitions.IApiSecurityScheme>;
   }
 
   /**
@@ -902,24 +802,6 @@ export class AmfStoreProxy {
     const id = this[nextIdValue];
     this[nextIdValue] += 1;
     return id;
-  }
-
-  /**
-   * Creates an instance of the web worker.
-   */
-  [createWorker](): unknown {
-    throw new Error("Method not implemented.");
-  }
-
-  /**
-   * The worker location in the final build of the app may be anywhere.
-   */
-  [readWorkerUrl](): string {
-    throw new Error("Method not implemented.");
-  }
-
-  [responseHandler](e: unknown): void {
-    // ...
   }
 
   /**
@@ -973,11 +855,16 @@ export class AmfStoreProxy {
   }
 
   /**
+   * Creates an instance of the web worker.
+   */
+  abstract [createWorker](): unknown;
+
+  abstract [responseHandler](e: unknown): void;
+
+  /**
    * Sends a message to the worker.
    * @param type The type of the message
-   * @param {...any} args A list of optional arguments.
+   * @param args A list of optional arguments.
    */
-  [sendMessage](type: string, ...args: unknown[]): Promise<unknown> {
-    return Promise.resolve(null);
-  }
+  abstract [sendMessage](type: string, ...args: unknown[]): Promise<unknown>;
 }

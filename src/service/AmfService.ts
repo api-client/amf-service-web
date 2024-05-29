@@ -6,7 +6,20 @@ import { isShape } from '../lib/Utils.js';
 import { ApiCustomDomainExtensionListItem, ApiInit, ApiNodeShapeListItem, ApiResource, ApiServerInit, CustomDomainPropertyInit, DocumentationInit, EndPointInit, ExampleInit, OperationInit, OperationRequestInit, OperationResponseInit, ParameterInit, ParserMediaTypes, ParserVendors, PayloadInit, PropertyShapeInit, ShapeInit } from "../types.js";
 import * as Validator from '../lib/Validation.js';
 
+/**
+ * The service that manipulates a single API graph object.
+ * It exposes an API to read, update, and delete nodes in the API's graph object.
+ * It has own (graph unrelated) methods to list API objects. These are useful when building a UI.
+ * 
+ * Note on using the AMF parser. This library does not import the AMF parser 
+ * which is NodeJS only library and won't work in a browser. You need to pass a reference 
+ * to the AMF parser manually. This way this library can be lean and agile.
+ */
 export class AmfService {
+  /**
+   * A reference to the AMF parser. 
+   * Since this class does not import AMF library, the reference to it has to be set.
+   */
   amf: typeof AMF;
 
   _graph?: AMF.Document
@@ -28,6 +41,9 @@ export class AmfService {
    */
   elementClient?: AMF.AMFElementClient;
 
+  /**
+   * @param amf A reference to the AMF parser library.
+   */
   constructor(amf: typeof AMF) {
     this.amf = amf;
   }
@@ -163,7 +179,7 @@ export class AmfService {
    * @returns True when the API is loaded.
    */
   hasApi(): boolean {
-    return !!this.graph;
+    return !!this._graph;
   }
 
   /**
@@ -680,7 +696,7 @@ export class AmfService {
   async getExample(id: string): Promise<AmfShapes.IApiDataExample> {
     const example = this.graph.findById(id) as AMF.Example;
     if (!example) {
-      throw new Error(`No Example for ${id}`);
+      throw new Error(`No Example in the graph when reading an example (${id})`);
     }
     return ApiSerializer.example(example);
   }
@@ -712,7 +728,7 @@ export class AmfService {
   async updateExampleProperty(id: string, property: keyof AmfShapes.IApiDataExample, value: unknown): Promise<AmfShapes.IApiDataExample> {
     const example = this.graph.findById(id) as AMF.Example;
     if (!example) {
-      throw new Error(`No response for given id ${id}`);
+      throw new Error(`No example in the graph when updating example (${id})`);
     }
     switch (property) {
       case 'name': example.withName(Validator.ensureString(value)); break;
@@ -721,7 +737,7 @@ export class AmfService {
       case 'value': example.withValue(Validator.ensureString(value)); break;
       case 'mediaType': example.withMediaType(Validator.ensureString(value)); break;
       case 'strict': example.withStrict(Validator.ensureBoolean(value)); break;
-      default: throw new Error(`Unsupported patch property of Example: ${property}`);
+      default: throw new Error(`Unknown property "${property}" when updating an example.`);
     }
     return ApiSerializer.example(example);
   }
@@ -823,7 +839,7 @@ export class AmfService {
     const result: ApiCustomDomainExtensionListItem[] = [];
     this.graph.declares.forEach((obj) => {
       const types = obj.graph().types();
-      if (!types.includes(ns.aml.vocabularies.document.customDomainProperties)) {
+      if (!types.includes(ns.aml.vocabularies.document.DomainProperty)) {
         return;
       }
       const object = obj as AMF.CustomDomainProperty;
@@ -949,13 +965,22 @@ export class AmfService {
       Validator.ensureStringArray(opts.payloads).forEach((p) => model.withPayload(p));
     }
     if (Array.isArray(opts.queryParameters) && opts.queryParameters.length) {
-      Validator.ensureStringArray(opts.queryParameters).forEach((p) => model.withQueryParameter(p).withBinding('query'));
+      Validator.ensureStringArray(opts.queryParameters).forEach((p) => {
+        const param = model.withQueryParameter(p).withBinding('query');
+        param.withScalarSchema(p).withDataType(ns.w3.xmlSchema.string);
+      });
     }
     if (Array.isArray(opts.uriParameters) && opts.uriParameters.length) {
-      Validator.ensureStringArray(opts.uriParameters).forEach((p) => model.withUriParameter(p).withBinding('url'));
+      Validator.ensureStringArray(opts.uriParameters).forEach((p) => {
+        const param = model.withUriParameter(p).withBinding('url');
+        param.withScalarSchema(p).withDataType(ns.w3.xmlSchema.string);
+      });
     }
     if (Array.isArray(opts.cookieParameters) && opts.cookieParameters.length) {
-      Validator.ensureStringArray(opts.cookieParameters).forEach((p) => model.withCookieParameter(p).withBinding('cookie'));
+      Validator.ensureStringArray(opts.cookieParameters).forEach((p) => {
+        const param = model.withCookieParameter(p).withBinding('cookie');
+        param.withScalarSchema(p).withDataType(ns.w3.xmlSchema.string);
+      });
     }
     return ApiSerializer.request(model);
   }
@@ -1112,7 +1137,7 @@ export class AmfService {
     switch (property) {
       case 'description': rq.withDescription(Validator.ensureString(value)); break;
       case 'required': rq.withRequired(Validator.ensureBoolean(value)); break;
-      default: throw new Error(`Unsupported patch property of Request: ${property}`);
+      default: throw new Error(`Unknown property "${property}" of a Request.`);
     }
     return ApiSerializer.request(rq);
   }
@@ -1201,7 +1226,7 @@ export class AmfService {
       case 'explode': param.withExplode(Validator.ensureBoolean(value)); break;
       case 'allowReserved': param.withAllowReserved(Validator.ensureBoolean(value)); break;
       case 'binding': param.withBinding(Validator.ensureString(value)); break;
-      default: throw new Error(`Unsupported patch property of Parameter: ${property}`);
+      default: throw new Error(`Unknown property "${property}" of a Parameter.`);
     }
     return ApiSerializer.parameter(param);
   }
@@ -1214,7 +1239,7 @@ export class AmfService {
   async addParameterExample(id: string, init: ExampleInit): Promise<AmfShapes.IApiDataExample> {
     const param = this.graph.findById(id) as AMF.Parameter;
     if (!param) {
-      throw new Error(`No Parameter for ${id}`);
+      throw new Error(`No Parameter in the graph for ${id}`);
     }
     const example = param.withExample(init.name);
     this.fillExample(example, init);
@@ -1320,7 +1345,7 @@ export class AmfService {
       case 'description': doc.withDescription(Validator.ensureString(value)); break;
       case 'title': doc.withTitle(Validator.ensureString(value)); break;
       case 'url': doc.withUrl(Validator.ensureString(value)); break;
-      default: throw new Error(`Unsupported patch property of documentation: ${property}`);
+      default: throw new Error(`Unknown property "${property}" of a Documentation.`);
     }
     return ApiSerializer.documentation(doc);
   }

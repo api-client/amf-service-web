@@ -29,7 +29,6 @@ export const EventTypes = {
   },
   Operation: {
     get: 'apistoreopget',
-    getRecursive: 'apistoreopgetrecursive',
     update: 'apistoreopupdate',
     addRequest: 'apistoreopaddrequest',
     removeRequest: 'apistoreopremoverequest',
@@ -44,9 +43,7 @@ export const EventTypes = {
   },
   Parameter: {
     get: 'apistoreparamget',
-    getRecursive: 'apistoreparamgetrecursive',
     getBulk: 'apistoreparamgetbulk',
-    getBulkRecursive: 'apistoreparamgetbulkrecursive',
     update: 'apistoreparamupdate',
     addExample: 'apistoreparamupdateaddexample',
     removeExample: 'apistoreparamupdateremoveexample',
@@ -68,9 +65,7 @@ export const EventTypes = {
   },
   Payload: {
     get: 'apistorepayloadget',
-    getRecursive: 'apistorepayloadgetrecursive',
     getBulk: 'apistorepayloadgetbulk',
-    getBulkRecursive: 'apistorepayloadgetbulkrecursive',
     update: 'apistorepayloadupdate',
     addExample: 'apistorepayloadaddexample',
     removeExample: 'apistorepayloadremoveexample',
@@ -82,7 +77,6 @@ export const EventTypes = {
   },
   Request: {
     get: 'apistorerequestget',
-    getRecursive: 'apistorerequestgetrecursive',
     update: 'apistorerequestupdate',
     addPayload: 'apistorerequestaddpayload',
     removePayload: 'apistorerequestremovepayload',
@@ -100,9 +94,7 @@ export const EventTypes = {
   },
   Response: {
     get: 'apistoreresponseget',
-    getRecursive: 'apistoreresponsegetrecursive',
     getBulk: 'apistoreresponsegetbulk',
-    getBulkRecursive: 'apistoreresponsegetbulkrecursive',
     update: 'apistoreresponseupdate',
     addHeader: 'apistoreresponseaddheader',
     removeHeader: 'apistoreresponseremoveheader',
@@ -128,9 +120,7 @@ export const EventTypes = {
   },
   Security: {
     get: 'apistoresecurityget',
-    getRecursive: 'apistoresecuritygetrecursive',
     getRequirement: 'apistoresecuritygetrequirement',
-    getRequirementRecursive: 'apistoresecuritygetrequirementrecursive',
     getSettings: 'apistoresecuritygetsettings',
     list: 'apistoresecuritylist',
   },

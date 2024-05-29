@@ -1,18 +1,18 @@
 import { assert } from '@open-wc/testing';
+import type { ApiDefinitions } from "@api-client/core/build/esm/browser.js";
 import { AmfLoader } from '../helpers/AmfLoader.js';
-import { AmfStoreService, EndpointsTree, ApiSorting } from '../../worker.index.js';
-
-/** @typedef {import('../../worker.index').ApiEndpointsTreeItem} ApiEndpointsTreeItem */
+import { WebWorkerService, EndpointsTree, ApiSorting } from '../../src/worker.index.js';
+import createTestService from '../helpers/web-service.js';
 
 describe('EndpointsTree', () => {
   describe('Building the tree from structured endpoints (RAML)', () => {
-    let demoStore = /** @type AmfStoreService */ (null);
-    let demoApi;
-    let tree = /** @type ApiEndpointsTreeItem[] */ (null);
+    let demoStore: WebWorkerService;
+    let demoApi: string;
+    let tree: ApiDefinitions.IApiEndpointsTreeItem[];
     
     before(async () => {
       demoApi = await AmfLoader.loadApi();
-      demoStore = new AmfStoreService();
+      demoStore = createTestService();
       await demoStore.init();
       await demoStore.loadGraph(demoApi, 'RAML 1.0');
 
@@ -41,40 +41,40 @@ describe('EndpointsTree', () => {
     });
 
     it('sets short path on the label when has parent', async () => {
-      const item = tree.find((i) => i.path === '/messages/bulk');
+      const item = tree.find((i) => i.path === '/messages/bulk')!;
       assert.equal(item.label, '/bulk', 'has the short label');
       assert.isTrue(item.hasShortPath, 'has the hasShortPath property');
     });
 
     it('does not set hasChildren when no children', async () => {
-      const item = tree.find((i) => i.path === '/arrayBody');
+      const item = tree.find((i) => i.path === '/arrayBody')!;
       assert.isUndefined(item.hasChildren);
     });
 
     it('sets hasChildren when has children', async () => {
-      const item = tree.find((i) => i.path === '/messages');
+      const item = tree.find((i) => i.path === '/messages')!;
       assert.isTrue(item.hasChildren);
     });
     
     it('increases indent for a child', async () => {
-      const item = tree.find((i) => i.path === '/messages/bulk');
+      const item = tree.find((i) => i.path === '/messages/bulk')!;
       assert.equal(item.indent, 1);
     });
     
     it('increases indent for a sub-child', async () => {
-      const item = tree.find((i) => i.path === '/orgs/{orgId}/managers');
+      const item = tree.find((i) => i.path === '/orgs/{orgId}/managers')!;
       assert.equal(item.indent, 2);
     });
   });
 
   describe('Building the tree from simple structure (OAS)', () => {
-    let oasStore = /** @type AmfStoreService */ (null);
-    let oasApi;
-    let tree = /** @type ApiEndpointsTreeItem[] */ (null);
+    let oasStore: WebWorkerService;
+    let oasApi: string;
+    let tree: ApiDefinitions.IApiEndpointsTreeItem[];
 
     before(async () => {
       oasApi = await AmfLoader.loadApi('oas-3-api.json');
-      oasStore = new AmfStoreService();
+      oasStore = createTestService();
       await oasStore.init();
       await oasStore.loadGraph(oasApi, 'OAS 3.0');
 
@@ -107,13 +107,13 @@ describe('EndpointsTree', () => {
   // simplify paths in the three. This API has no structure as a RAML API normally 
   // would and endpoints are declared as a flat list. The library creates the structure for it.
   describe('Building the tree from no structure (Async)', () => {
-    let store = /** @type AmfStoreService */ (null);
-    let api;
-    let tree = /** @type ApiEndpointsTreeItem[] */ (null);
+    let store: WebWorkerService;
+    let api: string;
+    let tree: ApiDefinitions.IApiEndpointsTreeItem[];
 
     before(async () => {
       api = await AmfLoader.loadApi('streetlights.json');
-      store = new AmfStoreService();
+      store = createTestService();
       await store.init();
       await store.loadGraph(api, 'ASYNC 2.0');
 

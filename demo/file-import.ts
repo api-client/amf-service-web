@@ -1,6 +1,6 @@
 import { html, TemplateResult } from 'lit';
 import { DemoPage } from './lib/DemoPage.js';
-import { AmfStoreService } from '../src/worker.index.js';
+import { WebWorkerService } from '../src/worker.index.js';
 import { ApiSearch } from '../src/lib/ApiSearch.js';
 import { ApiSorting } from '../src/lib/ApiSorting.js';
 import { EndpointsTree } from '../src/lib/EndpointsTree.js';
@@ -11,7 +11,7 @@ class ComponentPage extends DemoPage {
   loaded: boolean;
   initialized: boolean;
   latestOutput: string;
-  store: AmfStoreService;
+  store: WebWorkerService;
 
   constructor() {
     super();
@@ -20,7 +20,7 @@ class ComponentPage extends DemoPage {
     this.initialized = false;
     this.latestOutput = '';
     const persistance = new DemoPersistance('demo.file');
-    this.store = new AmfStoreService(persistance);
+    this.store = new WebWorkerService(persistance);
     this.componentName = 'AmfStoreProxy';
     this.actionHandler = this.actionHandler.bind(this);
 
